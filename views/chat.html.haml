@@ -1,0 +1,27 @@
+%html
+  %head
+    %title= title
+    %script{ src: '/public/javascripts/jquery.js' }
+    %script{ src: '/public/javascripts/app.js' }
+    %link{ rel: 'stylesheet', href: '/style.css' }
+    %link{ rel: 'stylesheet', href: '/chat.css' }
+  %body
+    #wrapper
+      .HeaderBox
+        .LeftBox#TitleBox
+          %h1 Chat+
+          %img.bubble{ src: '/public/images/bubble.png' }
+        .RightBox#NameBox
+          %form#SendNameForm{ method: 'post' }
+            %input#name{ type: 'text', name: 'name', value: username }
+      .ChatBox
+        .LeftBox#topLeftBox
+          %ul#messages
+        .RightBox#topRightBox
+          %ul#users
+      .DialogBox
+        %form#SendMsgForm{ method: 'post' }
+          .leftBox#inputBox
+            %textarea#message{ name: 'message' }
+          .rightBox#submitBox
+            %input{ type: 'submit', value: 'Send' }
