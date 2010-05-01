@@ -1,4 +1,4 @@
-﻿var Class = require("../util/class").Class;
+﻿var Class = require("../vendor/class.js/lib/class").Class;
 var sys = require("sys");
 
 var MongoObject = new Class({
@@ -51,32 +51,32 @@ var MongoObject = new Class({
   },
 
   get: function(field, callback) {
-    this.getData(function(err, obj) {
-      var data = obj[field];
-      callback(err, data);
-    });
+    var pair = {};
+    pair[field] = 1;
+    this.mongoCollection.find(this.pairIndex, pair, callback);
   },
-  //TODO: use mongodb slice
+  
   getSlice: function(field, start, callback) {
-    this.getData(function(err, obj) {
-      var data = obj[field];
-      callback(err, data.slice(start));
+    //var query = {};
+    //query[field] = {$slice: [start, 200]};
+    //this.mongoCollection.find(this.pairIndex, query, callback);
+    this.get(field , function(err, data) {
+      if(!err && data && data.length > start)
+        callback(null,data.slice(start));
+      else
+        callback(new Error("Error getting slice of "+field), null);
     });
   },
 
   empty: function(field, isarray, callback) {
     if(callback == null) { callback = isarray; isarray = true; }
     var pair = {};
-    if(isarray) {
-      pair[field] = [];
-    } else {
-      pair[field] = {};
-    }
+    pair[field] = (isarray) ? [] : {};
     this.mongoCollection.update(this.pairIndex, "$set", pair, callback);
   },
 
   contains: function(field, value, callback) {
-    this.mongoCollection.find(this.pairIndex, "$set", value, callback);
+    this.mongoCollection.contains(this.pairIndex, callback);
   }
 
 });

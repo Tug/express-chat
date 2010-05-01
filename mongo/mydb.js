@@ -1,4 +1,4 @@
-﻿var Class = require("../util/class").Class;
+﻿var Class = require("../vendor/class.js/lib/class").Class;
 var MongoDB = require("./db").MongoDB;
 var MongoRooms = require("./rooms").MongoRooms;
 var util = require("../util/util");

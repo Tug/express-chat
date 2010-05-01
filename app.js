@@ -1,20 +1,32 @@
 ﻿GLOBAL.DEBUG = true;
-require.paths.unshift("../express/lib");
+require.paths.unshift(__dirname + "/vendor/express/lib");
 require("express");
 require("express/plugins");
 
 var sys   = require("sys");
 var User  = require("./util/user").User;
 var Room  = require("./room").Room;
-var test  = require("mjsunit");
 var MyDB  = require("./mongo/mydb").MyDB;
 
-var host = "localhost";
-var port = 3000;
+/*
+ * Read configuration
+ */
+var fs = require("fs");
+var yaml = require("./vendor/js-yaml/lib/yaml");﻿
+var configuration = yaml.eval(fs.readFileSync("config.yml"));
+sys.p(configuration);
 
+var host = configuration.host;
+var port = configuration.port;
 if(process.argv.length > 2) port = parseInt(process.argv[2]);
 var serverID = host + ":" + port;
 
+process.env["MONGO_NODE_DRIVER_HOST"] = configuration.mongo.host;
+process.env["MONGO_NODE_DRIVER_PORT"] = configuration.mongo.port;
+
+/*
+ * Init local objects
+ */
 var rooms = {};
 var db = new MyDB();
 

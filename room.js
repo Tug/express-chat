@@ -1,10 +1,10 @@
-﻿var sys = require("sys");
+﻿var sys   = require("sys");
 var utils = require("express/utils");
-var util = require("./util/util");
-var User = require("./util/user").User;
-var Class = require("./util/class").Class;
+var util  = require("./util/util");
+var User  = require("./util/user").User;
+﻿var Class = require("./vendor/class.js/lib/class").Class;
 var EventedBuffer = require("./util/eventedbuffer").EventedBuffer;
-var MongoBuffer = require("./mongo/buffer").MongoBuffer;
+var MongoBuffer   = require("./mongo/buffer").MongoBuffer;
 
 var Room = new Class({
 
@@ -60,7 +60,6 @@ var Room = new Class({
   announceUser: function(username) {
     this.usrBuffer.add(username);
     var msg = "* " + utils.escape(username) + " joined the room.";
-    sys.puts(msg+" "+this.id);
     this.announceMessage(msg);
   },
 

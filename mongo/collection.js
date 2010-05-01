@@ -1,4 +1,4 @@
-﻿var Class = require('../util/class').Class;
+﻿var Class = require("../vendor/class.js/lib/class").Class;
 
 var MongoCollection = new Class({
 
@@ -13,7 +13,7 @@ var MongoCollection = new Class({
     return jsonObj;
   },
 
-  count: function(id, callback) {
+  count: function(callback) {
     this.collection.count(callback);
   },
 
@@ -23,24 +23,21 @@ var MongoCollection = new Class({
     });
   },
 
-  find: function(id, callback) {
-    this.collection.findOne( id, callback );
-  },
-
-  findAll: function(id, callback) {
-    this.collection.find(id, function(err, cursor) {
+  find: function(id, fields, callback) {
+    if(!callback) { callback = fields; fields = null; }
+    this.collection.find(id, fields, function(err, cursor) {
       cursor.toArray(callback);
     });
-  },
-
-  add: function(data, callback) {
-    this.collection.insert( data, callback );
   },
 
   get: function(id, callback) {
     var pair = {};
 	pair[this.indexKey] = id;
-    this.collection.findOne( pair, callback );
+    this.collection.findOne( id, callback );
+  },
+
+  add: function(data, callback) {
+    this.collection.insert( data, callback );
   },
 
   update: function(spec, operation, data, callback) {

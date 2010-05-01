@@ -1,6 +1,6 @@
 ﻿var sys = require("sys");
 var util = require("../util/util");
-var Step = require("../util/lib/step").Step;
+var Step = require("../vendor/step/lib/step").Step;
 var EventedBuffer = require("../util/eventedbuffer").EventedBuffer;
 
 
@@ -46,12 +46,11 @@ var MongoBuffer = EventedBuffer.extend({
         callback(null, this.buffer.slice(start-this.relativeId));
       } else if(this.mongoObject) {
         var self = this;
-        this.mongoObject.get(this.arrayField, function(err, arr) {
+        this.mongoObject.getSlice(this.arrayField, start, function(err, arr) {
           if(err) {
             callback(err, []);
           } else {
             arr.concat(self.buffer);
-            arr.slice(start);
             callback(null, arr);
           }
         });
@@ -88,7 +87,6 @@ var MongoBuffer = EventedBuffer.extend({
       this.buffer.splice(i,1,el2);
     }
     this.callThemAll("modified", [el1, el2]);
-    sys.puts("rmUpdates "+JSON.stringify(this.rmUpdates));
   },
 
   size: function() {

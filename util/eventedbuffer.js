@@ -1,4 +1,4 @@
-﻿var Class = require("./class").Class;
+﻿var Class = require("../vendor/class.js/lib/class").Class;
 var util = require("./util");
 var sys = require("sys");
 
