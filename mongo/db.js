@@ -7,7 +7,7 @@ var sys = require("sys");
  * MongoDB Class handler
  */
 var MongoDB = new Class({
-
+  
   constructor: function(dbName) {
     this.dbName = dbName;
     this.host = process.env["MONGO_NODE_DRIVER_HOST"] != null ? process.env["MONGO_NODE_DRIVER_HOST"] : "localhost";
@@ -52,4 +52,3 @@ var MongoDB = new Class({
 });
 
 exports.MongoDB = MongoDB;
-

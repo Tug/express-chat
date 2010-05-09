@@ -56,6 +56,10 @@ var MongoCollection = new Class({
         });
       }
     });
+  },
+
+  getDb: function() {
+    return this.collection.db;
   }
 
 });

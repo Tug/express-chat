@@ -77,6 +77,10 @@ var MongoObject = new Class({
 
   contains: function(field, value, callback) {
     this.mongoCollection.contains(this.pairIndex, callback);
+  },
+
+  getDb: function() {
+    return this.mongoCollection.getDb();
   }
 
 });

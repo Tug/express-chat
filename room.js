@@ -3,8 +3,9 @@ var utils = require("express/utils");
 var util  = require("./util/util");
 var User  = require("./util/user").User;
 ﻿var Class = require("./vendor/class.js/lib/class").Class;
-var EventedBuffer = require("./util/eventedbuffer").EventedBuffer;
-var MongoBuffer   = require("./mongo/buffer").MongoBuffer;
+var EventedBuffer   = require("./util/eventedbuffer").EventedBuffer;
+var MongoBuffer     = require("./mongo/buffer").MongoBuffer;
+var MongoFileBuffer = require("./mongo/filebuffer").MongoFileBuffer;
 
 var Room = new Class({
 
@@ -13,6 +14,7 @@ var Room = new Class({
     this.admin = adminname;
     this.msgBuffer = new EventedBuffer();
     this.usrBuffer = new EventedBuffer();
+    this.fileBuffer = new EventedBuffer();
     this.guestId = 1;
     this.relativeIdMsgBuffer = 0;
   },
@@ -26,9 +28,11 @@ var Room = new Class({
           self.id = util.generateRandomString(8);
           createRoom();
         } else {
+          self.db = db;
           self.mongoRoom = room;
           self.msgBuffer = new MongoBuffer(room, "messages");
           self.usrBuffer = new MongoBuffer(room, "users");
+          self.fileBuffer = new MongoFileBuffer(room);
         }
       });
     }
@@ -66,6 +70,12 @@ var Room = new Class({
   announceUserLeft: function(username) {
     this.usrBuffer.remove(username);
     var msg = "* " + utils.escape(username) + " left the room.";
+    this.announceMessage(msg);
+  },
+
+  announceFile: function(file) {
+    this.fileBuffer.add(file);
+    var msg = "* " + utils.escape(username) + " is sharing "+file.filename;
     this.announceMessage(msg);
   },
 

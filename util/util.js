@@ -15,13 +15,6 @@ var cast = function(obj, SubClass) {
       obj[key] = SubClass.prototype[key];
 };
 
-var find = function(arr, el) {
-  for(var i=0; i<arr.length; i++)
-    if(arr[i] == el)
-      return i;
-  return -1;
-};
-
 var clone = function (obj) {
     if(obj == null || typeof(obj) != 'object')
         return obj;
@@ -55,10 +48,38 @@ var chain = function(actions, callback) {
   }
 }
 
+var find = function(arr, el) {
+  if(el instanceof Object) {
+    var strel = JSON.stringify(el);
+    for(var i=0; i<arr.length; i++)
+      if(JSON.stringify(arr[i]) == strel)
+        return i;
+  } else {
+    for(var i=0; i<arr.length; i++)
+      if(arr[i] == el)
+        return i;
+  }
+  return -1;
+}
+
+/*
+ * ex : arr1 = { a:1, b:2, c:3 }
+ *      arr2 = [ a, b ] or { 0:"a", 1:"b" }
+ *      return { a:1, b:2 }
+ * note: arr2's values must be keys of arr1
+ */
+var array_intersect_key_value = function(arr1, arr2) {
+  var out = [];
+  for(var i in arr2) {
+    var key = arr2[i];
+    out[key] = arr1[key];
+  }
+  return out;
+}
 
 exports.generateRandomString = generateRandomString;
 exports.cast = cast;
 exports.find = find;
 exports.chain = chain;
 exports.clone = clone;
-
+exports.array_intersect_key_value = array_intersect_key_value;

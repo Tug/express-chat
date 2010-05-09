@@ -1,6 +1,6 @@
 ﻿var sys = require("sys");
 var util = require("../util/util");
-var Step = require("../vendor/step/lib/step").Step;
+var Step = require("../vendor/step/lib/step");
 var EventedBuffer = require("../util/eventedbuffer").EventedBuffer;
 
 
@@ -12,29 +12,28 @@ var MongoBuffer = EventedBuffer.extend({
     this.arrayField = arrayField;
     this.relativeId = 0;
     this.rmUpdates = [];
+    setInterval(this.backup, 30*1000);
+  },
+
+  backup: function() {
     var self = this;
-    setInterval(function update() {
-      Step(
-        function remove() {
-          if(self.rmUpdates.length > 0) {
-            var copyRmUp = self.rmUpdates.slice();
-            self.relativeId -= self.rmUpdates.length;
-            self.rmUpdates = [];
-            self.mongoObject.removeAll(self.arrayField, copyRmUp, this);
-          } else this();
-        },
-        function add(err,input) {
-          if(self.buffer.length > 0) {
-            var copyBuff = self.buffer.slice();
-            self.relativeId += self.buffer.length;
-            self.buffer = [];
-            self.mongoObject.append(self.arrayField, copyBuff, this);
-          } else this();
-        },
-        function end(err, output) {
-            if (err) throw err;
+    Step(
+      function remove() {
+        if(self.rmUpdates.length > 0) {
+          var copyRmUp = self.rmUpdates.slice();
+          self.relativeId -= self.rmUpdates.length;
+          self.rmUpdates = [];
+          self.mongoObject.removeAll(self.arrayField, copyRmUp, this);
+        } else this();
+      },
+      function add(err,input) {
+        if(self.buffer.length > 0) {
+          var copyBuff = self.buffer.slice();
+          self.relativeId += self.buffer.length;
+          self.buffer = [];
+          self.mongoObject.append(self.arrayField, copyBuff, this);
+        } else this();
       });
-    }, 30*1000);
   },
 
   slice: function(start, callback) {
@@ -69,7 +68,7 @@ var MongoBuffer = EventedBuffer.extend({
   },
 
   remove: function(el) {
-    var i = util.find(this.buffer, el);
+    var i = this.find(el);
     if(i === -1) {
       this.rmUpdates.push(el);
     } else {
@@ -79,7 +78,7 @@ var MongoBuffer = EventedBuffer.extend({
   },
 
   change: function(el1, el2) {
-    var i = util.find(this.buffer, el1);
+    var i = this.find(el1);
     if(i === -1) {
       this.rmUpdates.push(el1);
       this.buffer.push(el2);

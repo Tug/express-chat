@@ -5,6 +5,7 @@ require("express/plugins");
 
 var sys   = require("sys");
 var User  = require("./util/user").User;
+var util  = require("./util/util");
 var Room  = require("./room").Room;
 var MyDB  = require("./mongo/mydb").MyDB;
 
@@ -25,7 +26,7 @@ process.env["MONGO_NODE_DRIVER_HOST"] = configuration.mongo.host;
 process.env["MONGO_NODE_DRIVER_PORT"] = configuration.mongo.port;
 
 /*
- * Init local objects
+ * Create local objects
  */
 var rooms = {};
 var db = new MyDB();
@@ -43,7 +44,6 @@ var init = function(callback) {
  * configure express
  */
 configure(function(){
-  use(Logger)
   use(MethodOverride)
   use(ContentLength)
   use(Cookie)
@@ -51,7 +51,22 @@ configure(function(){
   use(Session, { lifetime: (2).days, reapInterval: (1).hour })
   use(Static)
   set("root", __dirname)
+  set('max upload size', (200).megabytes)
 });
+
+
+/*
+setInterval(function() {
+  var maxDelay = (1).minute;
+  var sessions = Session.store.store.values;
+  //sys.puts(JSON.stringify(sessions));
+  var now = Date.now();
+  for(var session in sessions) {
+    if(now - session.lastAccess > maxDelay)
+      session.alive = false;
+  }
+}, 10*1000);
+*/
 
 /*
  * Send the home page.
@@ -132,10 +147,10 @@ post("/room/:roomID/live", function(roomID){
       room.changeUserName(user.name, newname, function(err, newuser) {
         if(err) {
           self.contentType("json");
-          self.halt(200, JSON.encode({error: err.message}));
+          self.respond(200, JSON.encode({error: err.message}));
         } else {
           self.session.user.name = newname;
-          self.halt(200);
+          self.respond(200);
         }
       });
     }
@@ -143,7 +158,7 @@ post("/room/:roomID/live", function(roomID){
       room.announceUserMessage(user.name, message);
     }
   }
-  this.halt(200);
+  this.respond(200);
 });
 
 /*
@@ -151,14 +166,14 @@ post("/room/:roomID/live", function(roomID){
  */
 get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
   if(this.session.user == null || !rooms[roomID]) {
-    this.halt(200);
+    this.respond(200);
     return;
   }
   var self = this;
   rooms[roomID].addMessageListener(lastMsgId, this.session, function(err, data) {
     var messages = data || [];
     self.contentType("json");
-    self.halt(200, JSON.encode({messages: messages}));
+    self.respond(200, JSON.encode({messages: messages}));
   });
 });
 
@@ -167,7 +182,7 @@ get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
  */
 get("/room/:roomID/live/users", function(roomID){
   if(this.session.user == null || !rooms[roomID]) {
-    this.halt(200);
+    this.respond(200);
     return;
   }
   var self = this;
@@ -179,54 +194,73 @@ get("/room/:roomID/live/users", function(roomID){
         (i % 2 == 0) ? (usersleft.push(modifiedusers[i]))
                       : (newusers.push(modifiedusers[i]));
     self.contentType("json");
-    self.halt(200, JSON.encode({"newusers": newusers, "usersleft": usersleft}));
+    self.respond(200, JSON.encode({"newusers": newusers, "usersleft": usersleft}));
   });
 });
 
 get("/room/:roomID/users", function(roomID){
   if(this.session.user == null || !rooms[roomID]) {
-    this.halt(200);
+    this.respond(200);
     return;
   }
   var self = this;
   var users = rooms[roomID].getUsers(function(err, users) {
     self.contentType("json");
-    self.halt(200, JSON.encode(users));
+    self.respond(200, JSON.encode(users));
   });
 
 });
 
 get("/room/:roomID/part", function(roomID){
   if(this.session.user == null || !rooms[roomID]) {
-    this.halt(200);
+    this.respond(200);
     return;
   }
   rooms[roomID].announceUserLeft(this.session.user.name);
   this.session.alive = false;
-  this.halt(200);
+  this.respond(200);
 });
 
 get("/room/:roomID/keepalive", function(roomID){
-  this.halt(200);
+  this.respond(200);
 });
-/*
-setInterval(function() {
-  var maxDelay = (1).minute;
-  var sessions = Session.store.store.values;
-  //sys.puts(JSON.stringify(sessions));
-  var now = Date.now();
-  for(var session in sessions) {
-    if(now - session.lastAccess > maxDelay)
-      session.alive = false;
+
+post("/room/:roomID/upload", function(){
+  if(this.session.user == null || !rooms[roomID]) {
+    this.respond(200);
+    return;
   }
-}, 10*1000);
-*/
+  this.param('files').each(function(file) {
+    fs.stat(file.tempfile, function (err, stats) {
+      file.merge(stats);
+      file.uploader = this.session.user.name;
+      var words = file.tempfile.split("-");
+      file.id = words[words.length-1];
+      var usefulInfo = util.array_intersect_key_value(file, ["filename", "id", "size", "ctime"]);
+      rooms[roomID].announceFile(usefulInfo);
+    });
+  }, this)
+  this.redirect('/upload')
+});
+
 get("/*.css", function(file){
   this.render(file + ".css.sass", { layout: false });
 });
 
 get('/favicon.ico', function(){
-  this.halt();
+  this.respond();
+});
+
+/*
+ * Send file.
+ */
+get("/room/:roomID/files/:fileId", function(fileId){
+  if(this.session.user == null || !rooms[roomID]) {
+    this.respond(200);
+    return;
+  }
+  var self = this;
+  
 });
 
 sys.puts("Init...");

@@ -1,12 +1,14 @@
 2010.05.01, Version 0.4
 
-  * Must use mongo to v1.5.1 -> not working
-  * Using 1.4.2 for th moment
+  * Upgrade mongo to 1.4.2 (v1.5.1 not workin for the moment, use it later for $slice operator)
 
   * Upgrade node-mongodb-native to V0.7.2
+
+  * Upgrade express to 0.11.0 (working with node V0.1.94)
 
   * Add the fields param for mongodb's find
 
   * Add js-yaml lib + a configuration file
 
+  * upload files
 

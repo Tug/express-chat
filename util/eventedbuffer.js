@@ -71,6 +71,10 @@ var EventedBuffer = new Class({
 
   empty: function() {
     this.buffer = [];
+  },
+
+  find: function(el) {
+    return util.find(this.buffer, el);
   }
 
 });
