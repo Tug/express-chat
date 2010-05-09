@@ -10,6 +10,6 @@
 
 ## Installation
 
-  git://github.com/Tug/express-chat.git && cd express-chat && git submodule update --init --recursive
+  git clone git://github.com/Tug/express-chat.git && cd express-chat && git submodule update --init --recursive
 
 
