@@ -74,7 +74,8 @@ setInterval(function() {
 get("/", function() {
   this.render("home.html.haml", {
     locals : {
-      formAction: "/"
+      formAction: "/",
+      title: "Chat+"
     }
   });
 });
@@ -115,8 +116,7 @@ get("/room/:roomID", function(roomID){
           roomID: roomID,
           title: "Chat+ - "+roomID,
           username: username
-        },
-        layout: false
+        }
       });
     };
     if(this.session.user != null) {
@@ -243,7 +243,7 @@ post("/room/:roomID/upload", function(){
   this.redirect('/upload')
 });
 
-get("/*.css", function(file){
+get("/:cssname.css", function(file){
   this.render(file + ".css.sass", { layout: false });
 });
 

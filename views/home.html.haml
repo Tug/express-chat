@@ -2,7 +2,15 @@
 %img.bubble{ src: '/public/images/bubble.png' }
 #CreateChatBox
   Welcome on the Chat+ application.
+  %br
   Enter your name below and get started now!
+  %br
+  %br
+  %br
+  %br
+  %br
   %form#CreateChatForm{ method: 'post', action: formAction }
-    %input{ type: 'text', name: 'name', value: '' }
-    %input{ type: 'submit', value: 'Create chat room' }
+    %fieldset
+      %legend Create chat room
+      %input{ type: 'text', name: 'name', value: 'Your name', onclick: 'this.value=""' }
+      %input{ type: 'submit', value: 'Create' }

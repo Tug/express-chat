@@ -96,44 +96,58 @@ $(function(){
 
 
 
+ 	$("#uploader").pluploadQueue({
+	  // General settings
+	  runtimes : 'html5,gears,flash,silverlight,browserplus,html4',
+	  url : roomID+'/upload',
+	  max_file_size : '200mb',
+	  chunk_size : '1mb',
+	  unique_names : true,
 
-  var uploader = new plupload.Uploader({
-		runtimes : 'gears,html5,flash,silverlight,browserplus',
-		browse_button : 'pickfiles',
-		max_file_size : '200mb',
-		url : roomID+'/upload',
-		resize : {width : 320, height : 240, quality : 90},
-		flash_swf_url : '/public/javascripts/plupload/plupload.flash.swf',
-		silverlight_xap_url : '/public/javascripts/plupload/plupload.silverlight.xap'//,
-		//filters : [
-		//	{title : "Image files", extensions : "jpg,gif,png"},
-		//	{title : "Zip files", extensions : "zip"}
-		//]
+	  // Resize images on clientside if we can
+	  //resize : {width : 320, height : 240, quality : 90},
+
+	  // Specify what files to browse for
+	  //filters : [
+	  //	{title : "Image files", extensions : "jpg,gif,png"},
+	  //	{title : "Zip files", extensions : "zip"}
+	  //],
+
+	  // Flash settings
+	  flash_swf_url : '/public/javascripts/plupload/plupload.flash.swf',
+
+	  // Silverlight settings
+	  silverlight_xap_url : '/public/javascripts/plupload/plupload.silverlight.xap'
 	});
 
-	uploader.bind('Init', function(up, params) {
-		$('#filelist').html("<div>Current runtime: " + params.runtime + "</div>");
+	// Client side form validation
+	$('#UploadForm').submit(function(e) {
+		var uploader = $('#uploader').pluploadQueue();
+
+		// Validate number of uploaded files
+		if (uploader.total.uploaded == 0) {
+			// Files in queue upload them first
+			if (uploader.files.length > 0) {
+				// When all files are uploaded submit form
+				uploader.bind('UploadProgress', function() {
+					if (uploader.total.uploaded == uploader.files.length)
+						$('#UploadForm').submit();
+				});
+
+				uploader.start();
+			} else
+				alert('You must at least upload one file.');
+
+			e.preventDefault();
+		}
 	});
 
-	uploader.bind('FilesAdded', function(up, files) {
-		$.each(files, function(i, file) {
-			$('#filelist').append(
-				'<div id="' + file.id + '">' +
-				file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
-			'</div>');
-		});
-	});
-
-	uploader.bind('UploadProgress', function(up, file) {
-		$('#' + file.id + " b").html(file.percent + "%");
-	});
-
-	$('#uploadfiles').click(function(e) {
-		uploader.start();
-		e.preventDefault();
-	});
-
-	uploader.init();
+  //$('#uploader').hide();
+  
+  //$('#uploadshow').click(function() {
+  //  $('#uploader').show(400);
+  //  return false;
+  //});
 
 })
 

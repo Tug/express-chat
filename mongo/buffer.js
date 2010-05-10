@@ -12,7 +12,7 @@ var MongoBuffer = EventedBuffer.extend({
     this.arrayField = arrayField;
     this.relativeId = 0;
     this.rmUpdates = [];
-    setInterval(this.backup, 30*1000);
+    //setInterval(this.backup, 30*1000);
   },
 
   backup: function() {

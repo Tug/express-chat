@@ -35,8 +35,10 @@ var MongoFileBuffer = MongoBuffer.extend({
         self.buffer.forEach(function(file) {
           fs.unlink(file.tempFile, parallel());
         });
+      },
+      function end(){
+        MongoBuffer.call(self);
       });
-    MongoBuffer.call(this);
   },
 
   add: function(fileInfo) {

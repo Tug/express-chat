@@ -1,42 +1,25 @@
-%html
-  %head
-    %title= title
-    %script{ src: '/public/javascripts/jquery.js' }
-    %script{ src: '/public/javascripts/app.js' }
-    %script{ src: '/public/javascripts/plupload/plupload.js' }
-    %script{ src: '/public/javascripts/plupload/plupload.gears.js' }
-    %script{ src: '/public/javascripts/plupload/plupload.silverlight.js' }
-    %script{ src: '/public/javascripts/plupload/plupload.flash.js' }
-    %script{ src: '/public/javascripts/plupload/plupload.browserplus.js' }
-    %script{ src: '/public/javascripts/plupload/plupload.html5.js' }
-    %script{ src: '/public/javascripts/plupload/jquery.plupload.queue.js' }
-    %link{ rel: 'stylesheet', href: '/style.css' }
-    %link{ rel: 'stylesheet', href: '/chat.css' }
-  %body
-    #wrapper
-      #filelist
+.HeaderBox
+  .LeftBox#titleBox
+    %h1 Chat+
+    %img.bubble{ src: '/public/images/bubble.png' }
+  .RightBox#nameBox
+    %form#SendNameForm{ method: 'post' }
+      My name :
+      %input#name{ type: 'text', name: 'name', value: username }
+.ChatBox
+  .LeftBox#topLeftBox
+    %ul#messages
+  .RightBox#topRightBox
+    %ul#users
+.DialogBox
+  %form#SendMsgForm{ method: 'post' }
+    .LeftBox#inputBox
+      %textarea#message{ name: 'message' }
+    .RightBox#submitBox
+      %input{ type: 'submit', value: 'Send' }
+.UploadBox#uploadshow
+  %form#UploadForm{ method: 'post', enctype: 'multipart/form-data' }
+    %fieldset
+      %legend Share Files
+      #uploader
         You cannot use the upload feature!
-        %a#pickfiles{ href: '#' } Select files
-        %a#uploadfiles{ href: '#' } Upload
-      .HeaderBox
-        .LeftBox#TitleBox
-          %h1 Chat+
-          %img.bubble{ src: '/public/images/bubble.png' }
-        .RightBox#NameBox
-          %form#SendNameForm{ method: 'post' }
-            %input#name{ type: 'text', name: 'name', value: username }
-      .ChatBox
-        .LeftBox#topLeftBox
-          %ul#messages
-        .RightBox#topRightBox
-          %ul#users
-      .DialogBox
-        %form#SendMsgForm{ method: 'post' }
-          .leftBox#inputBox
-            %textarea#message{ name: 'message' }
-          .rightBox#submitBox
-            %input{ type: 'submit', value: 'Send' }
-      %form{ method: 'post', enctype: 'multipart/form-data' }
-        %input{ type: 'file', name: 'images[]', multiple: 'multiple' }
-        .panel
-          %input{ type: 'submit', value: 'Upload' }

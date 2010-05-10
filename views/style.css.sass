@@ -1,12 +1,22 @@
-body
+!pageWidth = 700px
+!grey4 = #969696
+!borderWidth = 10px
+!borderColor = #202020
+!borders = #242424
+
+html, body
   :font-family "Helvetica Neue", "Lucida Grande", "Arial"
   :font-size 13px
-  :text-align center
   =text-stroke 1px rgba(255, 255, 255, 0.1)
-  :color #555
-  
-h1, h2
+  :background #545454 url(/public/images/stripe.png);
+  :text-align left
   :margin 0
+  :padding 0
+  :height 100%
+  :width 100%
+
+h1, h2
+  :margin 40px 40px
   :font-size 22px
   :color #343434
 h1
@@ -15,21 +25,41 @@ h1
   
 img.bubble
   :position absolute
-  :top -25px
-  :left 120px
+  :top 30px
+  :left 172px
 
 #wrapper
-  :position relative
-  :margin 50px auto
-  :width 600px
-  :text-align left
+  :display block
+  :position absolute
+  :border 0
+  :border-right !borderWidth groove !borderColor
+  :border-bottom !borderWidth groove !borderColor
+  :border-left !borderWidth ridge !borderColor
+  :border-top !borderWidth ridge !borderColor
+  :padding 20px
+  :left 50%
+  :margin-left -420px
+  :width !pageWidth
+  :min-height 600px
+  :background #ffffff
 
 #CreateChatBox
   :margin 50px
-  :width 250px
-  :height 50px
   :font-size 1.3em
-  =border-radius 50px
+
+#CreateChatForm
+  :margin 30px 0 0 20px
+  :width 350px
+  :text-align center
+  :margin 0 auto
+  :color #ffffff
+  :border 3px solid !borders
+  =border-radius 5px
+  :background-color #343434
+  :padding 10px
+  & fieldset
+    :padding 20px
+    :border 0
 
 a
   :color #1ABFF1

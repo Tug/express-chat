@@ -1,14 +1,22 @@
+!radius = 5px
+!borders = #4B4B4B
+!heightHeader = 120px
+!heightChat = 400px
+!heightDialog = 80px
+!heightUpload = 380px
+
 .HeaderBox
-  :height 80px
+  :height !heightHeader
   :width 100%
 
 .ChatBox
   :margin-top 10px
-  :height 400px
+  :height !heightChat
   :width 100%
 
 .DialogBox
-  :height 60px
+  :margin 10px 0 40px 0
+  :height !heightDialog
   :width 100%
 
 .LeftBox
@@ -19,10 +27,15 @@
   :float right
   :height 100%
 
+.UploadBox
+  :width 100%
+  :height !heightUpload
+  :margin 20px 0
+
 ul#messages
   :padding 0
-  :border 1px solid
-  =border-radius 10px
+  :margin 0
+  :border 3px solid !borders
   :height 100%
   :overflow-x hidden
   li
@@ -31,9 +44,9 @@ ul#messages
 
 ul#users
   :padding 0
+  :margin 0
   :margin-left 5px
-  :border 1px solid
-  =border-radius 10px
+  :border 3px solid !borders
   :height 100%
   :overflow-x hidden
   li
@@ -42,16 +55,12 @@ ul#users
     :font-size 14px
     :list-style none
 
-#NameBox
-  :width 25%
-  :margin-top 50px
-  :height auto
+#nameBox
+  :margin-top 80px
+  :height 20px
 
-#name
-  :width 100%
-
-#TitleBox
-  :width 75%
+#titleBox
+  :width 50%
 
 #topLeftBox
   :width 75%
@@ -63,31 +72,38 @@ ul#users
   :width 85%
 
 #submitBox
-  :width 12%
+  :width 10%
+  :height 100%
 
-textarea
+#name
+  :width 120px
+  :border 3px solid !borders
+
+#message
   :width 100%
   :height 100%
-  :margin 10px 2px
   :padding 5px
   :font-size 14px
+  :border 3px solid !borders
 
 #SendMsgForm input[type=submit]
-  =border-radius 2px
   =box-shadow 0 1px 2px #ddd
-  :margin 15px 3px
-  :padding 14px 8px
-  :border solid 1px #999
-  :background -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ddd))
-  :color #333
-  :text-decoration none
+  :height 58px
+  :width 60px
+  :margin 5px auto
+  :border 3px solid !borders
   :cursor pointer
-  :display inline-block
+  :cursor hand
   :text-align center
-  :text-shadow 0px 1px 1px #fff
-  :line-height 1
-#SendMsgForm input[type=submit]:hover
-  :background -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#E6E4E4))
-#SendMsgForm input[type=submit]:active
-  :background -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#c7c7c7))
 
+#UploadForm
+  :width 80%
+  :height 100%
+  :margin 0 auto
+  :color #ffffff
+  =border-radius 5px
+  :background-color #343434
+  :padding 10px
+  & fieldset
+    :padding 10px
+    :border 0
