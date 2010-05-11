@@ -73,7 +73,7 @@ var Room = new Class({
     this.announceMessage(msg);
   },
 
-  announceFile: function(file) {
+  announceFile: function(username, file) {
     this.fileBuffer.add(file);
     var msg = "* " + utils.escape(username) + " is sharing "+file.filename;
     this.announceMessage(msg);

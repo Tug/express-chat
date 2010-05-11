@@ -7,7 +7,7 @@ var Step = require("../vendor/step/lib/step").Step;
 
 var MongoFile = new Class({
 
-  constructor: function(db, filename, meta) {
+  constructor: function(db, filename, metadata) {
     var meta = metadata || null;
     this.gridStore = new mongo.GridStore(db, filename, "w", {"metadata": meta});
     this.open = false;
@@ -37,8 +37,7 @@ var MongoFile = new Class({
       },
       function write(err, input) {
         gridStore.write(data, callback);
-      }
-    });
+      });
   },
 
   save: function(file, callback) {

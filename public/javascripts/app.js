@@ -101,18 +101,9 @@ $(function(){
 	  runtimes : 'html5,gears,flash,silverlight,browserplus,html4',
 	  url : roomID+'/upload',
 	  max_file_size : '200mb',
-	  chunk_size : '1mb',
-	  unique_names : true,
+    multipart: true,
 
-	  // Resize images on clientside if we can
-	  //resize : {width : 320, height : 240, quality : 90},
-
-	  // Specify what files to browse for
-	  //filters : [
-	  //	{title : "Image files", extensions : "jpg,gif,png"},
-	  //	{title : "Zip files", extensions : "zip"}
-	  //],
-
+ 
 	  // Flash settings
 	  flash_swf_url : '/public/javascripts/plupload/plupload.flash.swf',
 

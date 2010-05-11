@@ -1,7 +1,7 @@
 var sys = require("sys");
 var util = require("../util/util");
 var MongoBuffer = require("./buffer").MongoBuffer;
-
+var MongoFile = require("./file").MongoFile;
 
 var MongoFileBuffer = MongoBuffer.extend({
 

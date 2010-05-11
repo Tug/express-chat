@@ -225,22 +225,22 @@ get("/room/:roomID/keepalive", function(roomID){
   this.respond(200);
 });
 
-post("/room/:roomID/upload", function(){
+post("/room/:roomID/upload", function(roomID){
   if(this.session.user == null || !rooms[roomID]) {
     this.respond(200);
     return;
   }
-  this.param('files').each(function(file) {
-    fs.stat(file.tempfile, function (err, stats) {
-      file.merge(stats);
-      file.uploader = this.session.user.name;
-      var words = file.tempfile.split("-");
-      file.id = words[words.length-1];
-      var usefulInfo = util.array_intersect_key_value(file, ["filename", "id", "size", "ctime"]);
-      rooms[roomID].announceFile(usefulInfo);
-    });
-  }, this)
-  this.redirect('/upload')
+  var file = this.param("file");
+  var self = this;
+  fs.stat(file.tempfile, function (err, stats) {
+    Object.merge(file, stats);
+    file.uploader = self.session.user.name;
+    var words = file.tempfile.split("-");
+    file.id = words[words.length-1];
+    var usefulInfo = util.array_intersect_key_value(file, ["filename", "id", "size", "ctime"]);
+    rooms[roomID].announceFile(self.session.user.name, usefulInfo);
+    self.respond(200);
+  });
 });
 
 get("/:cssname.css", function(file){
