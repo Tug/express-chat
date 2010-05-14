@@ -1,7 +1,7 @@
-﻿var Class = require("../vendor/class.js/lib/class").Class;
+﻿var Class = require(PATH_CLASS).Class;
 var MongoDB = require("./db").MongoDB;
 var MongoRooms = require("./rooms").MongoRooms;
-var util = require("../util/util");
+var util = require(PATH_UTIL);
 
 var MyDB = MongoDB.extend({
 

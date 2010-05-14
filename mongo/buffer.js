@@ -1,8 +1,7 @@
-﻿var sys = require("sys");
-var util = require("../util/util");
-var Step = require("../vendor/step/lib/step");
-var EventedBuffer = require("../util/eventedbuffer").EventedBuffer;
-
+var util = require(PATH_UTIL);
+var Step = require(DIR_VENDORS + "/step/lib/step");
+var EventedBuffer = require(DIR_UTIL + "/eventedbuffer").EventedBuffer;
+var array_diff = require(PATH_PHPJS).array_diff;
 
 var MongoBuffer = EventedBuffer.extend({
 
@@ -12,16 +11,16 @@ var MongoBuffer = EventedBuffer.extend({
     this.arrayField = arrayField;
     this.relativeId = 0;
     this.rmUpdates = [];
-    //setInterval(this.backup, 30*1000);
+    var self = this;
+    setInterval(function() { self.backup(self); }, 30*1000);
   },
 
-  backup: function() {
-    var self = this;
+  backup: function(self) {
     Step(
       function remove() {
         if(self.rmUpdates.length > 0) {
           var copyRmUp = self.rmUpdates.slice();
-          self.relativeId -= self.rmUpdates.length;
+          self.relativeId -= copyRmUp.length;
           self.rmUpdates = [];
           self.mongoObject.removeAll(self.arrayField, copyRmUp, this);
         } else this();
@@ -38,7 +37,7 @@ var MongoBuffer = EventedBuffer.extend({
 
   slice: function(start, callback) {
     var nbTot = this.size();
-    if(start < 0 || start >= nbTot) {
+    if(start < 0 || start > nbTot) {
       callback(new Error("element index out of buffer's bounds"), null);
     } else {
       if(start >= this.relativeId) {
@@ -49,7 +48,9 @@ var MongoBuffer = EventedBuffer.extend({
           if(err) {
             callback(err, []);
           } else {
-            arr.concat(self.buffer);
+            arr = arr.concat(self.buffer);
+            if(self.rmUpdates.length > 0)
+              arr = array_diff(arr, self.rmUpdates);
             callback(null, arr);
           }
         });
@@ -85,11 +86,18 @@ var MongoBuffer = EventedBuffer.extend({
     } else {
       this.buffer.splice(i,1,el2);
     }
-    this.callThemAll("modified", [el1, el2]);
+    this.callThemAll("modified", [[el1, el2]]);
   },
 
   size: function() {
     return this.buffer.length + this.relativeId;
+  },
+
+  contains: function(el, callback) {
+    if(this.find(el) != -1)
+      callback(null, true);
+    else
+      this.mongoObject.contains(el, callback);
   }
 
 });

@@ -1,13 +1,31 @@
-﻿var sys   = require("sys");
 var utils = require("express/utils");
-var util  = require("./util/util");
-var User  = require("./util/user").User;
-﻿var Class = require("./vendor/class.js/lib/class").Class;
-var EventedBuffer   = require("./util/eventedbuffer").EventedBuffer;
-var MongoBuffer     = require("./mongo/buffer").MongoBuffer;
-var MongoFileBuffer = require("./mongo/filebuffer").MongoFileBuffer;
+var util  = require(PATH_UTIL);
+﻿var Class = require(PATH_CLASS).Class;
+var EventedBuffer   = require(DIR_UTIL + "/eventedbuffer").EventedBuffer;
+var MongoBuffer     = require(DIR_MONGO + "/buffer").MongoBuffer;
+var MongoFileBuffer = require(DIR_MONGO + "/filebuffer").MongoFileBuffer;
+var MongoRoom       = require(DIR_MONGO + "/room").MongoRoom;
+var sys = require("sys");
 
 var Room = new Class({
+  extend: {
+    createRoomFromDb: function(db, dbroom, save) {
+      this.db = db;
+      var mongoRoom = new MongoRoom(db.rooms, dbroom.roomID);
+      var room = new Room(dbroom.admin);
+      room.id = dbroom.roomID;
+      if(save == true) {
+        room.mongoRoom = mongoRoom;
+        room.msgBuffer = new MongoBuffer(mongoRoom, "messages");
+        room.usrBuffer = new MongoBuffer(mongoRoom, "users");
+        room.fileBuffer = new MongoFileBuffer(mongoRoom);
+      }
+      room.msgBuffer.relativeId += dbroom.messages.length;
+      room.fileBuffer.relativeId += dbroom.files.length;
+      for(var user in dbroom.users) room.usrBuffer.remove(user);
+      return room;
+    }
+  },
 
   constructor: function(adminname) {
     this.id = util.generateRandomString(8);
@@ -24,7 +42,7 @@ var Room = new Class({
     var createRoom = function(tries) {
       db.rooms.createRoom(self.admin, self.id, serverID, function(err, room) {
         if(err != null && tries --> 0) {
-          sys.puts(err.message);
+          //sys.puts(err.message);
           self.id = util.generateRandomString(8);
           createRoom();
         } else {
@@ -41,15 +59,18 @@ var Room = new Class({
 
   addMessageListener: function(lastMsgId, session, callback) {
     var nbMsgTot = this.msgBuffer.size();
+    sys.puts("MessageListener lastMsgId: "+lastMsgId);
     if(lastMsgId >= nbMsgTot) {
-      this.msgBuffer.addListener("added", session, callback);
+      sys.puts("b1 "+nbMsgTot);
+      this.msgBuffer.addListener("added", session, this.id, callback);
     } else {
+      sys.puts("b2");
       this.msgBuffer.slice(lastMsgId, callback);
     }
   },
 
   addUserListener: function(session, callback) {
-    this.usrBuffer.addListener("all", session, callback);
+    this.usrBuffer.addListener("all", session, this.id, callback);
   },
 
   announceMessage: function(message) {
@@ -99,6 +120,10 @@ var Room = new Class({
 
   getUsers: function(callback) {
     this.usrBuffer.slice(0, callback);
+  },
+
+  userExist: function(username, callback) {
+    this.usrBuffer.contains(username, callback);
   }
 
 });

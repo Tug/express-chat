@@ -3,7 +3,7 @@ require.paths.unshift("../express/lib");
 require("express");
 require("express/plugins");
 var sys = require("sys");
-var User = require("../util/util").User;
+var User = require(DIR_UTIL + "/user").User;
 var mongo = require("./mydb");
 var test = require("mjsunit");
 

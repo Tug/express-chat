@@ -1,4 +1,4 @@
-﻿var Class = require("../vendor/class.js/lib/class").Class;
+﻿var Class = require(PATH_CLASS).Class;
 
 var MongoCollection = new Class({
 
@@ -18,22 +18,13 @@ var MongoCollection = new Class({
   },
 
   contains: function(id, callback) {
-    this.collection.count(id, function(err, n) {
+    this.collection.count(this.getPairIndex(id), function(err, n) {
       callback(null, new Boolean(n));
     });
   },
 
-  find: function(id, fields, callback) {
-    if(!callback) { callback = fields; fields = null; }
-    this.collection.find(id, fields, function(err, cursor) {
-      cursor.toArray(callback);
-    });
-  },
-
   get: function(id, callback) {
-    var pair = {};
-	pair[this.indexKey] = id;
-    this.collection.findOne( id, callback );
+    this.collection.findOne(this.getPairIndex(id), callback);
   },
 
   add: function(data, callback) {
@@ -41,14 +32,28 @@ var MongoCollection = new Class({
   },
 
   update: function(spec, operation, data, callback) {
-	var pair = {};
-	pair[operation] = data;
+	  var pair = {};
+	  pair[operation] = data;
     this.collection.update( spec, pair, callback );
+  },
+
+  find: function(spec, fields, callback) {
+    if(!callback) { callback = fields; fields = null; }
+    this.collection.find(spec, fields, function(err, cursor) {
+      cursor.nextObject(callback);
+    });
+  },
+
+  findAll: function(spec, fields, callback) {
+    if(!callback) { callback = fields; fields = null; }
+    this.collection.find(spec, fields, function(err, cursor) {
+      cursor.toArray(callback);
+    });
   },
 
   addUnique: function(data, callback) {
     var self = this;
-    self.contains(this.getPairIndex(data[this.indexKey]), function(err, exist) {
+    self.contains(data[this.indexKey], function(err, exist) {
       if(exist == true) callback(new Error("id already present!"), null);
       else {
         self.collection.insert( data, function(err, objs) {

@@ -1,5 +1,5 @@
-﻿var Class = require("../vendor/class.js/lib/class").Class;
-var util = require("./util");
+﻿var Class = require(PATH_CLASS).Class;
+var util = require(PATH_UTIL);
 var sys = require("sys");
 
 var EventedBuffer = new Class({
@@ -33,7 +33,7 @@ var EventedBuffer = new Class({
   change: function(el1, el2) {
     var i = util.find(this.buffer, el1);
     this.buffer.splice(i,1,el2);
-    this.callThemAll("modified", [el1, el2]);
+    this.callThemAll("modified", [[el1, el2]]);
   },
 
   callThemAll: function(eventType, data) {
@@ -47,8 +47,8 @@ var EventedBuffer = new Class({
     }
   },
 
-  addListener: function(eventType, session, callback) {
-    this.callbacks[eventType].push({ session: session, callback: callback });
+  addListener: function(eventType, session, roomid, callback) {
+    this.callbacks[eventType].push({ session: session, roomID: roomid, callback: callback });
   },
 
   reapDeadCallbacks: function() {
@@ -57,7 +57,7 @@ var EventedBuffer = new Class({
       var i=callbacksByType.length;
       while(i --> 0) {
         var callback = this.callbacksByType[i];
-        if(!callback.session.alive) {
+        if(!callback.session || !callback.session[callback.roomID]) {
           this.callbacksByType.splice(i,1);
           callback.callback([]);
         }
@@ -75,6 +75,14 @@ var EventedBuffer = new Class({
 
   find: function(el) {
     return util.find(this.buffer, el);
+  },
+
+  fill: function(data) {
+    this.buffer = data;
+  },
+
+  contains: function(el, callback) {
+    callback(null, this.find(el) != -1);
   }
 
 });

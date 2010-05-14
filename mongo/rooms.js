@@ -5,10 +5,13 @@ var MongoRooms = MongoCollection.extend({
 
   createRoom: function(admin, id, serverId, callback) {
     var self = this;
-    var room = { admin: admin,
-                 users: [],
-                 messages: [],
-                 server: serverId };
+    var room =
+    { admin: admin
+    , server: serverId
+    , users: []
+    , messages: []
+    , files: []
+    };
     room[this.indexKey] = id;
     this.addUnique(room, function(err, r) {
       if(err != null) {

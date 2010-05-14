@@ -1,5 +1,5 @@
-﻿var mongo = require("../vendor/node-mongodb-native/lib/mongodb");
-var Class = require("../vendor/class.js/lib/class").Class;
+﻿var mongo = require(DIR_VENDORS + "/node-mongodb-native/lib/mongodb");
+var Class = require(PATH_CLASS).Class;
 var MongoCollection = require("./collection").MongoCollection;
 var sys = require("sys");
 

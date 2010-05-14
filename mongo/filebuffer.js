@@ -1,18 +1,17 @@
-var sys = require("sys");
-var util = require("../util/util");
+var util = require(PATH_UTIL);
 var MongoBuffer = require("./buffer").MongoBuffer;
 var MongoFile = require("./file").MongoFile;
+var Step = require(DIR_VENDORS + "/step/lib/step");
 
 var MongoFileBuffer = MongoBuffer.extend({
 
   constructor: function(mongoObject) {
-    this.db = mongoObject.getDb();
     MongoBuffer.call(this, mongoObject, "files");
+    this.db = mongoObject.getDb();
     this.mongoFiles = {};
   },
   
-  backup: function() {
-    var self = this;
+  backup: function(self) {
     Step(
       function removeFromDB() {
         if(self.rmUpdates.length > 0) {

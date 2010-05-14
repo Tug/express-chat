@@ -30,7 +30,6 @@ var clone = function (obj) {
  * !!! Does not work with closures !!!
  * => Step lib is used instead
  */
- var sys = require('sys');
 var chain = function(actions, callback) {
   if (!(actions instanceof Array)) {
     actions = Array.prototype.slice.call(arguments);

@@ -3,7 +3,7 @@ $(function(){
   var roomID = document.location.pathname;
   var nextMsgId = 0;
   var users = [];
-
+  
   $('#SendMsgForm').submit(function(){
     var messagebox = $('#message');
     var msg = messagebox.val();
@@ -22,7 +22,9 @@ $(function(){
     if(namebox.val())
       var name = namebox.val();
       if($.inArray(name, users) != -1) {
-        namebox.css('border', '1px solid red');
+        var cssbak = namebox.css('border');
+        namebox.css('border', '4px solid red');
+        setTimeout(function() { namebox.css('border', cssbak); }, 2*1000);
       } else {
         $.post(roomID+'/live', { name: namebox.val() }, function(){
           ;
@@ -35,15 +37,31 @@ $(function(){
   (function pollForMessages(){
     $.getJSON(roomID+'/live/msg/'+nextMsgId, function(response){
       var messages = response.messages;
+      if(!messages || messages.length == 0) {
+        addMessage("!! Server Error !! Please reload application.");
+        return;
+      }
       $.each(messages, function(i, msg){
-        $('#messages')
-          .append('<li>' + msg + '</li>')
-          .get(0).scrollTop = $('#messages').get(0).scrollHeight
+        addMessage(msg);
         nextMsgId++;
       });
       pollForMessages();
     });
   })();
+
+  function addMessage(msg) {
+    $('#messages')
+      .append('<li>' + msg + '</li>')
+      .get(0).scrollTop = $('#messages').get(0).scrollHeight
+  }
+
+  function refreshUserList(){
+    users.sort(function(a,b){return a.toLowerCase() > b.toLowerCase()});
+    $('#users').empty();
+    $.each(users, function(i, usr){
+      $('#users').append('<li>' + usr + '</li>');
+    });
+  };
 
   (function initUsers(){
     $.getJSON(roomID+'/users', function(response){
@@ -53,17 +71,14 @@ $(function(){
     });
   })();
 
-  function refreshUserList(){
-    $('#users').empty();
-    $.each(users, function(i, usr){
-      $('#users').append('<li>' + usr + '</li>');
-    });
-  };
-
   function pollForUsers(){
     $.getJSON(roomID+'/live/users', function(response){
       var newusers = response.newusers;
       var usersleft = response.usersleft;
+      if( (!newusers && !usersleft) || (newusers.length == 0 && usersleft.length == 0) ) {
+        addMessage("!! Server Error !! Please reload application.");
+        return;
+      }
       $.each(usersleft, function(i, usr){
         users = $.grep(users, function(value) {
           return value != usr;
@@ -86,6 +101,12 @@ $(function(){
     }
   });
 
+  // actions to take when arriving in the page
+  var timer = setInterval(function() {
+    clearInterval(timer);
+    
+  }, 10);
+
   setInterval(function(){
     $.getJSON(roomID+"/keepalive", function(data){});
   }, 30*1000);
@@ -93,8 +114,6 @@ $(function(){
   $(window).unload(function () {
     $.getJSON(roomID+"/part", function(data){});
   });
-
-
 
  	$("#uploader").pluploadQueue({
 	  // General settings

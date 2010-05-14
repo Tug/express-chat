@@ -1,8 +1,7 @@
-var sys = require("sys");
-var util = require("../util/util");
+var util = require(PATH_UTIL);
 var MongoBuffer = require("./buffer").MongoBuffer;
-﻿var mongo = require("../vendor/node-mongodb-native/lib/mongodb");
-var Step = require("../vendor/step/lib/step").Step;
+﻿var mongo = require(DIR_VENDORS + "/node-mongodb-native/lib/mongodb");
+var Step = require(DIR_VENDORS + "/step/lib/step").Step;
 
 
 var MongoFile = new Class({

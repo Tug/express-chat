@@ -1,4 +1,5 @@
-﻿var Class = require("../vendor/class.js/lib/class").Class;
+var Class = require(PATH_CLASS).Class;
+var array_fill_keys = require(PATH_PHPJS).array_fill_keys;
 var sys = require("sys");
 
 var MongoObject = new Class({
@@ -16,7 +17,8 @@ var MongoObject = new Class({
   },
 
   setElement: function(key, field, data, callback) {
-    key.merge(this.pairIndex);
+    Object.merge(key, this.pairIndex);
+    sys.puts("mergeeee : "+JSON.stringify(key));
     var pair = {};
     pair[field] = data;
     this.mongoCollection.update(key, "$set", pair, callback);
@@ -50,21 +52,23 @@ var MongoObject = new Class({
     this.mongoCollection.find(this.pairIndex, callback);
   },
 
-  get: function(field, callback) {
-    var pair = {};
-    pair[field] = 1;
-    this.mongoCollection.find(this.pairIndex, pair, callback);
+  get: function(fields, callback) {
+    var pairs = array_fill_keys(fields, 1);
+    this.mongoCollection.find(this.pairIndex, pairs, function(err, data) {
+       callback(null, data);
+    });
   },
-  
+
   getSlice: function(field, start, callback) {
     //var query = {};
     //query[field] = {$slice: [start, 200]};
     //this.mongoCollection.find(this.pairIndex, query, callback);
-    this.get(field , function(err, data) {
-      if(!err && data && data.length > start)
-        callback(null,data.slice(start));
+    this.get([field], function(err, data) {
+      var arr = data[field];
+      if(data && arr && arr.length > start)
+        callback(null, arr.slice(start));
       else
-        callback(new Error("Error getting slice of "+field), null);
+        callback(err, null);
     });
   },
 
@@ -75,8 +79,19 @@ var MongoObject = new Class({
     this.mongoCollection.update(this.pairIndex, "$set", pair, callback);
   },
 
-  contains: function(field, value, callback) {
+  exist: function(callback) {
     this.mongoCollection.contains(this.pairIndex, callback);
+  },
+
+  contains: function(field, value, callback) {
+    var pair = {};
+    pair[field] = value;
+    Object.merge(pair, this.pairIndex);
+    this.mongoCollection.find(pair, function(err, cursor) {
+      cursor.count(function(err, n) {
+        callback(err, n > 0);
+      });
+    });
   },
 
   getDb: function() {
