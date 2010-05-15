@@ -1,6 +1,6 @@
 var Class = require(PATH_CLASS).Class;
 var array_fill_keys = require(PATH_PHPJS).array_fill_keys;
-var sys = require("sys");
+var array_merge = require(PATH_PHPJS).array_merge;
 
 var MongoObject = new Class({
 
@@ -17,8 +17,7 @@ var MongoObject = new Class({
   },
 
   setElement: function(key, field, data, callback) {
-    Object.merge(key, this.pairIndex);
-    sys.puts("mergeeee : "+JSON.stringify(key));
+    key = array_merge(key, this.pairIndex);
     var pair = {};
     pair[field] = data;
     this.mongoCollection.update(key, "$set", pair, callback);
@@ -86,10 +85,33 @@ var MongoObject = new Class({
   contains: function(field, value, callback) {
     var pair = {};
     pair[field] = value;
-    Object.merge(pair, this.pairIndex);
+    pair = array_merge(pair, this.pairIndex);
     this.mongoCollection.find(pair, function(err, cursor) {
       cursor.count(function(err, n) {
         callback(err, n > 0);
+      });
+    });
+  },
+
+  //TODO: find a way to return only one elment of the array.
+  getObject: function(field, key, callback) {
+    var pair = {};
+    pair[field+".id"] = key;
+    pair = array_merge(pair, this.pairIndex);
+    var limitor = {};
+    limitor[field] = 1;
+    this.mongoCollection.find(pair, limitor, function(err, cursor) {
+      if(err) callback(err, null);
+      cursor.nextObject(function(err, obj) {
+        if(obj != null && obj[field] != null) {
+          var arr = obj[field];
+          for(var el in arr) {
+            if(arr[el].id == key) {
+              callback(null, arr[el]);
+            }
+          }
+          callback(new Error("Element not found"), null);
+        }
       });
     });
   },

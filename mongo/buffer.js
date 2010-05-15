@@ -98,6 +98,16 @@ var MongoBuffer = EventedBuffer.extend({
       callback(null, true);
     else
       this.mongoObject.contains(el, callback);
+  },
+
+  // useless function
+  get: function(el, callback) {
+    this.contains(el, function(err, res) {
+      if(res == true)
+        callback(null, el);
+      else
+        callback(new Error("Element <"+JSON.stringify(el)+"> does not exist in the buffer"), el);
+    });
   }
 
 });

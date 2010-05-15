@@ -94,9 +94,10 @@ var Room = new Class({
     this.announceMessage(msg);
   },
 
-  announceFile: function(username, file) {
+  announceFile: function(file) {
     this.fileBuffer.add(file);
-    var msg = "* " + utils.escape(username) + " is sharing "+file.filename;
+    var link = "/room/"+this.id+"/files/"+file.id;
+    var msg = "* " + utils.escape(file.uploader) + " is sharing <a href=\""+link+"\">"+file.filename+"</a>";
     this.announceMessage(msg);
   },
 
@@ -120,6 +121,10 @@ var Room = new Class({
 
   getUsers: function(callback) {
     this.usrBuffer.slice(0, callback);
+  },
+
+  getFileInfo: function(fileId, callback) {
+    this.fileBuffer.get(fileId, callback);
   },
 
   userExist: function(username, callback) {

@@ -83,6 +83,14 @@ var EventedBuffer = new Class({
 
   contains: function(el, callback) {
     callback(null, this.find(el) != -1);
+  },
+  
+  get: function(el, callback) {
+    var id = this.find(el);
+    if(id == -1)
+      callback(new Error("Element <"+JSON.stringify(el)+"> does not exist in the buffer"), null);
+    else
+      callback(null, this.buffer[id]);
   }
 
 });

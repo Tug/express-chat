@@ -152,7 +152,7 @@ post("/room/:roomID/live", function(roomID){
  * Send back new messages.
  */
 get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
-  if(!this.session[roomID] || !rooms[roomID]) {
+  if(this.session[roomID] == null || rooms[roomID] == null) {
     this.respond(200);
     return;
   }
@@ -169,7 +169,7 @@ get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
  * Send back new users.
  */
 get("/room/:roomID/live/users", function(roomID){
-  if(!this.session[roomID] || !rooms[roomID]) {
+  if(this.session[roomID] == null || rooms[roomID] == null) {
     this.respond(200);
     return;
   }
@@ -189,7 +189,7 @@ get("/room/:roomID/live/users", function(roomID){
 });
 
 get("/room/:roomID/users", function(roomID){
-  if(!this.session[roomID] || !rooms[roomID]) {
+  if(this.session[roomID] == null || rooms[roomID] == null) {
     this.respond(200);
     return;
   }
@@ -203,7 +203,7 @@ get("/room/:roomID/users", function(roomID){
 });
 
 get("/room/:roomID/part", function(roomID){
-  if(!this.session[roomID] || !rooms[roomID]) {
+  if(this.session[roomID] == null || rooms[roomID] == null) {
     this.respond(200);
     return;
   }
@@ -216,8 +216,8 @@ get("/room/:roomID/keepalive", function(roomID){
   this.respond(200);
 });
 
-post("/room/:roomID/upload", function(roomID){
-  if(!this.session[roomID] || !rooms[roomID]) {
+post("/room/:roomID/upload", function(roomID) {
+  if(this.session[roomID] == null || rooms[roomID] == null) {
     this.respond(200);
     return;
   }
@@ -225,11 +225,11 @@ post("/room/:roomID/upload", function(roomID){
   var self = this;
   fs.stat(file.tempfile, function (err, stats) {
     Object.merge(file, stats);
-    file.uploader = self.session.user.name;
+    file.uploader = self.session[roomID].username;
     var words = file.tempfile.split("-");
     file.id = words[words.length-1];
-    var usefulInfo = util.array_intersect_key_value(file, ["filename", "id", "size", "ctime"]);
-    rooms[roomID].announceFile(self.session[roomID].username, usefulInfo);
+    var usefulInfo = util.array_intersect_key_value(file, ["filename", "id", "size", "ctime", "uploader"]);
+    rooms[roomID].announceFile(usefulInfo);
     self.respond(200);
   });
 });
@@ -245,13 +245,22 @@ get('/favicon.ico', function(){
 /*
  * Send file.
  */
-get("/room/:roomID/files/:fileId", function(fileId){
-  if(!this.session[roomID] || !rooms[roomID]) {
+get("/room/:roomID/files/:fileId", function(roomID, fileId){
+  if(this.session[roomID] == null || rooms[roomID] == null) {
     this.respond(200);
     return;
   }
   var self = this;
-  
+  var filepath = "/tmp/express-"+fileId;
+  rooms[roomID].getFileInfo(fileId, function(err, fileInfo) {
+    if(err != null || !fileInfo) self.respond(404);
+    else {
+      self.contentType(fileInfo.filename);
+      self.header("Content-Disposition", "attachment; filename=\""+fileInfo.filename+"\"");
+      self.header("Content-Length", fileInfo.size+"; "); 
+      self.download(filepath, fileInfo.filename);
+    }
+  });
 });
 
 sys.puts("Init...");
