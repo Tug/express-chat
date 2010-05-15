@@ -1,6 +1,5 @@
 ﻿var Class = require(PATH_CLASS).Class;
 var util = require(PATH_UTIL);
-var sys = require("sys");
 
 var EventedBuffer = new Class({
 

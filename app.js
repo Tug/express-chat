@@ -17,7 +17,7 @@ var Room  = require("./room").Room;
 var host = configuration.host;
 var port = configuration.port;
 if(process.argv.length > 2) port = parseInt(process.argv[2]);
-var serverID = host + ":" + port;
+var serverID = configuration.myip + ":" + port;
 
 process.env["MONGO_NODE_DRIVER_HOST"] = configuration.mongo.host;
 process.env["MONGO_NODE_DRIVER_PORT"] = configuration.mongo.port;
@@ -40,7 +40,7 @@ var init = function(callback) {
 /*
  * configure express
  */
-configure("development", function(){
+configure(configuration.expressmode, function(){
   use(MethodOverride)
   use(ContentLength)
   use(Cookie)

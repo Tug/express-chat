@@ -59,12 +59,9 @@ var Room = new Class({
 
   addMessageListener: function(lastMsgId, session, callback) {
     var nbMsgTot = this.msgBuffer.size();
-    sys.puts("MessageListener lastMsgId: "+lastMsgId);
     if(lastMsgId >= nbMsgTot) {
-      sys.puts("b1 "+nbMsgTot);
       this.msgBuffer.addListener("added", session, this.id, callback);
     } else {
-      sys.puts("b2");
       this.msgBuffer.slice(lastMsgId, callback);
     }
   },

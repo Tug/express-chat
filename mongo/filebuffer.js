@@ -2,7 +2,6 @@ var util = require(PATH_UTIL);
 var MongoBuffer = require("./buffer").MongoBuffer;
 var MongoFile = require("./file").MongoFile;
 var Step = require(DIR_VENDORS + "/step/lib/step");
-var sys = require("sys");
 
 var MongoFileBuffer = MongoBuffer.extend({
 
@@ -88,7 +87,6 @@ var MongoFileBuffer = MongoBuffer.extend({
     if(i != -1)
       callback(null, this.buffer[i]);
     else
-      sys.p(this.mongoObject);
       this.mongoObject.getObject(this.arrayField, elId, callback);
   },
 
