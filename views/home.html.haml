@@ -12,5 +12,12 @@
   %form#CreateChatForm{ method: 'post', action: formAction }
     %fieldset
       %legend Create chat room
-      %input{ type: 'text', name: 'name', value: 'Your name', onclick: 'this.value=""' }
+      %input{ type: 'text', name: 'name', id: 'creatorname', value: 'Your name' }
       %input{ type: 'submit', value: 'Create' }
+      %input{ type: 'checkbox', name: 'ispublic', value: '1' } public
+  %br
+  #pubicRooms
+    %p Public rooms:
+    %ul
+      != this.partial('roomid.html.haml', { collection: publicrooms })
+

@@ -52,16 +52,26 @@ configure(configuration.expressmode, function(){
   set('max upload size', (200).megabytes)
 });
 
+
+
 /*
  * Send the home page.
  */
 get("/", function() {
-  this.render("home.html.haml", {
-    locals : {
-      formAction: "/",
-      title: "Chat+"
+  var self = this;
+  db.rooms.getPublicRooms(function(err, publicrooms) {
+    if(err) sys.puts(err.message);
+    else {
+      self.render("home.html.haml", {
+        locals : {
+          formAction: "/",
+          title: "Chat+",
+          publicrooms: publicrooms
+        }
+      });
     }
   });
+  
 });
 
 /*
@@ -74,11 +84,12 @@ post("/", function(){
     return;
   }
   var usedb = true; //this.param("usedb");
+  var ispublic = (this.param("ispublic")) ? true : false;
   var room = new Room(name);
   rooms[room.id] = room;
   this.session[room.id] = { username: name, alive: false };
   if(usedb == true)
-    room.save(db, serverID);
+    room.save(db, serverID, ispublic);
   this.redirect('/room/'+room.id);
 });
 

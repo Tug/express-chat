@@ -37,10 +37,10 @@ var Room = new Class({
     this.relativeIdMsgBuffer = 0;
   },
 
-  save: function(db, serverID) {
+  save: function(db, serverID, ispublic) {
     var self = this;
     var createRoom = function(tries) {
-      db.rooms.createRoom(self.admin, self.id, serverID, function(err, room) {
+      db.rooms.createRoom(self.admin, self.id, serverID, ispublic, function(err, room) {
         if(err != null && tries --> 0) {
           //sys.puts(err.message);
           self.id = util.generateRandomString(8);

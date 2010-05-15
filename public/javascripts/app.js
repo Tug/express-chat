@@ -101,6 +101,10 @@ $(function(){
     }
   });
 
+  $('#creatorname').click(function() {
+    $('#creatorname').val('');
+  });
+
   // actions to take when arriving in the page
   var timer = setInterval(function() {
     clearInterval(timer);
