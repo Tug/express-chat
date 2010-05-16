@@ -43,65 +43,23 @@ var MongoFileBuffer = MongoBuffer.extend({
           });
         } else this();
       },
-      /*function end() {
-        MongoBuffer.call(thisfunction, self);
-      });*/
-      function remove() {
-        if(self.rmUpdates.length > 0) {
-          var copyRmUp = self.rmUpdates.slice();
-          self.relativeId -= copyRmUp.length;
-          self.rmUpdates = [];
-          self.mongoObject.removeAll(self.arrayField, copyRmUp, this);
-        } else this();
-      },
-      function add(err,input) {
-        if(self.buffer.length > 0) {
-          var copyBuff = self.buffer.slice();
-          self.relativeId += self.buffer.length;
-          self.buffer = [];
-          self.mongoObject.append(self.arrayField, copyBuff, this);
-        } else this();
+      function end() {
+        MongoBuffer.prototype.backup.call(thisfunction, self);
       });
-      //end copy paste from super class
   },
 
   add: function(el) {
-    //MongoBuffer.call(this, fileInfo);
-    var i = util.find(this.rmUpdates, el);
-    if(i === -1) {
-      this.buffer.push(el);
-    } else {
-      this.rmUpdates.splice(i,1);
-    }
-    this.callThemAll("added", [el]);
-    // end copy paste of the super class
+    MongoBuffer.prototype.add.call(this, fileInfo);
     this.mongoFiles[el.id] = new MongoFile(this.db, el.id, { filename: el.filename });
   },
 
   remove: function(el) {
-    //MongoBuffer.call(this, el);
-    var i = this.find(el);
-    if(i === -1) {
-      this.rmUpdates.push(el);
-    } else {
-      this.buffer.splice(i,1);
-    }
-    this.callThemAll("removed", [el]);
-    // end copy paste of the super class
+    MongoBuffer.prototype.remove.call(this, el);
     delete this.mongoFiles[el.id];
   },
 
   change: function(el1, el2) {
-    //MongoBuffer.call(this, el1, el2);
-    var i = this.find(el1);
-    if(i === -1) {
-      this.rmUpdates.push(el1);
-      this.buffer.push(el2);
-    } else {
-      this.buffer.splice(i,1,el2);
-    }
-    this.callThemAll("modified", [[el1, el2]]);
-    // end copy paste of the super class
+    MongoBuffer.prototype.change.call(this, el1, el2);
     delete this.mongoFiles[el1.id];
     this.mongoFiles[el2.id] = new MongoFile(this.db, el2.id, { filename: el2.filename });
   },
