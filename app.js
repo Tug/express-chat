@@ -13,12 +13,13 @@ var fs    = require("fs");
 var util  = require(PATH_UTIL);
 var MyDB  = require(DIR_MONGO + "/mydb").MyDB;
 var Room  = require("./room").Room;
+var isset = require(PATH_PHPJS).isset;
 
 var host = configuration.host;
 var port = configuration.port;
-if(process.argv.length > 2) port = parseInt(process.argv[2]);
+if(process.argv.length > 2)
+  port = parseInt(process.argv[2]);
 var serverID = configuration.myip + ":" + port;
-
 process.env["MONGO_NODE_DRIVER_HOST"] = configuration.mongo.host;
 process.env["MONGO_NODE_DRIVER_PORT"] = configuration.mongo.port;
 
@@ -60,7 +61,7 @@ configure(configuration.expressmode, function(){
 get("/", function() {
   var self = this;
   db.rooms.getPublicRooms(function(err, publicrooms) {
-    if(err) sys.puts(err.message);
+    if(isset(err)) sys.puts(err.message);
     else {
       self.render("home.html.haml", {
         locals : {
@@ -79,7 +80,7 @@ get("/", function() {
  */
 post("/", function(){
   var name = this.param("name");
-  if( !name ) {
+  if(!isset(name)) {
     this.redirect('/');
     return;
   }
@@ -99,11 +100,11 @@ post("/", function(){
 get("/room/:roomID", function(roomID){
   var room = rooms[roomID] || null;
   var self = this;
-  if(room == null) {
+  if(!isset(room)) {
     db.rooms.get(roomID, function(err, dbroom) {
-      if(err) sys.puts("Error: "+err.message);
+      if(isset(err)) sys.puts("Error: "+err.message);
       var addrRedir = "/";
-      if(dbroom != null) {
+      if(isset(dbroom)) {
         if(dbroom.server == serverID) {
           rooms[dbroom.roomID] = Room.createRoomFromDb(db, dbroom, true);
         }
@@ -113,7 +114,7 @@ get("/room/:roomID", function(roomID){
       return;
     });
   } else {
-    if(this.session[roomID] == null) {
+    if(!isset(this.session[roomID])) {
       var name = room.createUsername();
       this.session[roomID] = { username: name, alive: false };
     }
@@ -139,11 +140,11 @@ post("/room/:roomID/live", function(roomID){
   var message = this.param("message") || null;
   var roomsession = this.session[roomID] || null;
   var room = rooms[roomID] || null;
-  if(roomsession != null && roomsession.username != null && room != null) {
-    if(newname) {
+  if(isset(roomsession) && isset(roomsession.username, room)) {
+    if(isset(newname)) {
       var self = this;
       room.changeUserName(roomsession.username, newname, function(err, newname) {
-        if(err) {
+        if(isset(err)) {
           self.contentType("json");
           self.respond(200, JSON.encode({error: err.message}));
         } else {
@@ -152,7 +153,7 @@ post("/room/:roomID/live", function(roomID){
         }
       });
     }
-    if(message) {
+    if(isset(message)) {
       room.announceUserMessage(roomsession.username, message);
     }
   }
@@ -163,13 +164,13 @@ post("/room/:roomID/live", function(roomID){
  * Send back new messages.
  */
 get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
-  if(this.session[roomID] == null || rooms[roomID] == null) {
+  if(!isset(this.session[roomID], rooms[roomID])) {
     this.respond(200);
     return;
   }
   var self = this;
   rooms[roomID].addMessageListener(lastMsgId, this.session, function(err, data) {
-    if(err) sys.puts("Error: "+err.message);
+    if(isset(err)) sys.puts("Error: "+err.message);
     var messages = data || [];
     self.contentType("json");
     self.respond(200, JSON.encode({messages: messages}));
@@ -180,13 +181,13 @@ get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
  * Send back new users.
  */
 get("/room/:roomID/live/users", function(roomID){
-  if(this.session[roomID] == null || rooms[roomID] == null) {
+  if(!isset(this.session[roomID], rooms[roomID])) {
     this.respond(200);
     return;
   }
   var self = this;
   rooms[roomID].addUserListener(this.session, function(err, data) {
-    if(err) sys.puts("Error: "+err.message);
+    if(isset(err)) sys.puts("Error: "+err.message);
     var newusers = data.added || [];
     var usersleft = data.removed || [];
     var modifiedusers = data.modified || [];
@@ -200,13 +201,13 @@ get("/room/:roomID/live/users", function(roomID){
 });
 
 get("/room/:roomID/users", function(roomID){
-  if(this.session[roomID] == null || rooms[roomID] == null) {
+  if(!isset(this.session[roomID], rooms[roomID])) {
     this.respond(200);
     return;
   }
   var self = this;
   var users = rooms[roomID].getUsers(function(err, users) {
-    if(err) sys.puts("Error: "+err.message);
+    if(isset(err)) sys.puts("Error: "+err.message);
     self.contentType("json");
     self.respond(200, JSON.encode(users));
   });
@@ -214,7 +215,7 @@ get("/room/:roomID/users", function(roomID){
 });
 
 get("/room/:roomID/part", function(roomID){
-  if(this.session[roomID] == null || rooms[roomID] == null) {
+  if(!isset(this.session[roomID], rooms[roomID])) {
     this.respond(200);
     return;
   }
@@ -228,7 +229,7 @@ get("/room/:roomID/keepalive", function(roomID){
 });
 
 post("/room/:roomID/upload", function(roomID) {
-  if(this.session[roomID] == null || rooms[roomID] == null) {
+  if(!isset(this.session[roomID], rooms[roomID])) {
     this.respond(200);
     return;
   }
@@ -239,7 +240,7 @@ post("/room/:roomID/upload", function(roomID) {
     file.uploader = self.session[roomID].username;
     var words = file.tempfile.split("-");
     file.id = words[words.length-1];
-    var usefulInfo = util.array_intersect_key_value(file, ["filename", "id", "size", "ctime", "uploader"]);
+    var usefulInfo = util.array_intersect_key_value(file, ["filename", "tempfile", "id", "size", "ctime", "uploader"]);
     rooms[roomID].announceFile(usefulInfo);
     self.respond(200);
   });
@@ -257,14 +258,14 @@ get('/favicon.ico', function(){
  * Send file.
  */
 get("/room/:roomID/files/:fileId", function(roomID, fileId){
-  if(this.session[roomID] == null || rooms[roomID] == null) {
+  if(!isset(this.session[roomID], rooms[roomID])) {
     this.respond(200);
     return;
   }
   var self = this;
   var filepath = "/tmp/express-"+fileId;
   rooms[roomID].getFileInfo(fileId, function(err, fileInfo) {
-    if(err != null || !fileInfo) self.respond(404);
+    if(isset(err), !isset(fileInfo)) self.respond(404);
     else {
       self.contentType(fileInfo.filename);
       self.header("Content-Disposition", "attachment; filename=\""+fileInfo.filename+"\"");
@@ -281,8 +282,19 @@ init(function() {
   initEnded = true;
 });
 
+
+var stdin = process.openStdin();
+process.addListener('SIGINT', function () {
+  sys.puts("\nServer ended!");
+  db.close();
+  delete rooms;
+  process.exit(0);
+});
+
+
+
 var runTimer = setInterval(function() {
-  if(initEnded) {
+  if(initEnded == true) {
     sys.puts("Running server now...");
     clearInterval(runTimer);
     run(port, host);

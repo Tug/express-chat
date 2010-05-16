@@ -2,6 +2,7 @@ var util = require(PATH_UTIL);
 var MongoBuffer = require("./buffer").MongoBuffer;
 var MongoFile = require("./file").MongoFile;
 var Step = require(DIR_VENDORS + "/step/lib/step");
+var fs = require("fs");
 
 var MongoFileBuffer = MongoBuffer.extend({
 
@@ -12,33 +13,56 @@ var MongoFileBuffer = MongoBuffer.extend({
   },
   
   backup: function(self) {
+    var thisfunction = this;
     Step(
       function removeFromDB() {
         if(self.rmUpdates.length > 0) {
           self.rmUpdates.forEach(function(file) {
             self.mongoFiles[file.id].remove();
             delete self.mongoFiles[file.id];
+            this();
           });
         } else this();
       },
-      function saveInDB(err, input) {
+      function saveInDB() {
         if(self.buffer.length > 0) {
           var parallel = this.parallel;
           self.buffer.forEach(function(file) {
-            self.mongoFiles[file.id].save(file.tempFile, parallel());
-            delete self.mongoFiles[file.id];
+            self.mongoFiles[file.id].save(file.tempfile, parallel());
           });
         } else this();
       },
-      function cleanFromDisk(err, input) {
-        var parallel = this.parallel;
-        self.buffer.forEach(function(file) {
-          fs.unlink(file.tempFile, parallel());
-        });
+      function removeFromDisk() {
+        if(self.buffer.length > 0) {
+          var parallel = this.parallel;
+          self.buffer.forEach(function(file) {
+            fs.unlink(file.tempfile, function(err) {
+              delete self.mongoFiles[file.id];
+              parallel()();
+            });
+          });
+        } else this();
       },
-      function end(){
-        MongoBuffer.call(self);
+      /*function end() {
+        MongoBuffer.call(thisfunction, self);
+      });*/
+      function remove() {
+        if(self.rmUpdates.length > 0) {
+          var copyRmUp = self.rmUpdates.slice();
+          self.relativeId -= copyRmUp.length;
+          self.rmUpdates = [];
+          self.mongoObject.removeAll(self.arrayField, copyRmUp, this);
+        } else this();
+      },
+      function add(err,input) {
+        if(self.buffer.length > 0) {
+          var copyBuff = self.buffer.slice();
+          self.relativeId += self.buffer.length;
+          self.buffer = [];
+          self.mongoObject.append(self.arrayField, copyBuff, this);
+        } else this();
       });
+      //end copy paste from super class
   },
 
   add: function(el) {
@@ -86,8 +110,17 @@ var MongoFileBuffer = MongoBuffer.extend({
     var i = this.find(elId);
     if(i != -1)
       callback(null, this.buffer[i]);
-    else
-      this.mongoObject.getObject(this.arrayField, elId, callback);
+    else {
+      var self = this;
+      this.mongoObject.getObject(this.arrayField, elId, function(err, fileInfo) {
+        var file = new MongoFile(self.db, elId);
+        file.getData(function(err, data) {
+          fs.writeFile(fileInfo.tempfile, data, function(err, r) {
+            callback(null, fileInfo);
+          });
+        });
+      });
+    }
   },
 
   find: function(elId) {

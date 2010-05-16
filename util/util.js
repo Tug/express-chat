@@ -68,7 +68,7 @@ var find = function(arr, el) {
  * note: arr2's values must be keys of arr1
  */
 var array_intersect_key_value = function(arr1, arr2) {
-  var out = [];
+  var out = {};
   for(var i in arr2) {
     var key = arr2[i];
     out[key] = arr1[key];

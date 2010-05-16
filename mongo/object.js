@@ -100,19 +100,18 @@ var MongoObject = new Class({
     pair = array_merge(pair, this.pairIndex);
     var limitor = {};
     limitor[field] = 1;
-    this.mongoCollection.find(pair, limitor, function(err, cursor) {
+    this.mongoCollection.find(pair, limitor, function(err, obj) {
       if(err) callback(err, null);
-      cursor.nextObject(function(err, obj) {
-        if(obj != null && obj[field] != null) {
-          var arr = obj[field];
-          for(var el in arr) {
-            if(arr[el].id == key) {
-              callback(null, arr[el]);
-            }
+      else if(obj != null && obj[field] != null) {
+        var arr = obj[field];
+        for(var el in arr) {
+          if(arr[el].id == key) {
+            callback(null, arr[el]);
+            return;
           }
-          callback(new Error("Element not found"), null);
         }
-      });
+      }
+      callback(new Error("Element not found"), null);
     });
   },
 

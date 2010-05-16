@@ -18,7 +18,7 @@ exports.configuration =
    ,  DIR_VENDORS: vendors
    ,  DIR_UTIL: util
    ,  PATH_UTIL: util + "/util"
-   ,  PATH_PHPJS: util + "/php.default.commonjs.min"
+   ,  PATH_PHPJS: util + "/phpjs.my.commonjs.min"
    ,  PATH_CLASS: vendors + "/class.js/lib/class"
    ,  DEBUG: true
    }

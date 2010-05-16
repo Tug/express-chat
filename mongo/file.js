@@ -2,14 +2,14 @@ var util = require(PATH_UTIL);
 var MongoBuffer = require("./buffer").MongoBuffer;
 ﻿var mongo = require(DIR_VENDORS + "/node-mongodb-native/lib/mongodb");
 var Step = require(DIR_VENDORS + "/step/lib/step").Step;
-
+var fs = require("fs");
 
 var MongoFile = new Class({
 
   constructor: function(db, filename, metadata) {
     var meta = metadata || null;
     this.gridStore = new mongo.GridStore(db, filename, "w", {"metadata": meta});
-    this.open = false;
+    this.isopen = false;
   },
 
   append: function(data, callback) {
@@ -41,23 +41,19 @@ var MongoFile = new Class({
 
   save: function(file, callback) {
     var self = this;
-    fs.readFile(file, function (err, data) {
-      self.gridStore.write(data, function(err, gridStore) {
-        gridStore.close(function(err, result) {
-          self.open = false;
-          callback(err);
+    fs.readFile(file, function(err, data) {
+      self.write(data.toString(), function(err, gridStore) {
+        self.close(function(err, res) {
+          self.isopen = false;
+          callback(err, res);
         });
       });
     });
   },
 
   write: function(data, callback) {
-    var self = this;
-    this.gridStore.write(data, function(err, gridStore) {
-      gridStore.close(function(err, data) {
-        self.open = false;
-        callback(err, data);
-      });
+    this.open(function(err, gridStore) {
+      gridStore.write(data, callback);
     });
   },
 
@@ -75,12 +71,22 @@ var MongoFile = new Class({
 
   open: function(callback) {
     var self = this;
-    if(self.open == false) {
+    if(self.isopen == false) {
       self.gridStore.open(function(err, gridStore) {
-        self.open = true;
-        callback();
+        self.isopen = true;
+        callback(err, gridStore);
       });
-    } else callback();
+    } else callback(null, self.gridStore);
+  },
+
+  close: function(callback) {
+    var self = this;
+    if(self.isopen == true) {
+      self.gridStore.close(function(err, res) {
+        self.isopen = false;
+        callback(err, res);
+      });
+    } else callback(null, null);
   },
 
   checkMode: function(mode) {
