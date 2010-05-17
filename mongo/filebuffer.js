@@ -49,7 +49,7 @@ var MongoFileBuffer = MongoBuffer.extend({
   },
 
   add: function(el) {
-    MongoBuffer.prototype.add.call(this, fileInfo);
+    MongoBuffer.prototype.add.call(this, el);
     this.mongoFiles[el.id] = new MongoFile(this.db, el.id, { filename: el.filename });
   },
 
