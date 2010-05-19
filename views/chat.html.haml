@@ -21,5 +21,7 @@
   %form#UploadForm{ method: 'post', enctype: 'multipart/form-data' }
     %fieldset
       %legend Share Files
-      #uploader
-        You cannot use the upload feature!
+      #container
+        #filelist No runtime found.
+        %a#pickfiles{ href:"#" } [Select files]
+        %a#uploadfiles{ href:"#" } [Upload files]

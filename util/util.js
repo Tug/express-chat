@@ -1,4 +1,6 @@
-﻿
+﻿var Step = require(DIR_VENDORS + "/step/lib/step");
+﻿var fs = require("fs");
+
 var generateRandomString = function(strlen) {
 	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
 	var randstr = '';
@@ -22,29 +24,6 @@ var clone = function (obj) {
     for(var key in obj)
         temp[key] = clone(obj[key]);
     return temp;
-}
-
-﻿/*
- * Inspired from 'Do' library by creationix
- * use callbacks instead of continuations.
- * !!! Does not work with closures !!!
- * => Step lib is used instead
- */
-var chain = function(actions, callback) {
-  if (!(actions instanceof Array)) {
-    actions = Array.prototype.slice.call(arguments);
-  }
-  var length = actions.length;
-  if(length > 0) {
-    var pos = length-1;
-    var tempfunc = callback;
-    while(pos --> 0) {
-      tempfunc= function(err, input) { actions[pos](input, tempfunc) };
-    }
-    tempfunc(null);
-  } else {
-    callback(new Error("no actions specified"), null);
-  }
 }
 
 var find = function(arr, el) {
@@ -77,9 +56,36 @@ var array_intersect_key_value = function(arr1, arr2) {
 }
 
 
+var readFileInChunks = function(filepath, chunkSize, callback) {
+  fs.open(filepath, "r", 0666, function(err, fd) {
+    var pos = 0;
+    var end = false;
+    var read = function(start) {
+      fs.read(fd, chunkSize, start, "binary", function(err, data, bytesRead) {
+        start += bytesRead;
+        callback(null, data, bytesRead, function() {
+          read(start);
+        });
+      });
+    }
+    read(0);
+  });
+}
+
+
+
+var arrayChain = function (arr, func, callback) {
+  var actions = arr.map(function(el) { return function() { func(el) }; });
+  actions.push(callback);
+  Step.apply(this, actions);
+}
+
+
 exports.generateRandomString = generateRandomString;
 exports.cast = cast;
 exports.find = find;
-exports.chain = chain;
 exports.clone = clone;
 exports.array_intersect_key_value = array_intersect_key_value;
+exports.readFileInChunks = readFileInChunks;
+exports.arrayChain = arrayChain;
+

@@ -5,14 +5,15 @@ var array_diff = require(PATH_PHPJS).array_diff;
 
 var MongoBuffer = EventedBuffer.extend({
 
-  constructor: function(mongoObject, arrayField) {
+  constructor: function(mongoObject, arrayField, backupIntSec) {
     EventedBuffer.call(this);
     this.mongoObject = mongoObject;
     this.arrayField = arrayField;
     this.relativeId = 0;
     this.rmUpdates = [];
     var self = this;
-    setInterval(function() { self.backup(self); }, 120*1000);
+    backupIntSec = backupIntSec || 30;
+    setInterval(function() { self.backup(self); }, backupIntSec*1000);
   },
 
   backup: function(self) {

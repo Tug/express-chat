@@ -1,8 +1,9 @@
 var util = require(PATH_UTIL);
 var MongoBuffer = require("./buffer").MongoBuffer;
 ﻿var mongo = require(DIR_VENDORS + "/node-mongodb-native/lib/mongodb");
-var Step = require(DIR_VENDORS + "/step/lib/step").Step;
+var Step = require(DIR_VENDORS + "/step/lib/step");
 var fs = require("fs");
+var sys = require("sys");
 
 var MongoFile = new Class({
 
@@ -16,10 +17,10 @@ var MongoFile = new Class({
     var self = this;
     self.checkMode("w+");
     Step(
-      function open(err,input) {
+      function open() {
         self.open(this);
       },
-      function append(err,input) {
+      function append() {
         self.gridStore.write(data, callback);
       });
   },
@@ -28,32 +29,26 @@ var MongoFile = new Class({
     var self = this;
     self.checkMode("w");
     Step(
-      function open(err,input) {
+      function open() {
         self.open(this);
       },
-      function seek(err, input) {
+      function seek() {
         gridStore.seek(index, this);
       },
-      function write(err, input) {
+      function write() {
         gridStore.write(data, callback);
       });
   },
 
-  save: function(file, callback) {
+  save: function(file, fcallback) {
     var self = this;
-    fs.readFile(file, function(err, data) {
-      self.write(data.toString(), function(err, gridStore) {
-        self.close(function(err, res) {
-          self.isopen = false;
-          callback(err, res);
-        });
-      });
-    });
-  },
-
-  write: function(data, callback) {
-    this.open(function(err, gridStore) {
-      gridStore.write(data, callback);
+    util.readFileInChunks(file, 100000, function(err, data, bytesRead, callback) {
+      if(bytesRead != 0) {
+        sys.puts(bytesRead);
+        self.append(data, callback);
+      } else {
+        fcallback(null, "ok");
+      }
     });
   },
 
@@ -90,8 +85,8 @@ var MongoFile = new Class({
   },
 
   checkMode: function(mode) {
-    if(self.gridStore.mode != mode) {
-      self.gridStore.mode = mode;
+    if(this.gridStore.mode != mode) {
+      this.gridStore.mode = mode;
     }
   }
 

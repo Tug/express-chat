@@ -7,7 +7,7 @@ var fs = require("fs");
 var MongoFileBuffer = MongoBuffer.extend({
 
   constructor: function(mongoObject) {
-    MongoBuffer.call(this, mongoObject, "files");
+    MongoBuffer.call(this, mongoObject, "files", 1*60);
     this.db = mongoObject.getDb();
     this.mongoFiles = {};
   },
