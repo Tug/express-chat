@@ -3,7 +3,7 @@ $(function(){
   var roomID = document.location.pathname;
   var nextMsgId = 0;
   var users = [];
-  
+
   $('#SendMsgForm').submit(function(){
     var messagebox = $('#message');
     var msg = messagebox.val();
@@ -108,7 +108,7 @@ $(function(){
   // actions to take when arriving in the page
   var timer = setInterval(function() {
     clearInterval(timer);
-    
+
   }, 10);
 
   setInterval(function(){
@@ -120,29 +120,29 @@ $(function(){
   });
 
 	var uploader = new plupload.Uploader({
-		runtimes : 'gears,flash,silverlight,browserplus,html5,html4',
+		runtimes : 'gears,silverlight,browserplus,html5,html4,flash',
 		browse_button : 'pickfiles',
 		container : 'container',
 		url : roomID+'/upload',
-	  max_file_size : '200mb',
-    multipart: true,
+	    max_file_size : '200mb',
+        multipart: true,
 		// Flash settings
-	  flash_swf_url : '/public/javascripts/plupload/plupload.flash.swf',
-	  // Silverlight settings
-	  silverlight_xap_url : '/public/javascripts/plupload/plupload.silverlight.xap'
+	    flash_swf_url : '/public/javascripts/plupload/plupload.flash.swf',
+	    // Silverlight settings
+	    silverlight_xap_url : '/public/javascripts/plupload/plupload.silverlight.xap'
 		/*filters : [
 			{title : "Image files", extensions : "jpg,gif,png"},
 			{title : "Zip files", extensions : "zip"}
 		],
 		resize : {width : 320, height : 240, quality : 90}
-    */
+        */
 	});
 
 	uploader.bind('Init', function(up, params) {
 		$('#filelist').html("<div>Current runtime: " + params.runtime + "</div>");
 	});
 
-  uploader.bind('FilesAdded', function(up, files) {
+    uploader.bind('FilesAdded', function(up, files) {
 		$.each(files, function(i, file) {
 			$('#filelist').append(
 				'<div id="' + file.id + '">' +
@@ -151,7 +151,7 @@ $(function(){
 			);
 		});
 	});
-  
+
 	uploader.bind('UploadProgress', function(up, file) {
 		$('#' + file.id + " b").html(file.percent + "%");
 	});
@@ -164,7 +164,7 @@ $(function(){
 	uploader.init();
 
   //$('#uploader').hide();
-  
+
   //$('#uploadshow').click(function() {
   //  $('#uploader').show(400);
   //  return false;
