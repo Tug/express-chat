@@ -111,10 +111,6 @@ $(function(){
 
   }, 10);
 
-  setInterval(function(){
-    $.getJSON(roomID+"/keepalive", function(data){});
-  }, 30*1000);
-
   $(window).unload(function () {
     $.getJSON(roomID+"/part", function(data){});
   });

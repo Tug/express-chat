@@ -72,7 +72,7 @@ get("/", function() {
       });
     }
   });
-  
+
 });
 
 /*
@@ -224,10 +224,6 @@ get("/room/:roomID/part", function(roomID){
   this.respond(200);
 });
 
-get("/room/:roomID/keepalive", function(roomID){
-  this.respond(200);
-});
-
 post("/room/:roomID/upload", function(roomID) {
   if(!isset(this.session[roomID], rooms[roomID])) {
     this.respond(200);
@@ -269,7 +265,7 @@ get("/room/:roomID/files/:fileId", function(roomID, fileId){
     else {
       self.contentType(fileInfo.filename);
       self.header("Content-Disposition", "attachment; filename=\""+fileInfo.filename+"\"");
-      self.header("Content-Length", fileInfo.size+"; "); 
+      self.header("Content-Length", fileInfo.size+"; ");
       self.download(filepath, fileInfo.filename);
     }
   });
