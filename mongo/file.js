@@ -45,9 +45,9 @@ var MongoFile = new Class({
     util.readFileInChunks(file, 100000, function(err, data, bytesRead, callback) {
       if(bytesRead != 0) {
         sys.puts(bytesRead);
-        self.append(data, callback);
+        self.append(data.toString(), callback);
       } else {
-        fcallback(null, "ok");
+        self.close(fcallback);
       }
     });
   },
