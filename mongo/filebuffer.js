@@ -3,11 +3,12 @@ var MongoBuffer = require("./buffer").MongoBuffer;
 var MongoFile = require("./file").MongoFile;
 var Step = require(DIR_VENDORS + "/step/lib/step");
 var fs = require("fs");
+var isset = require(PATH_PHPJS).isset;
 
 var MongoFileBuffer = MongoBuffer.extend({
 
   constructor: function(mongoObject) {
-    MongoBuffer.call(this, mongoObject, "files", 1*60);
+    MongoBuffer.call(this, mongoObject, "files", 2*60);
     this.db = mongoObject.getDb();
     this.mongoFiles = {};
   },
@@ -64,21 +65,48 @@ var MongoFileBuffer = MongoBuffer.extend({
     this.mongoFiles[el2.id] = new MongoFile(this.db, el2.id, { filename: el2.filename });
   },
 
-  get: function(elId, callback) {
+  getInfo: function(elId, callback) {
     var i = this.find(elId);
     if(i != -1)
       callback(null, this.buffer[i]);
-    else {
-      var self = this;
-      this.mongoObject.getObject(this.arrayField, elId, function(err, fileInfo) {
-        var file = new MongoFile(self.db, elId);
+    else
+      this.mongoObject.getObject(this.arrayField, elId, callback);
+  },
+  
+  getFile: function(elId, callback) {
+    var self = this;
+    this.getInfo(elId, function(err, fileInfo) {
+      if(err) callback(err, null, null);
+      else
+        if(isset(self.mongoFiles[elId]))
+          callback(null, self.mongoFiles[elId], fileInfo);
+        else {
+          var file = new MongoFile(self.db, elId);
+          self.mongoObject[elId] = file
+          callback(null, file, fileInfo);
+        }
+    });
+  },
+
+  pullFile: function(elId, callback) {
+    var self = this;
+    self.getFile(elId, function(err, file, fileInfo) {
+      if(err) callback(err, null);
+      else
         file.getData(function(err, data) {
           fs.writeFile(fileInfo.tempfile, data, function(err, r) {
             callback(null, fileInfo);
           });
         });
-      });
-    }
+    });
+  },
+
+  getStream: function(elId, callback) {
+    var self = this;
+    self.getFile(elId, function(err, file, fileInfo) {
+      if(err) callback(err, null);
+      else callback(null, file.getStream(fileInfo), fileInfo);
+    });
   },
 
   find: function(elId) {

@@ -260,13 +260,13 @@ get("/room/:roomID/files/:fileId", function(roomID, fileId){
   }
   var self = this;
   var filepath = "/tmp/express-"+fileId;
-  rooms[roomID].getFileInfo(fileId, function(err, fileInfo) {
-    if(isset(err), !isset(fileInfo)) self.respond(404);
+  rooms[roomID].getFile(fileId, function(err, stream, fileInfo) {
+    if(isset(err) || !isset(stream) || !isset(fileInfo)) self.respond(404);
     else {
-      self.contentType(fileInfo.filename);
+      //self.contentType(fileInfo.filename);
       self.header("Content-Disposition", "attachment; filename=\""+fileInfo.filename+"\"");
-      self.header("Content-Length", fileInfo.size+"; ");
-      self.download(filepath, fileInfo.filename);
+      //self.header("Content-Length", fileInfo.size+"; ");
+      self.stream(stream);
     }
   });
 });

@@ -124,6 +124,10 @@ var Room = new Class({
     this.fileBuffer.get(fileId, callback);
   },
 
+  getFile: function(fileId, callback) {
+    this.fileBuffer.getStream(fileId, callback);
+  },
+
   userExist: function(username, callback) {
     this.usrBuffer.contains(username, callback);
   }
