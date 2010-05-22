@@ -63,6 +63,10 @@ var MongoCollection = new Class({
     });
   },
 
+  remove: function(spec, callback) {
+    this.collection.remove(spec, callback);
+  },
+
   getDb: function() {
     return this.collection.db;
   }

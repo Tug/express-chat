@@ -299,7 +299,12 @@ process.addListener('SIGINT', function () {
   process.exit(0);
 });
 
-
+setInterval(function removeOldRooms() {
+  if(initEnded == true) {
+    sys.puts("Removing old rooms!");
+    db.rooms.removeOldRooms();
+  }
+}, 3600 * 1000);
 
 var runTimer = setInterval(function() {
   if(initEnded == true) {
