@@ -14,6 +14,7 @@ var util  = require(PATH_UTIL);
 var MyDB  = require(DIR_MONGO + "/mydb").MyDB;
 var Room  = require("./room").Room;
 var isset = require(PATH_PHPJS).isset;
+var dirname = require(PATH_PHPJS).dirname;
 
 var host = configuration.host;
 var port = configuration.port;
@@ -50,7 +51,7 @@ configure(configuration.expressmode, function(){
   use(Static)
   use(Logger)
   set("root", __dirname)
-  set('max upload size', (200).megabytes)
+  set('max upload size', (300).megabytes)
 });
 
 
@@ -165,7 +166,7 @@ post("/room/:roomID/live", function(roomID){
  */
 get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
   if(!isset(this.session[roomID], rooms[roomID])) {
-    this.respond(200);
+    this.error();
     return;
   }
   var self = this;
@@ -182,7 +183,7 @@ get("/room/:roomID/live/msg/:lastMsgId", function(roomID, lastMsgId){
  */
 get("/room/:roomID/live/users", function(roomID){
   if(!isset(this.session[roomID], rooms[roomID])) {
-    this.respond(200);
+    this.error();
     return;
   }
   var self = this;
@@ -202,7 +203,7 @@ get("/room/:roomID/live/users", function(roomID){
 
 get("/room/:roomID/users", function(roomID){
   if(!isset(this.session[roomID], rooms[roomID])) {
-    this.respond(200);
+    this.error();
     return;
   }
   var self = this;
@@ -211,12 +212,11 @@ get("/room/:roomID/users", function(roomID){
     self.contentType("json");
     self.respond(200, JSON.encode(users));
   });
-
 });
 
 get("/room/:roomID/part", function(roomID){
   if(!isset(this.session[roomID], rooms[roomID])) {
-    this.respond(200);
+    this.error();
     return;
   }
   rooms[roomID].announceUserLeft(this.session[roomID].username);
@@ -226,19 +226,27 @@ get("/room/:roomID/part", function(roomID){
 
 post("/room/:roomID/upload", function(roomID) {
   if(!isset(this.session[roomID], rooms[roomID])) {
-    this.respond(200);
+    this.error();
     return;
   }
-  var file = this.param("file");
   var self = this;
-  fs.stat(file.tempfile, function (err, stats) {
-    Object.merge(file, stats);
-    file.uploader = self.session[roomID].username;
-    var words = file.tempfile.split("-");
-    file.id = words[words.length-1];
-    var usefulInfo = util.array_intersect_key_value(file, ["filename", "tempfile", "id", "size", "ctime", "uploader"]);
-    rooms[roomID].announceFile(usefulInfo);
-    self.respond(200);
+  var file = this.param("file");
+  var words = file.tempfile.split("-");
+  var fileId = words[words.length-1];
+  file.id = fileId;
+  var fileDir = dirname(file.tempfile);
+  fs.rename(file.tempfile, fileDir+"/"+fileId, function(err) {
+    if(isset(err)) self.error();
+    else {
+      file.tempfile = fileDir+"/"+fileId;
+      fs.stat(file.tempfile, function (err, stats) {
+        Object.merge(file, stats);
+        file.uploader = self.session[roomID].username;
+        var usefulInfo = util.array_intersect_key_value(file, ["filename", "tempfile", "id", "size", "ctime", "uploader"]);
+        rooms[roomID].announceFile(usefulInfo);
+        self.respond(200);
+      });
+    }
   });
 });
 
@@ -260,13 +268,17 @@ get("/room/:roomID/files/:fileId", function(roomID, fileId){
   }
   var self = this;
   var filepath = "/tmp/express-"+fileId;
-  rooms[roomID].getFile(fileId, function(err, stream, fileInfo) {
-    if(isset(err) || !isset(stream) || !isset(fileInfo)) self.respond(404);
+  rooms[roomID].getFile(fileId, function(err, file, fileInfo) {
+    if(isset(err) || !isset(file) || !isset(fileInfo)) self.respond(404);
     else {
-      //self.contentType(fileInfo.filename);
-      self.header("Content-Disposition", "attachment; filename=\""+fileInfo.filename+"\"");
-      //self.header("Content-Length", fileInfo.size+"; ");
-      self.stream(stream);
+      self.contentType(fileInfo.filename);
+      self.header('Content-Disposition', 'attachment; filename="'+fileInfo.filename+'"');
+      self.header("Content-Length", fileInfo.size+"; ");
+      file.download(function(err, res) {
+        self.sendfile(fileInfo.tempfile, function(err, res) {
+          file.downloadFinished();
+        });
+      });
     }
   });
 });

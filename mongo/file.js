@@ -1,127 +1,72 @@
-var util = require(PATH_UTIL);
-var MongoBuffer = require("./buffer").MongoBuffer;
-﻿var mongo = require(DIR_VENDORS + "/node-mongodb-native/lib/mongodb");
-var Step = require(DIR_VENDORS + "/step/lib/step");
-﻿var Class = require(PATH_CLASS).Class;
-var Stream = require(DIR_UTIL + "/stream").Stream
+﻿var Class = require(PATH_CLASS).Class
 var fs = require("fs");
 var sys = require("sys");
+var spawn = require("child_process").spawn;
+
 
 var MongoFile = new Class({
 
-  constructor: function(db, filename, metadata) {
-    var meta = metadata || null;
-    this.gridStore = new mongo.GridStore(db, filename, "w", {"metadata": meta});
-    this.isopen = false;
+  constructor: function(filePath) {
+    this.filePath = filePath;
+    this.inTempFolder = true;
+    this.inDb = false;
+    this.downloaders = 0;
   },
 
-  append: function(data, callback) {
-    var self = this;
-    self.checkMode("w+");
-    Step(
-      function open() {
-        self.open(this);
-      },
-      function append() {
-        self.gridStore.write(data, true, this);
-      },
-      callback);
+  save: function(callback) {
+    sys.puts("saving "+this.filePath);
+    if(this.inDb) callback(null, true);
+    else if(!this.inTempFolder) callback(null, false);
+    else {
+      var savecommand = spawn(PATH_MONGOFILES, ["-d", DB_NAME, "put", this.filePath]);
+      var self = this;
+      savecommand.addListener('exit', function (code) {
+        sys.puts("saved");
+        self.inDb = true;
+        callback(null, code == 0);
+      });
+    }
   },
 
-  insertAt: function(index, data, callback) {
-    var self = this;
-    self.checkMode("w");
-    Step(
-      function open() {
-        self.open(this);
-      },
-      function seek() {
-        self.gridStore.seek(index, this);
-      },
-      function write() {
-        self.gridStore.write(data, true, this);
-      },
-      callback);
+  download: function(callback) {
+    this.downloaders++;
+    sys.puts("downloading "+this.filePath);
+    if(this.inTempFolder) callback(null, true);
+    else if(!this.inDb) callback(null, false);
+    else {
+      var dlcommand = spawn(PATH_MONGOFILES, ["-d", DB_NAME, "get", this.filePath]);
+      sys.puts("written in tmp folder");
+      var self = this;
+      dlcommand.addListener('exit', function (code) {
+        self.inTempFolder = true;
+        callback(null, code == 0);
+      });
+    }
   },
 
-  save: function(filepath, fcallback) {
+  removeFromDisk: function(callback) {
     var self = this;
-    var chunkSize = chunkSize || (1024 * 1024);
-    var st = new Date();
-    util.readFileInChunks(filepath, chunkSize, function(err, data, bytesRead, callback) {
-      if(bytesRead != 0) {
-        sys.puts(bytesRead+";"+(new Date() - st));
-        st = new Date();
-        self.append(data.toString(), callback);
-      } else {
-        self.close(fcallback);
-      }
+    if(this.downloaders == 0) {
+      fs.unlink(this.filePath, function(err, res) {
+        self.inTempFolder = false;
+        if(callback) callback(null, true);
+      });
+    } else if(callback) callback(null, false);
+  },
+
+  removeFromDb: function(callback) {
+    var rmcommand = spawn(PATH_MONGOFILES, ["-d", DB_NAME, "delete", this.filePath]);
+    var self = this;
+    rmcommand.addListener('exit', function (code) {
+      self.inDb = false;
+      if(callback) callback(null, code == 0);
     });
   },
 
-  getStream: function(fileInfo) {
-    var self = this;
-    var stream = new Stream();
-    stream.path = fileInfo.filename;
-    self.open(function() {
-      var chunkSize = self.gridStore.chunkSize || (1024 * 1024);
-      var totalSize = self.gridStore.length;
-      var read = function() {
-        var bytesToGo = totalSize - self.gridStore.position;
-        if(bytesToGo <= 0) stream.end();
-        else {
-          sys.puts("bytesToGo:"+bytesToGo);
-          if(chunkSize > bytesToGo) chunkSize = bytesToGo;
-          self.gridStore.read(chunkSize, function(err, data) {
-            sys.puts("len="+data.length);
-            if(err) stream.error(err);
-            else {
-              stream.data(data);
-              read();
-            }
-          });
-        }
-      };
-      read(0);
-    }); 
-    return stream;
-  },
-
-  getData: function(callback) {
-    mongo.GridStore.read(this.gridStore.db, this.gridStore.filename, callback);
-  },
-
-  exist: function() {
-    mongo.GridStore.exist(this.gridStore.db, this.gridStore.filename, callback);
-  },
-
-  remove: function() {
-    mongo.GridStore.unlink(this.gridStore.db, this.gridStore.filename, callback);
-  },
-
-  open: function(callback) {
-    var self = this;
-    if(self.isopen == false) {
-      self.gridStore.open(function(err, gridStore) {
-        self.isopen = true;
-        callback(err, gridStore);
-      });
-    } else callback(null, self.gridStore);
-  },
-
-  close: function(callback) {
-    var self = this;
-    if(self.isopen == true) {
-      self.gridStore.close(function(err, res) {
-        self.isopen = false;
-        callback(err, res);
-      });
-    } else callback(null, null);
-  },
-
-  checkMode: function(mode) {
-    if(this.gridStore.mode != mode) {
-      this.gridStore.mode = mode;
+  downloadFinished: function(callback) {
+    this.downloaders--;
+    if(this.downloaders == 0) {
+      this.removeFromDisk(callback);
     }
   }
 

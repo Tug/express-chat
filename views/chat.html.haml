@@ -17,12 +17,12 @@
       %textarea#message{ name: 'message' }
     .RightBox#submitBox
       %input{ type: 'submit', value: 'Send' }
-.UploadBox#uploadshow
+.UploadBox
   %form#UploadForm{ method: 'post', enctype: 'multipart/form-data' }
     %fieldset
       %legend Share Files
-      #container
-        %a#pickfiles{ href:"#" } [Select files]
-        %a#uploadfiles{ href:"#" } [Upload files]
-        #filelist No runtime found.
+      #uploadButton Upload
+      %br
+      Uploaded Files:
+      #fileList
 

@@ -121,11 +121,11 @@ var Room = new Class({
   },
 
   getFileInfo: function(fileId, callback) {
-    this.fileBuffer.get(fileId, callback);
+    this.fileBuffer.getInfo(fileId, callback);
   },
 
   getFile: function(fileId, callback) {
-    this.fileBuffer.getStream(fileId, callback);
+    this.fileBuffer.getFile(fileId, callback);
   },
 
   userExist: function(username, callback) {

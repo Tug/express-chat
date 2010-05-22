@@ -20,6 +20,8 @@ exports.configuration =
    ,  PATH_UTIL: util + "/util"
    ,  PATH_PHPJS: util + "/phpjs.my.commonjs.min"
    ,  PATH_CLASS: vendors + "/class.js/lib/class"
+   ,  PATH_MONGOFILES: "/opt/mongo/bin/mongofiles"
    ,  DEBUG: true
+   ,  DB_NAME: "express-mongo-chat"
    }
 }

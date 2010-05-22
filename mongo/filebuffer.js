@@ -8,9 +8,10 @@ var isset = require(PATH_PHPJS).isset;
 var MongoFileBuffer = MongoBuffer.extend({
 
   constructor: function(mongoObject) {
-    MongoBuffer.call(this, mongoObject, "files", 2*60);
+    MongoBuffer.call(this, mongoObject, "files");
     this.db = mongoObject.getDb();
     this.mongoFiles = {};
+    this.rmTempFiles = {};
   },
   
   backup: function(self) {
@@ -19,9 +20,9 @@ var MongoFileBuffer = MongoBuffer.extend({
       function removeFromDB() {
         if(self.rmUpdates.length > 0) {
           self.rmUpdates.forEach(function(file) {
-            self.mongoFiles[file.id].remove();
+            var tmp = self.mongoFiles[file.id];
             delete self.mongoFiles[file.id];
-            this();
+            tmp.removeFromDb(this);
           });
         } else this();
       },
@@ -29,7 +30,7 @@ var MongoFileBuffer = MongoBuffer.extend({
         if(self.buffer.length > 0) {
           var parallel = this.parallel;
           self.buffer.forEach(function(file) {
-            self.mongoFiles[file.id].save(file.tempfile, parallel());
+            self.mongoFiles[file.id].save(parallel());
           });
         } else this();
       },
@@ -37,10 +38,7 @@ var MongoFileBuffer = MongoBuffer.extend({
         if(self.buffer.length > 0) {
           var parallel = this.parallel;
           self.buffer.forEach(function(file) {
-            fs.unlink(file.tempfile, function(err) {
-              delete self.mongoFiles[file.id];
-              parallel()();
-            });
+            self.mongoFiles[file.id].removeFromDisk(parallel());
           });
         } else this();
       },
@@ -51,7 +49,7 @@ var MongoFileBuffer = MongoBuffer.extend({
 
   add: function(el) {
     MongoBuffer.prototype.add.call(this, el);
-    this.mongoFiles[el.id] = new MongoFile(this.db, el.id, { filename: el.filename });
+    this.mongoFiles[el.id] = new MongoFile(el.tempfile);
   },
 
   remove: function(el) {
@@ -62,7 +60,7 @@ var MongoFileBuffer = MongoBuffer.extend({
   change: function(el1, el2) {
     MongoBuffer.prototype.change.call(this, el1, el2);
     delete this.mongoFiles[el1.id];
-    this.mongoFiles[el2.id] = new MongoFile(this.db, el2.id, { filename: el2.filename });
+    this.mongoFiles[el2.id] = new MongoFile(el2.tempfile);
   },
 
   getInfo: function(elId, callback) {
@@ -81,7 +79,7 @@ var MongoFileBuffer = MongoBuffer.extend({
         if(isset(self.mongoFiles[elId]))
           callback(null, self.mongoFiles[elId], fileInfo);
         else {
-          var file = new MongoFile(self.db, elId);
+          var file = new MongoFile(fileInfo.tempfile);
           self.mongoObject[elId] = file
           callback(null, file, fileInfo);
         }
@@ -93,19 +91,7 @@ var MongoFileBuffer = MongoBuffer.extend({
     self.getFile(elId, function(err, file, fileInfo) {
       if(err) callback(err, null);
       else
-        file.getData(function(err, data) {
-          fs.writeFile(fileInfo.tempfile, data, function(err, r) {
-            callback(null, fileInfo);
-          });
-        });
-    });
-  },
-
-  getStream: function(elId, callback) {
-    var self = this;
-    self.getFile(elId, function(err, file, fileInfo) {
-      if(err) callback(err, null);
-      else callback(null, file.getStream(fileInfo), fileInfo);
+        file.download(callback);
     });
   },
 

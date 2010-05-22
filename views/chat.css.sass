@@ -3,7 +3,7 @@
 !heightHeader = 120px
 !heightChat = 400px
 !heightDialog = 80px
-!heightUpload = 380px
+!heightUpload = 100px
 
 .HeaderBox
   :height !heightHeader
@@ -29,8 +29,9 @@
 
 .UploadBox
   :width 100%
-  :height !heightUpload
+  :min-height !heightUpload
   :margin 20px 0
+  :text-align center
 
 ul#messages
   :padding 0
@@ -108,7 +109,14 @@ ul#users
     :padding 10px
     :border 0
 
-#uploader
-  :color #ffffff
+#uploadButton
+  :font-size 16px
+  :border 1px solid #ffffff
+  :width 30%
+  :margin-left auto
+  :margin-right auto
+	:text-align center
 
+#fileList
+  :text-align left
 

@@ -115,56 +115,37 @@ $(function(){
     $.getJSON(roomID+"/part", function(data){});
   });
 
-	var uploader = new plupload.Uploader({
-		runtimes : 'gears,silverlight,browserplus,html5,html4,flash',
-		browse_button : 'pickfiles',
-		container : 'container',
-		url : roomID+'/upload',
-	    max_file_size : '200mb',
-        multipart: true,
-		// Flash settings
-	    flash_swf_url : '/public/javascripts/plupload/plupload.flash.swf',
-	    // Silverlight settings
-	    silverlight_xap_url : '/public/javascripts/plupload/plupload.silverlight.xap'
-		/*filters : [
-			{title : "Image files", extensions : "jpg,gif,png"},
-			{title : "Zip files", extensions : "zip"}
-		],
-		resize : {width : 320, height : 240, quality : 90}
-        */
-	});
-
-	uploader.bind('Init', function(up, params) {
-		$('#filelist').html("<div>Current runtime: " + params.runtime + "</div>");
-	});
-
-    uploader.bind('FilesAdded', function(up, files) {
-		$.each(files, function(i, file) {
-			$('#filelist').append(
-				'<div id="' + file.id + '">' +
-				'File: ' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
-				'</div>'
-			);
-		});
-	});
-
-	uploader.bind('UploadProgress', function(up, file) {
-		$('#' + file.id + " b").html(file.percent + "%");
-	});
-
-	$('#uploadfiles').click(function(e) {
-		uploader.start();
-		e.preventDefault();
-	});
-
-	uploader.init();
-
-  //$('#uploader').hide();
-
-  //$('#uploadshow').click(function() {
-  //  $('#uploader').show(400);
-  //  return false;
-  //});
+  var button = $('#uploadButton'), interval;
+  new AjaxUpload(button, {
+    action: roomID+'/upload',
+    name: 'file',
+    autoSubmit: true,
+    responseType: false,
+    onSubmit : function(file, ext) {
+			// change button text, when user selects file			
+			button.text('Uploading');
+			// If you want to allow uploading only 1 file at time,
+			// you can disable upload button
+			this.disable();
+			// Uploding -> Uploading. -> Uploading...
+			interval = window.setInterval(function(){
+				var text = button.text();
+				if (text.length < 13){
+					button.text(text + '.');					
+				} else {
+					button.text('Uploading');
+				}
+			}, 200);
+		},
+		onComplete: function(file, response){
+			button.text('Upload');
+			window.clearInterval(interval);
+			// enable upload button
+			this.enable();
+			// add file to the list
+			$('<div class="file"></div>').appendTo('#fileList').text(file);						
+		}
+  });
 
 })
 

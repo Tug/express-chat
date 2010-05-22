@@ -6,7 +6,7 @@ var util = require(PATH_UTIL);
 var MyDB = MongoDB.extend({
 
   constructor: function() {
-    MongoDB.call(this, "express-mongo-chat");
+    MongoDB.call(this, DB_NAME);
     this.rooms = null;
   },
 
