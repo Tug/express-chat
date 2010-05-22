@@ -25,6 +25,6 @@ exports.configuration =
    ,  DEBUG: true
    ,  DB_NAME: "express-mongo-chat"
    ,  isset: require(phpjs).isset
-   ,  array_merge: require(phpjs).array_merge;
+   ,  array_merge: require(phpjs).array_merge
    }
 }
