@@ -46,9 +46,9 @@ var MongoBuffer = EventedBuffer.extend({
       } else if(this.mongoObject) {
         var self = this;
         this.mongoObject.getSlice(this.arrayField, start, function(err, arr) {
-          if(err) {
+          if(isset(err))
             callback(err, []);
-          } else {
+          else {
             arr = arr.concat(self.buffer);
             if(self.rmUpdates.length > 0)
               arr = array_diff(arr, self.rmUpdates);

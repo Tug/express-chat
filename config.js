@@ -2,6 +2,7 @@
 var util = __dirname + "/util";
 var vendors = __dirname + "/vendor";
 var mongo = __dirname + "/mongo";
+var phpjs = util + "/phpjs.my.commonjs.min";
 
 exports.configuration = 
 {  host: ""//"localhost"
@@ -18,10 +19,12 @@ exports.configuration =
    ,  DIR_VENDORS: vendors
    ,  DIR_UTIL: util
    ,  PATH_UTIL: util + "/util"
-   ,  PATH_PHPJS: util + "/phpjs.my.commonjs.min"
+   ,  PATH_PHPJS: phpjs
    ,  PATH_CLASS: vendors + "/class.js/lib/class"
    ,  PATH_MONGOFILES: "/opt/mongo/bin/mongofiles"
    ,  DEBUG: true
    ,  DB_NAME: "express-mongo-chat"
+   ,  isset: require(phpjs).isset
+   ,  array_merge: require(phpjs).array_merge;
    }
 }

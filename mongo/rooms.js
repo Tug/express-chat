@@ -2,7 +2,6 @@
 var MongoRoom = require("./room").MongoRoom;
 var MongoFile = require("./file").MongoFile;
 var util  = require(PATH_UTIL);
-var isset = require(PATH_PHPJS).isset;
 var sys = require("sys");
 
 var MongoRooms = MongoCollection.extend({
@@ -20,17 +19,17 @@ var MongoRooms = MongoCollection.extend({
     };
     room[this.indexKey] = id;
     this.addUnique(room, function(err, r) {
-      if(err != null) {
+      if(isset(err))
         callback(new Error("Collision in room id"), null);
-      } else {
+      else
         callback(null, new MongoRoom(self, id));
-      }
     });
   },
 
   getPublicRooms: function(callback) {
     this.findAll({ "ispublic": true }, {"roomID":1}, function(err, res) {
-      if(err) callback(err,null);
+      if(isset(err))
+        callback(err,null);
       else {
         var rooms = [];
         for(var i=0; i<res.length; i++) {
@@ -53,7 +52,6 @@ var MongoRooms = MongoCollection.extend({
       if(isset(err) || !isset(list)) if(callback) callback(err, null);
       else {
         var files = [];
-        sys.p(list);
         list.forEach(function(room) { files.append(room.files); });
         if(files.length > 0) {
           util.arrayChain(files, function(file) {

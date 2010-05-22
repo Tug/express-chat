@@ -41,8 +41,7 @@ var Room = new Class({
     var self = this;
     var createRoom = function(tries) {
       db.rooms.createRoom(self.admin, self.id, serverID, ispublic, function(err, room) {
-        if(err != null && tries --> 0) {
-          //sys.puts(err.message);
+        if(isset(err) && tries --> 0) {
           self.id = util.generateRandomString(8);
           createRoom();
         } else {
@@ -105,9 +104,11 @@ var Room = new Class({
   changeUserName: function(username, newname, callback) {
     var self = this;
     this.getUsers(function(err, users) {
-      if(!err && util.find(users, newname) !== -1) {
+      if(isset(err))
+        callback(err, null);
+      else if(util.find(users, newname) !== -1)
         callback(new Error("Username already in use"), null);
-      } else {
+      else {
         self.usrBuffer.change(username, newname);
         var msg = "* " + utils.escape(username) + " is now known as " + utils.escape(newname) + ".";
         self.announceMessage(msg);

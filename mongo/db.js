@@ -38,7 +38,7 @@ var MongoDB = new Class({
   createCollection: function(name, indexes, callback) {
     var self = this;
     this.client.collection(name, function(err, collection) {
-      if(err) sys.puts("Error creating collection "+name+": "+err.message);
+      if(isset(err)) sys.puts("Error creating collection "+name+": "+err.message);
       var formatedId = ["meta"];
       formatedId.push(["_id", 1]);
       indexes.map(function(index){ formatedId.push([index, 1]); });

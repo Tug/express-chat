@@ -1,6 +1,6 @@
 var Class = require(PATH_CLASS).Class;
 var array_fill_keys = require(PATH_PHPJS).array_fill_keys;
-var array_merge = require(PATH_PHPJS).array_merge;
+//var array_merge = require(PATH_PHPJS).array_merge;
 
 var MongoObject = new Class({
 
@@ -64,7 +64,7 @@ var MongoObject = new Class({
     //this.mongoCollection.find(this.pairIndex, query, callback);
     this.get([field], function(err, data) {
       var arr = data[field];
-      if(data && arr && arr.length > start)
+      if(isset(data) && isset(arr) && arr.length > start)
         callback(null, arr.slice(start));
       else
         callback(err, null);
@@ -101,7 +101,7 @@ var MongoObject = new Class({
     var limitor = {};
     limitor[field] = 1;
     this.mongoCollection.find(pair, limitor, function(err, obj) {
-      if(err) callback(err, null);
+      if(isset(err)) callback(err, null);
       else if(obj != null && obj[field] != null) {
         var arr = obj[field];
         for(var el in arr) {

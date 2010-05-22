@@ -40,11 +40,10 @@ var MongoRoom = MongoObject.extend({
 
   getLastMessages: function(lastMsgId, callback) {
     this.MongoObject.getSlice("messages", lastMsgId, function(err, messages) {
-      if(messages) {
+      if(isset(messages))
         callback(null, messages);
-      } else {
+      else
         callback(new Error("No message after "+lastMsgId), null);
-      }
     });
   }
 

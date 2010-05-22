@@ -74,7 +74,7 @@ var MongoFileBuffer = MongoBuffer.extend({
   getFile: function(elId, callback) {
     var self = this;
     this.getInfo(elId, function(err, fileInfo) {
-      if(err) callback(err, null, null);
+      if(isset(err)) callback(err, null, null);
       else
         if(isset(self.mongoFiles[elId]))
           callback(null, self.mongoFiles[elId], fileInfo);
@@ -89,7 +89,7 @@ var MongoFileBuffer = MongoBuffer.extend({
   pullFile: function(elId, callback) {
     var self = this;
     self.getFile(elId, function(err, file, fileInfo) {
-      if(err) callback(err, null);
+      if(isset(err)) callback(err, null);
       else
         file.download(callback);
     });

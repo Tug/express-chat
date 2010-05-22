@@ -13,7 +13,6 @@ var fs    = require("fs");
 var util  = require(PATH_UTIL);
 var MyDB  = require(DIR_MONGO + "/mydb").MyDB;
 var Room  = require("./room").Room;
-var isset = require(PATH_PHPJS).isset;
 var dirname = require(PATH_PHPJS).dirname;
 
 var host = configuration.host;
