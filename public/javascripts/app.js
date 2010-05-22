@@ -111,7 +111,7 @@ $(function(){
 
   }, 10);
 
-  $(window).unload(function () {
+  $(window).bind('beforeunload', function () {
     $.getJSON(roomID+"/part", function(data){});
   });
 

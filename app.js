@@ -101,6 +101,7 @@ get("/room/:roomID", function(roomID){
   var room = rooms[roomID] || null;
   var self = this;
   if(!isset(room)) {
+    
     db.rooms.get(roomID, function(err, dbroom) {
       if(isset(err)) sys.puts("Error: "+err.message);
       var addrRedir = "/";
@@ -219,7 +220,7 @@ get("/room/:roomID/part", function(roomID){
     return;
   }
   rooms[roomID].announceUserLeft(this.session[roomID].username);
-  delete this.session[roomID];
+  this.session[roomID].alive = false;
   this.respond(200);
 });
 
@@ -302,6 +303,10 @@ setInterval(function removeOldRooms() {
   if(initEnded == true) {
     sys.puts("Removing old rooms!");
     db.rooms.removeOldRooms();
+    sys.puts("Freeing no-user rooms!");
+    for(var roomID in rooms)
+      if(rooms[roomID].usrBuffer.size() == 0)
+        delete rooms[roomID];
   }
 }, 3600 * 1000);
 
