@@ -8,7 +8,6 @@ exports.configuration =
 {  host: ""//"localhost"
 ,  port: 3000
 ,  myip: "92.104.99.179"
-,  expressmode: "development" //,"test","production"
 ,  mongo:
    {  host: "localhost"
    ,  port: 27017

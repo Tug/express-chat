@@ -38,22 +38,28 @@ var init = function(callback) {
   });
 };
 
+
 /*
  * configure express
  */
-configure(configuration.expressmode, function(){
+configure(function(){
   use(MethodOverride)
   use(ContentLength)
   use(Cookie)
   use(Cache, { lifetime: (5).minutes, reapInterval: (1).minute })
   use(Session, { lifetime: (2).days, reapInterval: (1).minute })
   use(Static)
-  use(Logger)
   set("root", __dirname)
-  set('max upload size', (300).megabytes)
 });
 
+configure("development", function(){
+  use(Logger)
+  set('max upload size', (500).megabytes)
+});
 
+configure("production", function(){
+  set('max upload size', (50).megabytes)
+});
 
 /*
  * Send the home page.

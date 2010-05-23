@@ -4,9 +4,9 @@
 [submodule "vendor/class.js"]
 	path = vendor/class.js
 	url = git://github.com/visionmedia/class.js.git
-[submodule "vendor/express"]
-	path = vendor/express
-	url = git://github.com/visionmedia/express.git
 [submodule "vendor/node-mongodb-native"]
 	path = vendor/node-mongodb-native
 	url = git://github.com/christkv/node-mongodb-native.git
+[submodule "vendor/express"]
+	path = vendor/express
+	url = git://github.com/visionmedia/express.git
