@@ -46,9 +46,8 @@ var MongoRooms = MongoCollection.extend({
     limitDate.setDate(limitDate.getDate());
     var spec = {"date": { "lt" : limitDate }};
     if(isset(callback))
-      this.remove(spec, callback);
-    else
-      this.remove(spec);
+      callback = function() {};
+    this.remove(spec, callback);
     /*
     var self = this;
     this.findAll(spec, {"files":1}, function(err, list) {
