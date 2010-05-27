@@ -45,8 +45,6 @@ var MongoRooms = MongoCollection.extend({
     var limitDate = new Date();
     limitDate.setDate(limitDate.getDate());
     var spec = {"date": { "lt" : limitDate }};
-    if(isset(callback))
-      callback = function() {};
     this.remove(spec, callback);
     /*
     var self = this;

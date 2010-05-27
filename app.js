@@ -308,11 +308,12 @@ process.addListener('SIGINT', function () {
 setInterval(function removeOldRooms() {
   if(initEnded == true) {
     sys.puts("Removing old rooms!");
-    db.rooms.removeOldRooms();
-    sys.puts("Freeing no-user rooms!");
-    for(var roomID in rooms)
-      if(rooms[roomID].usrBuffer.size() == 0)
-        delete rooms[roomID];
+    db.rooms.removeOldRooms(function() {
+      sys.puts("Freeing no-user rooms!");
+      for(var roomID in rooms)
+        if(rooms[roomID].usrBuffer.size() == 0)
+          delete rooms[roomID];
+    });
   }
 }, 3600 * 1000);
 
