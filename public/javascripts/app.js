@@ -101,6 +101,10 @@ $(function(){
     }
   });
 
+  $('#SendMsgForm').submit( function() {
+    $('#message').val('');
+  });
+
   $('#creatorname').click(function() {
     $('#creatorname').val('');
   });
