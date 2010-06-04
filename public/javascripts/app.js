@@ -103,6 +103,7 @@ $(function(){
 
   $('#SendMsgForm').submit( function() {
     $('#message').val('');
+    return false;
   });
 
   $('#creatorname').click(function() {

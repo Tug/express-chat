@@ -5,7 +5,7 @@ var EventedBuffer   = require(DIR_UTIL + "/eventedbuffer").EventedBuffer;
 var MongoBuffer     = require(DIR_MONGO + "/buffer").MongoBuffer;
 var MongoFileBuffer = require(DIR_MONGO + "/filebuffer").MongoFileBuffer;
 var MongoRoom       = require(DIR_MONGO + "/room").MongoRoom;
-var sys = require("sys");
+var sys             = require("sys");
 
 var Room = new Class({
   extend: {
@@ -22,14 +22,19 @@ var Room = new Class({
       }
       room.msgBuffer.relativeId += dbroom.messages.length;
       room.fileBuffer.relativeId += dbroom.files.length;
-      for(var user in dbroom.users) room.usrBuffer.remove(user);
+      sys.p(dbroom.users)
+      dbroom.users.forEach(function(user) {
+        room.usrBuffer.remove(user);
+      });
       return room;
     }
   },
 
-  constructor: function(adminname) {
-    this.id = util.generateRandomString(8);
-    this.admin = adminname;
+  constructor: function(params) {
+    if(isset(params.id)) this.id = params.id;
+    else this.id = util.generateRandomString(8);
+    if(isset(params.admin)) this.admin = params.admin;
+    else this.admin = adminname;
     this.msgBuffer = new EventedBuffer();
     this.usrBuffer = new EventedBuffer();
     this.fileBuffer = new EventedBuffer();
