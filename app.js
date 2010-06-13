@@ -93,6 +93,8 @@ post("/", function(){
   }
   var usedb = true; //this.param("usedb");
   var ispublic = (this.param("ispublic")) ? true : false;
+  if(name.length > MAX_USR_LEN)
+    name = name.substring(0, MAX_USR_LEN)
   var room = new Room({"admin": name});//, "id": roomID});
   rooms[room.id] = room;
   this.session[room.id] = { username: name, alive: false };
@@ -154,6 +156,8 @@ post("/room/:roomID/live", function(roomID){
   var room = rooms[roomID] || null;
   if(isset(roomsession) && isset(roomsession.username, room)) {
     if(isset(newname)) {
+      if(newname.length > MAX_USR_LEN)
+        newname = newname.substring(0, MAX_USR_LEN)
       var self = this;
       room.changeUserName(roomsession.username, newname, function(err, newname) {
         if(isset(err)) {
@@ -166,6 +170,8 @@ post("/room/:roomID/live", function(roomID){
       });
     }
     if(isset(message)) {
+      if(message.length > MAX_MSG_LEN)
+        message = message.substring(0, MAX_MSG_LEN)
       room.announceUserMessage(roomsession.username, message);
     }
   }

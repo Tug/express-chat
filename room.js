@@ -7,9 +7,6 @@ var MongoFileBuffer = require(DIR_MONGO + "/filebuffer").MongoFileBuffer;
 var MongoRoom       = require(DIR_MONGO + "/room").MongoRoom;
 var sys             = require("sys");
 
-var MAX_MSG_LEN = 500
-var MAX_USR_LEN = 30
-
 var Room = new Class({
   extend: {
     createRoomFromDb: function(db, dbroom, save) {
@@ -78,8 +75,6 @@ var Room = new Class({
   },
 
   announceMessage: function(message) {
-    if(message.length > MAX_MSG_LEN)
-      message = message.substring(0, MAX_MSG_LEN)
     this.msgBuffer.add(message);
   },
 
@@ -89,8 +84,6 @@ var Room = new Class({
   },
 
   announceUser: function(username) {
-    if(username.length > MAX_USR_LEN)
-      username = username.substring(0, MAX_USR_LEN)
     username = utils.escape(username);
     this.usrBuffer.add(username);
     var msg = "* " + username + " joined the room.";

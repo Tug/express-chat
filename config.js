@@ -23,6 +23,8 @@ exports.configuration =
    ,  PATH_MONGOFILES: "/opt/mongo/bin/mongofiles"
    ,  DEBUG: true
    ,  DB_NAME: "express-mongo-chat"
+   ,  MAX_MSG_LEN: 500
+   ,  MAX_USR_LEN: 30
    ,  isset: require(phpjs).isset
    ,  array_merge: require(phpjs).array_merge
    }
