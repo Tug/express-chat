@@ -1,4 +1,22 @@
 
+function longPollJSON(geturl, success_callback, timeout) {
+  if(!timeout) timeout = 50000;
+  $.ajax({
+    type: "GET",
+    async: true,
+    cache: false,
+    dataType: 'json',
+    url: geturl,
+    timeout: timeout,
+    success: success_callback,
+    error: function() {
+      setTimeout(function() {
+        success_callback({});
+      }, 10*1000);
+    }
+  });
+}
+
 $(function(){
   var roomID = document.location.pathname;
   var nextMsgId = 0;
@@ -33,19 +51,43 @@ $(function(){
     return false;
   });
 
-  // Longpoll
   (function pollForMessages(){
-    $.getJSON(roomID+'/live/msg/'+nextMsgId, function(response){
+    longPollJSON(roomID+'/live/msg/'+nextMsgId, function(response){
       var messages = response.messages;
-      if(!messages || messages.length == 0) {
-        addMessage("!! Server Error !! Please reload application.");
-        return;
+      if(messages && messages.length > 0) {
+        $.each(messages, function(i, msg){
+          addMessage(msg);
+          nextMsgId++;
+        });
       }
-      $.each(messages, function(i, msg){
-        addMessage(msg);
-        nextMsgId++;
-      });
       pollForMessages();
+    });
+  })();
+
+  function pollForUsers(){
+    longPollJSON(roomID+'/live/users', function(response){
+      var newusers = response.newusers;
+      var usersleft = response.usersleft;
+      if((newusers && newusers.length > 0) || (usersleft && usersleft.length > 0)) {
+        $.each(usersleft, function(i, usr) {
+          users = $.grep(users, function(value) {
+            return value != usr;
+          });
+        });
+        $.each(newusers, function(i, usr){
+          users.push(usr);
+        });
+        refreshUserList();
+      }
+      pollForUsers();
+    });
+  };
+
+  (function initUsers(){
+    $.getJSON(roomID+'/users', function(response){
+      users = response;
+      refreshUserList();
+      pollForUsers();
     });
   })();
 
@@ -60,35 +102,6 @@ $(function(){
     $('#users').empty();
     $.each(users, function(i, usr){
       $('#users').append('<li>' + usr + '</li>');
-    });
-  };
-
-  (function initUsers(){
-    $.getJSON(roomID+'/users', function(response){
-      users = response;
-      refreshUserList();
-      pollForUsers();
-    });
-  })();
-
-  function pollForUsers(){
-    $.getJSON(roomID+'/live/users', function(response){
-      var newusers = response.newusers;
-      var usersleft = response.usersleft;
-      if( (!newusers && !usersleft) || (newusers.length == 0 && usersleft.length == 0) ) {
-        addMessage("!! Server Error !! Please reload application.");
-        return;
-      }
-      $.each(usersleft, function(i, usr){
-        users = $.grep(users, function(value) {
-          return value != usr;
-        });
-      });
-      $.each(newusers, function(i, usr){
-        users.push(usr);
-      });
-      refreshUserList();
-      pollForUsers();
     });
   };
 

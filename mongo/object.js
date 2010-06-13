@@ -63,11 +63,15 @@ var MongoObject = new Class({
     //query[field] = {$slice: [start, 200]};
     //this.mongoCollection.find(this.pairIndex, query, callback);
     this.get([field], function(err, data) {
-      var arr = data[field];
-      if(isset(data) && isset(arr) && arr.length > start)
-        callback(null, arr.slice(start));
-      else
-        callback(err, null);
+      if(isset(err) || !isset(data))
+        callback(new Error("Error retrieving data (getSlice)"), null);
+      else {
+        var arr = data[field];
+        if(isset(data) && isset(arr) && arr.length > start)
+          callback(null, arr.slice(start));
+        else
+          callback(err, null);
+      }
     });
   },
 

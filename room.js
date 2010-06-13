@@ -34,7 +34,7 @@ var Room = new Class({
     if(isset(params.id)) this.id = params.id;
     else this.id = util.generateRandomString(8);
     if(isset(params.admin)) this.admin = params.admin;
-    else this.admin = adminname;
+    else this.admin = this.createUsername();
     this.msgBuffer = new EventedBuffer();
     this.usrBuffer = new EventedBuffer();
     this.fileBuffer = new EventedBuffer();
@@ -84,14 +84,15 @@ var Room = new Class({
   },
 
   announceUser: function(username) {
+    username = utils.escape(username);
     this.usrBuffer.add(username);
-    var msg = "* " + utils.escape(username) + " joined the room.";
+    var msg = "* " + username + " joined the room.";
     this.announceMessage(msg);
   },
 
   announceUserLeft: function(username) {
     this.usrBuffer.remove(username);
-    var msg = "* " + utils.escape(username) + " left the room.";
+    var msg = "* " + username + " left the room.";
     this.announceMessage(msg);
   },
 
@@ -108,6 +109,7 @@ var Room = new Class({
 
   changeUserName: function(username, newname, callback) {
     var self = this;
+    newname = utils.escape(newname);
     this.getUsers(function(err, users) {
       if(isset(err))
         callback(err, null);
@@ -115,7 +117,7 @@ var Room = new Class({
         callback(new Error("Username already in use"), null);
       else {
         self.usrBuffer.change(username, newname);
-        var msg = "* " + utils.escape(username) + " is now known as " + utils.escape(newname) + ".";
+        var msg = "* " + username + " is now known as " + newname + ".";
         self.announceMessage(msg);
         callback(null, newname);
       }

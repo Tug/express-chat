@@ -12,7 +12,7 @@ var MyDB = MongoDB.extend({
 
   createRooms: function(callback) {
     var self = this;
-    this.createCollection("rooms", ["roomID","files.id"], function(err, collection) {
+    this.createCollection("rooms", ["roomID", "files.id"], function(err, collection) {
       util.cast(collection, MongoRooms);
       self.rooms = collection;
       callback(err, self.rooms);

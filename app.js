@@ -86,14 +86,14 @@ get("/", function() {
  */
 post("/", function(){
   var name = this.param("name");
-  var roomID = this.param("roomID");
+  //var roomID = this.param("roomID");
   if(!isset(name)) {
     this.redirect('/');
     return;
   }
   var usedb = true; //this.param("usedb");
   var ispublic = (this.param("ispublic")) ? true : false;
-  var room = new Room({"admin": name, "id": roomID});
+  var room = new Room({"admin": name});//, "id": roomID});
   rooms[room.id] = room;
   this.session[room.id] = { username: name, alive: false };
   if(usedb == true)
@@ -110,7 +110,11 @@ get("/room/:roomID", function(roomID){
   var self = this;
   if(!isset(room)) {
     db.rooms.get(roomID, function(err, dbroom) {
-      if(isset(err)) sys.puts("Error: "+err.message);
+      if(isset(err)) {
+        sys.puts("Error: "+err.message);
+        self.error();
+        return;
+      }
       var addrRedir = "/";
       if(isset(dbroom)) {
         if(dbroom.server == serverID) {

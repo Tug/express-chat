@@ -4,7 +4,7 @@ MONGO = /opt/mongo/bin/mongod
 export EXPRESS_ENV=production
 
 all: app
-  
+
 app:
 	@$(NODE) app.js 3000
 
@@ -20,3 +20,4 @@ three: two
 db:
 	@$(MONGO) &
 	sleep 5s
+

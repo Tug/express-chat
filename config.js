@@ -4,8 +4,8 @@ var vendors = __dirname + "/vendor";
 var mongo = __dirname + "/mongo";
 var phpjs = util + "/phpjs.my.commonjs.min";
 
-exports.configuration = 
-{  host: ""//"localhost"
+exports.configuration =
+{  host: ""
 ,  port: 3000
 ,  myip: "92.104.99.179"
 ,  mongo:
@@ -27,3 +27,4 @@ exports.configuration =
    ,  array_merge: require(phpjs).array_merge
    }
 }
+
