@@ -1,16 +1,19 @@
-- in conf file, modify HOME to set your home directory
+- in conf files, modify HOME to set your home directory
 
 - copy conf file in /etc/init/ dir:
-sudo cp ./daemon/express-chat.conf /etc/init/
+sudo cp ./daemon/*.conf /etc/init/
 
 - add permissions for your user
 sudo chown tug /etc/init/express-chat.conf
+sudo chown tug /etc/init/mongo.conf
 
 - run:
+start mongo
 start express-chat
 
 - stop:
 stop express-chat
+stop mongo
 
 ---> from http://kevin.vanzonneveld.net/techblog/article/run_nodejs_as_a_service_on_ubuntu_karmic/
 
