@@ -22,7 +22,6 @@ var Room = new Class({
       }
       room.msgBuffer.relativeId += dbroom.messages.length;
       room.fileBuffer.relativeId += dbroom.files.length;
-      sys.p(dbroom.users)
       dbroom.users.forEach(function(user) {
         room.usrBuffer.remove(user);
       });

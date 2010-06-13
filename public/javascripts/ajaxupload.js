@@ -422,7 +422,7 @@
                 input.parentNode.style.visibility = 'hidden';
 
             });   
-                        
+              
 	        div.appendChild(input);
             document.body.appendChild(div);
               
@@ -587,7 +587,6 @@
                 }
                 
                 var response;
-                
                 if (doc.XMLDocument) {
                     // response is a xml document Internet Explorer property
                     response = doc.XMLDocument;

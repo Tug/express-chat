@@ -1,22 +1,4 @@
 
-function longPollJSON(geturl, success_callback, timeout) {
-  if(!timeout) timeout = 50000;
-  $.ajax({
-    type: "GET",
-    async: true,
-    cache: false,
-    dataType: 'json',
-    url: geturl,
-    timeout: timeout,
-    success: success_callback,
-    error: function() {
-      setTimeout(function() {
-        success_callback({});
-      }, 1000);
-    }
-  });
-}
-
 $(function(){
   var roomID = document.location.pathname;
   var nextMsgId = 0;
@@ -50,6 +32,29 @@ $(function(){
       }
     return false;
   });
+
+
+  function longPollJSON(geturl, success_callback, timeout) {
+    if(!timeout) timeout = 50000;
+    $.ajax({
+      type: "GET",
+      async: true,
+      cache: false,
+      dataType: 'json',
+      url: geturl,
+      timeout: timeout,
+      success: success_callback,
+      error: function(request, status){
+        if(status == "timeout") {
+          setTimeout(function() {
+            success_callback({});
+          }, 1000);
+        } else {
+          addMessage("Connection lost! Retry later.");
+        }
+      }
+    });
+  }
 
   (function pollForMessages(){
     longPollJSON(roomID+'/live/msg/'+nextMsgId, function(response){
@@ -145,24 +150,28 @@ $(function(){
 			// If you want to allow uploading only 1 file at time,
 			// you can disable upload button
 			this.disable();
-			// Uploding -> Uploading. -> Uploading...
+			// Uploading -> Uploading. -> Uploading...
 			interval = window.setInterval(function(){
 				var text = button.text();
 				if (text.length < 13){
-					button.text(text + '.');					
+					button.text(text + '.');
 				} else {
 					button.text('Uploading');
 				}
 			}, 200);
 		},
 		onComplete: function(file, response){
+      if(response != "<pre>OK</pre>")
+        file += " -- Error: File size limit exceeded !"
+      else
+        file += " -- OK"
 			button.text('Upload');
 			window.clearInterval(interval);
 			// enable upload button
 			this.enable();
-			// add file to the list
-			$('<div class="file"></div>').appendTo('#fileList').text(file);						
-		}
+      $('<div class="file"></div>').appendTo('#fileList').text(file);
+		},
+    data: [{ "MAX_FILE_SIZE": $("#maxFileSize").text() }]
   });
 
 })

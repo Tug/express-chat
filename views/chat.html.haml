@@ -21,6 +21,9 @@
   %form#UploadForm{ name:"upload", method: 'post', enctype: 'multipart/form-data' }
     %fieldset
       %legend Share Files
+      Max file size is
+      %span{ id:"maxFileSize" }= max_file_size
+      kB
       #uploadButton Upload
       %br
       Uploaded Files:
