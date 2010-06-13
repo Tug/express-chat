@@ -10,9 +10,7 @@ function longPollJSON(geturl, success_callback, timeout) {
     timeout: timeout,
     success: success_callback,
     error: function() {
-      setTimeout(function() {
-        success_callback({});
-      }, 10*1000);
+      success_callback({});
     }
   });
 }
