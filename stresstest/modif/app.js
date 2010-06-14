@@ -50,15 +50,11 @@ configure(function(){
   use(Session, { lifetime: (2).days, reapInterval: (1).minute })
   use(Static)
   set("root", __dirname)
+  set('max upload size', MAX_FILE_SIZE.kilobytes)
 });
 
-configure("development", function(){
+configure("development", function() {
   use(Logger)
-  set('max upload size', (500).megabytes)
-});
-
-configure("production", function(){
-  set('max upload size', (50).megabytes)
 });
 
 /*
@@ -138,7 +134,8 @@ get("/room/:roomID", function(roomID){
       locals: {
         roomID: roomID,
         title: "Chat+ - "+roomID,
-        username: this.session[roomID].username
+        username: this.session[roomID].username,
+        max_file_size: MAX_FILE_SIZE
       }
     });
   }
