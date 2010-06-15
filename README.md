@@ -15,7 +15,9 @@
   cd express-chat
 
   perl init.pl
-    or git submodule update --init in express-chat and in express-chat/vendor/express folders
+    or
+  git submodule update --init
+    in express-chat and in express-chat/vendor/express folders
 
   Modify the config file:
     host: "localhost" or "" whether you want to run it as local or not
@@ -33,7 +35,7 @@
     # if you ar root:
     sudo make install
 
-    # else modify NODE variable in Makefile to you path where the node binary is (ex: NODE= ~/node/node)
+    # else modify NODE variable in Makefile to the node's path (ex: NODE= ~/node/node)
 
   Installation of MongoDB:
 
@@ -59,7 +61,7 @@
     # the mongodb client is in
     /opt/mongo/bin/mongo
 
-    # if you are user
+    # if you are a restricted user
     sudo mv  ./mongodb-linux-x86_64-1.4.2/* ~/mongo
     sudo mkdir -p ~/data/db
 
