@@ -11,14 +11,16 @@
 ## Installation
 
   git clone git://github.com/Tug/express-chat.git
+
   cd express-chat
+
   perl init.pl
     or git submodule update --init in express-chat and in express-chat/vendor/express folders
 
   Modify the config file:
     host: "localhost" or "" whether you want to run it as local or not
     port: port for the server (if 80 you will probably need to run the application as root)
-    myip: IP address of the current machine (it can also be the domain name for this server (ex: chat.definedev.com), it is only used in the database to redirect users
+    myip: IP address of the current machine or its domain name (only used in the DB to redirect users)
 
   Installation of node.JS
 
