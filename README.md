@@ -23,6 +23,7 @@
     host: "localhost" or "" whether you want to run it as local or not
     port: port for the server (if 80 you will probably need to run the application as root)
     myip: IP address of the current machine or its domain name (only used in the DB to redirect users)
+    mongo: host and port of the mongo server
 
   Installation of node.JS
 
@@ -35,7 +36,7 @@
     # if you ar root:
     sudo make install
 
-    # else modify NODE variable in Makefile to the node's path (ex: NODE= ~/node/node)
+    # else modify NODE variable in the Makefile to node's path (ex: NODE= ~/node/node)
 
   Installation of MongoDB:
 
@@ -52,8 +53,8 @@
     sudo mkdir -p /data/db
   
     # set your user as propriertary 
-    sudo chown -R tug /opt/mongo
-    sudo chown -R tug /data/db
+    sudo chown -R <user_name> /opt/mongo
+    sudo chown -R <user_name> /data/db
 
     # run mongoDB daemon with
     /opt/mongo/bin/mongod
