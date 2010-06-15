@@ -10,11 +10,14 @@
 
 ## Installation
 
-  git clone git://github.com/Tug/express-chat.git && cd express-chat && perl init.pl
+  git clone git://github.com/Tug/express-chat.git
+  cd express-chat
+  perl init.pl
+    or git submodule update --init in express-chat and in express-chat/vendor/express folders
 
-  #modify the config file:
+  Modify the config file:
     host: "localhost" or "" whether you want to run it as local or not
-    port: 3000 is the port for the server (if 80 you will probably need to run the application as root)
+    port: port for the server (if 80 you will probably need to run the application as root)
     myip: IP address of the current machine (it can also be the domain name for this server (ex: chat.definedev.com), it is only used in the database to redirect users
 
   Installation of node.JS
@@ -28,11 +31,12 @@
     # if you ar root:
     sudo make install
 
-    # else modify NODE variable in Makefile (or daemon conf file) to you path where node binary is (for example: NODE= ~/node/node)
+    # else modify NODE variable in Makefile to you path where the node binary is (ex: NODE= ~/node/node)
 
   Installation of MongoDB:
 
-    # download the binaries corresponding to your machine on MongoDB download page: http://www.mongodb.org/display/DOCS/Downloads
+    # download the binaries corresponding to your machine on MongoDB download page:
+    # http://www.mongodb.org/display/DOCS/Downloads
     wget http://downloads.mongodb.org/linux/mongodb-linux-x86_64-1.4.3.tgz
 
     # extract the file
@@ -60,6 +64,11 @@
     # run mongoDB daemon with
     ~/mongo/bin/mongod --dbpath ~/data/db
 
+  Run the chat
+    # Launch mongoDB daemon then the application:
+    make
+    # or
+    node app.js
+
     # or modify and use the upstart conf files in express-chat/daemon
-    
 
