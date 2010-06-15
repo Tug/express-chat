@@ -12,3 +12,54 @@
 
   git clone git://github.com/Tug/express-chat.git && cd express-chat && perl init.pl
 
+  #modify the config file:
+    host: "localhost" or "" whether you want to run it as local or not
+    port: 3000 is the port for the server (if 80 you will probably need to run the application as root)
+    myip: IP address of the current machine (it can also be the domain name for this server (ex: chat.definedev.com), it is only used in the database to redirect users
+
+  Installation of node.JS
+
+    git clone git://github.com/ry/node.git
+    cd node
+    git checkout v0.1.96
+    ./configure
+    make
+    
+    # if you ar root:
+    sudo make install
+
+    # else modify NODE variable in Makefile (or daemon conf file) to you path where node binary is (for example: NODE= ~/node/node)
+
+  Installation of MongoDB:
+
+    # download the binaries corresponding to your machine on MongoDB download page: http://www.mongodb.org/display/DOCS/Downloads
+    wget http://downloads.mongodb.org/linux/mongodb-linux-x86_64-1.4.3.tgz
+
+    # extract the file
+    tar -zxvf mongodb-linux-x86_64-1.4.2.tgz
+
+    # if you are root, install it in /opt:
+    sudo mkdir -p /opt/mongo
+    sudo mv  ./mongodb-linux-x86_64-1.4.2/* /opt/mongo
+    sudo mkdir -p /data/db
+  
+    # set your user as propriertary 
+    sudo chown -R tug /opt/mongo
+    sudo chown -R tug /data/db
+
+    # run mongoDB daemon with
+    /opt/mongo/bin/mongod
+
+    # the mongodb client is in
+    /opt/mongo/bin/mongo
+
+    # if you are user
+    sudo mv  ./mongodb-linux-x86_64-1.4.2/* ~/mongo
+    sudo mkdir -p ~/data/db
+
+    # run mongoDB daemon with
+    ~/mongo/bin/mongod --dbpath ~/data/db
+
+    # or modify and use the upstart conf files in express-chat/daemon
+    
+
