@@ -249,14 +249,11 @@ post("/room/:roomID/upload", function(roomID) {
   var fileId = words[words.length-1];
   file.id = fileId;
   var fileDir = dirname(file.tempfile);
-  sys.puts("111");
   fs.rename(file.tempfile, fileDir+"/"+fileId, function(err) {
     if(isset(err)) self.error();
     else {
-      sys.puts("22");
       file.tempfile = fileDir+"/"+fileId;
       fs.stat(file.tempfile, function (err, stats) {
-        sys.puts("333");
         Object.merge(file, stats);
         file.uploader = self.session[roomID].username;
         var usefulInfo = util.array_intersect_key_value(file, ["filename", "tempfile", "id", "size", "ctime", "uploader"]);

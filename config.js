@@ -25,7 +25,7 @@ exports.configuration =
    ,  DB_NAME: "express-mongo-chat"
    ,  MAX_MSG_LEN: 500
    ,  MAX_USR_LEN: 30
-   ,  MAX_FILE_SIZE: 1 * 1024 //in KB
+   ,  MAX_FILE_SIZE: 200 * 1024 //in KB
    ,  isset: require(phpjs).isset
    ,  array_merge: require(phpjs).array_merge
    }
