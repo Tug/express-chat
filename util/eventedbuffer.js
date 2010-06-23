@@ -1,4 +1,6 @@
-﻿var Class = require(PATH_CLASS).Class;
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
+var Class = require(PATH_CLASS).Class;
 var util = require(PATH_UTIL);
 
 var EventedBuffer = new Class({

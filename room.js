@@ -1,3 +1,5 @@
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
 var utils = require("express/utils");
 var util  = require(PATH_UTIL);
 ﻿var Class = require(PATH_CLASS).Class;

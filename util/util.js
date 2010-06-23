@@ -1,4 +1,6 @@
-﻿var Step = require(DIR_VENDORS + "/step/lib/step");
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
+var Step = require(DIR_VENDORS + "/step/lib/step");
 ﻿var fs = require("fs");
 
 var generateRandomString = function(strlen) {

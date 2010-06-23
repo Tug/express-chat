@@ -1,3 +1,5 @@
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
 var Class = require(PATH_CLASS).Class;
 var array_fill_keys = require(PATH_PHPJS).array_fill_keys;
 //var array_merge = require(PATH_PHPJS).array_merge;

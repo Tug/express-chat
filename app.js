@@ -1,3 +1,5 @@
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
 /*
  * Read configuration
  */

@@ -1,3 +1,5 @@
+// Express-chat - Copyright T. de Kerviler <dekervit@gmail.com> (GPL)
+
 var configuration = require("./config").configuration;
 for(var key in configuration.globals) { global[key] = configuration.globals[key]; }
 

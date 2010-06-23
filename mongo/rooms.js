@@ -1,3 +1,5 @@
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
 ﻿var MongoCollection = require("./collection").MongoCollection;
 var MongoRoom = require("./room").MongoRoom;
 var MongoFile = require("./file").MongoFile;

@@ -1,3 +1,5 @@
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
 var util = require(PATH_UTIL);
 var Step = require(DIR_VENDORS + "/step/lib/step");
 var EventedBuffer = require(DIR_UTIL + "/eventedbuffer").EventedBuffer;

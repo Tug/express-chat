@@ -1,3 +1,5 @@
+// Express-chat - Copyright (C) 2010 T. de Kerviler <dekervit@gmail.com> (GPL)
+
 ﻿var mongo = require(DIR_VENDORS + "/node-mongodb-native/lib/mongodb");
 var Class = require(PATH_CLASS).Class;
 var MongoCollection = require("./collection").MongoCollection;
