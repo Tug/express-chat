@@ -1,3 +1,14 @@
+# UPDATE
+
+  This project is using old versions of node and express.
+  It won't work if you try to run it: the version of express I have linked as a submodule is requesting Class.js which does not exist anymore (https://github.com/visionmedia/express/issuesearch?state=closed&q=class#issue/453).
+  I did not had time to fix it.
+
+  TODO:
+    * fix Class.js
+    * reimplement keepalive requests to remove ghosts
+    * fix the TCP port issue when adress is not the IP
+
 # express-chat
 
   A simple chat application using a database built on **node.js**, **Express** and **MongoDB**.
