@@ -1,7 +1,7 @@
 # UPDATE
 
   This project is using old versions of node and express.
-  It won't work if you try to run it: the version of express I have linked as a submodule is requesting Class.js which does not exist anymore (https://github.com/visionmedia/express/issuesearch?state=closed&q=class#issue/453).
+  It won't work if you try to run it: the version of express I have linked as request the submodule Class.js which does not exist anymore (https://github.com/visionmedia/express/issuesearch?state=closed&q=class#issue/453).
   I did not had time to fix it.
 
   TODO:
