@@ -1,9 +1,0 @@
-[submodule "vendor/step"]
-	path = vendor/step
-	url = git://github.com/creationix/step.git
-[submodule "vendor/node-mongodb-native"]
-	path = vendor/node-mongodb-native
-	url = git://github.com/christkv/node-mongodb-native.git
-[submodule "vendor/express"]
-	path = vendor/express
-	url = git://github.com/visionmedia/express.git
