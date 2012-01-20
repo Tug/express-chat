@@ -1,0 +1,220 @@
+@radius: 5px;
+@borders: #4B4B4B;
+@heightHeader: 120px;
+@heightChat: 400px;
+@heightDialog: 80px;
+@heightUpload: 100px;
+
+@pageWidth: 700px;
+@grey4: #969696;
+@borderWidth: 10px;
+@borderColor: #808080;
+@borders: #242424;
+
+
+html, body {
+  font-family: "Helvetica Neue", "Lucida Grande", "Arial";
+  font-size: 13px;
+  text-stroke: 1px rgba(255, 255, 255, 0.1);
+  background: #545454 url(/images/stripe.png);
+  text-align: left;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+h1, h2 {
+  margin: 40px 40px;
+  font-size: 22px;
+  color: #343434;
+}
+h1 {
+  text-shadow: 1px 2px 2px #ddd;
+  font-size: 60px;
+}
+.bubble {
+  position: absolute;
+  top: 30px;
+  left: 172px;
+}
+#wrapper {
+  display: block;
+  position: absolute;
+  border: 0;
+  border-right: @borderWidth groove @borderColor;
+  border-bottom: @borderWidth groove @borderColor;
+  border-left: @borderWidth ridge @borderColor;
+  border-top: @borderWidth ridge @borderColor;
+  padding: 20px;
+  left: 50%;
+  margin-left: -420px;
+  width: @pageWidth;
+  min-height: 600px;
+  background: #ffffff;
+}
+#CreateChatBox {
+  margin: 50px;
+  font-size: 1.3em;
+}
+#CreateChatForm {
+  margin: 30px 0 0 20px;
+  width: 400px;
+  text-align: center;
+  margin: 0 auto;
+  color: #ffffff;
+  border: 3px solid @borders;
+  border-radius: 5px;
+  background-color: #343434;
+  padding: 10px;
+  fieldset {
+    padding: 20px;
+    border: 0;
+  }
+}
+#pubicRooms {
+  margin: 30px;
+  padding: 30px;
+  width: 300px;
+  border: 3px solid @borders;
+  li {
+    margin: 5px 10px;
+    padding: 2px;
+    font-size: 14px;
+    list-style: none;
+  }
+}
+a {
+  color: #1ABFF1;
+}
+#ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: transparent;
+}
+
+
+.rounded-corners (@radius: 5px) {
+  border-radius: @radius;
+  -webkit-border-radius: @radius;
+  -moz-border-radius: @radius;
+}
+
+.HeaderBox {
+  height: @heightHeader;
+  width: 100%;
+}
+.ChatBox {
+  margin-top: 10px;
+  height: @heightChat;
+  width: 100%;
+}
+.DialogBox {
+  margin: 10px 0 40px 0;
+  height: @heightDialog;
+  width: 100%;
+}
+.LeftBox {
+  float: left;
+  height: 100%;
+}
+.RightBox {
+  float: right;
+  height: 100%;
+}
+.UploadBox {
+  width: 100%;
+  min-height: @heightUpload;
+  margin: 20px 0;
+  text-align: center;
+}
+#messages {
+  padding: 0;
+  margin: 0;
+  border: 3px solid @borders;
+  height: 100%;
+  overflow-x: hidden;
+  li {
+    padding: 5px 15px;
+    list-style: none;
+  }
+}
+#users {
+  padding: 0;
+  margin: 0;
+  margin-left: 5px;
+  border: 3px solid @borders;
+  height: 100%;
+  overflow-x: hidden;
+  li {
+    margin: 5px 10px;
+    padding: 2px;
+    font-size: 14px;
+    list-style: none;
+  }
+}
+#nameBox {
+  margin-top: 80px;
+  height: 20px;
+}
+#titleBox {
+  width: 50%;
+}
+#topLeftBox {
+  width: 75%;
+}
+#topRightBox {
+  width: 25%;
+}
+#inputBox {
+  width: 85%;
+}
+#submitBox {
+  width: 10%;
+  height: 100%;
+}
+#name {
+  width: 120px;
+  border: 3px solid @borders;
+}
+#message {
+  width: 100%;
+  height: 100%;
+  padding: 5px;
+  font-size: 14px;
+  border: 3px solid @borders;
+}
+#SendMsgForm input[type=submit] {
+  box-shadow: 0 1px 2px #ddd;
+  height: 58px;
+  width: 60px;
+  margin: 5px auto;
+  border: 3px solid @borders;
+  cursor: pointer;
+  cursor: hand;
+  text-align: center;
+}
+#UploadForm {
+  .rounded-corners;
+  width: 80%;
+  height: 100%;
+  margin: 0 auto;
+  color: #ffffff;
+  background-color: #343434;
+  padding: 10px;
+  fieldset {
+    padding: 10px;
+    border: 0;
+  }
+}
+#uploadButton {
+  font-size: 16px;
+  border: 1px solid #ffffff;
+  width: 30%;
+  margin-left: auto;
+  margin-right: auto;
+	text-align: center;
+}
+#fileList {
+  text-align: left;
+}

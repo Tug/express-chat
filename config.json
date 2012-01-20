@@ -1,0 +1,14 @@
+{
+    "hostname" : "localhost",
+    "port" : 3000,
+    "database" : {
+        "mongodb": {
+            "host": "localhost",
+            "port": 27017
+        },
+        "redis": {
+            "host": "localhost",
+            "port": 6379
+        }
+    }
+}

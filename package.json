@@ -1,0 +1,20 @@
+{
+      "name": "express-chat"
+    , "description": "Express chat"
+    , "version": "0.1"
+    , "author": "Tugdual de Kerviler <dekervit@gmail.com>"
+    , "keywords": ["express-chat"]
+    , "dependencies": {
+      	"connect": ">= 1.8.5",
+        "connect-form": ">= 0.2.1",
+        "connect-mongodb": ">= 1.1.2",
+        "connect-redis": ">= 1.2.0",
+        "express": ">= 2.5.2",
+        "mongoose": ">= 2.4.8",
+        "redis": ">= 0.7.1",
+        "socket.io": ">= 0.8.7",
+        "socket.io-client": ">= 0.8.7",
+    }
+    , "main": "./app.js"
+    , "engines": { "node": ">= 0.6.2" }
+}

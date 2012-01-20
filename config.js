@@ -1,33 +1,57 @@
+var path = require("path"),
+    fs = require("fs");
 
-var util = __dirname + "/util";
-var vendors = __dirname + "/vendor";
-var mongo = __dirname + "/mongo";
-var phpjs = util + "/phpjs.my.commonjs.min";
+global.application_root = __dirname;
 
-exports.configuration =
-{  host: ""
-,  port: 3000
-,  myip: "92.104.99.179"
-,  mongo:
-   {  host: "localhost"
-   ,  port: 27017
-   }
-,  globals:
-   {  DIR_ROOT: __dirname
-   ,  DIR_MONGO: mongo
-   ,  DIR_VENDORS: vendors
-   ,  DIR_UTIL: util
-   ,  PATH_UTIL: util + "/util"
-   ,  PATH_PHPJS: phpjs
-   ,  PATH_CLASS: vendors + "/class.js/lib/class"
-   ,  PATH_MONGOFILES: "/opt/mongo/bin/mongofiles"
-   ,  DEBUG: true
-   ,  DB_NAME: "express-mongo-chat"
-   ,  MAX_MSG_LEN: 500
-   ,  MAX_USR_LEN: 30
-   ,  MAX_FILE_SIZE: 200 * 1024 //in KB
-   ,  isset: require(phpjs).isset
-   ,  array_merge: require(phpjs).array_merge
-   }
-}
+
+var config = {
+  hostname : "localhost",
+  port : 3000,
+  database : {
+    mongodb: {
+      db: "db",
+      host: "localhost",
+      port: 27017,
+    },
+    redis: {
+        host: "localhost",
+        port: 6379
+    }
+  },
+  views : {
+    type: "html",
+    //engine: require("jqtpl").express,
+    cache: "enable", //disable
+    options : {
+        layout: false
+    }
+  },
+  paths : {
+    root : application_root,
+    app : path.join(application_root,"app"),
+    public_root : path.join(application_root,"public"),
+    models : path.join(application_root,"app","models"),
+    views :  path.join(application_root,"app","views"),
+    libs : path.join(application_root,"app","libs"),
+    controllers : path.join(application_root,"app","controllers"),
+    crons : path.join(application_root,"app","crons"),
+    favicon : path.join(application_root,"public","favicon.ico")
+  },
+  urls : require("./urls").urls,
+  session : {
+    secret : "mouse dog",
+    cookie : {
+      maxAge: 24 * 3600 * 1000, // need the cookie while uploading with flash so max upload time is 24h
+      path: "/",
+      httpOnly: false
+    },
+    reapInterval: 15 * 60 * 1000,
+    engine: "redis" // "mongodb", false
+  }
+};
+  
+var userconfig = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+
+module.exports = require("./lib/util").mergeRecursive(config, userconfig);
+
 
