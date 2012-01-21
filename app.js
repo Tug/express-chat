@@ -1,5 +1,7 @@
 
-var config = require('./config');
+var userconfig = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+var config = require('./config')(userconfig);
+
 var setup = require("./lib/setup");
 
 setup.createApplication(config, function(err, app) {

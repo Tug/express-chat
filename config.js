@@ -3,7 +3,6 @@ var path = require("path"),
 
 global.application_root = __dirname;
 
-
 var config = {
   hostname : "localhost",
   port : 3000,
@@ -49,9 +48,10 @@ var config = {
     engine: "redis" // "mongodb", false
   }
 };
-  
-var userconfig = JSON.parse(fs.readFileSync("./config.json", "utf8"));
 
-module.exports = require("./lib/util").mergeRecursive(config, userconfig);
-
+module.exports = function(userconfig) {
+    if(userconfig)
+        config = require("./lib/util").mergeRecursive(config, userconfig);
+    return config;
+}
 
