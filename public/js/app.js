@@ -150,19 +150,19 @@ $(document).ready(function() {
 
     function showMessage(msg) {
         messagesbox
-          .append('<li>' + msg + '</li>')
+          .append('<li>' + htmlentities(msg) + '</li>')
           .get(0).scrollTop = messagesbox.get(0).scrollHeight
     }
 
     function showWelcomeMessage() {
-        showMessage("Welcome on the room. You are known as "+username+".");
+        showMessage("Welcome on the room. You are known as "+htmlentities(username)+".");
     }
 
     function refreshUserList() {
         users.sort(function(a,b){return a.toLowerCase() > b.toLowerCase()});
         usersbox.empty();
         $.each(users, function(i, usr) {
-            usersbox.append('<li>' + usr + '</li>');
+            usersbox.append('<li>' + htmlentities(usr) + '</li>');
         });
     }
 
