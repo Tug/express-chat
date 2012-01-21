@@ -9,6 +9,7 @@ module.exports = function(app, model) {
         , creationDate    : { type: Date, default: Date.now }
         , deathDate       : Date
         , messageCount    : {type: Number, default: 0 }
+        , ispublic        : {type: Boolean, default: false, index: true}
     });
 
     var RoomModel = mongoose.model('Room', Room);

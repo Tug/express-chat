@@ -17,7 +17,8 @@ module.exports = function(app, model) {
     var actions = {};
     
     actions.create = function(req, res, next) {
-        var room = new Room();
+        var ispublic = req.body.ispublic || false;
+        var room = new Room({ispublic: ispublic});
         room.save(function(err) {
             if(err) {
                 console.log(err);
