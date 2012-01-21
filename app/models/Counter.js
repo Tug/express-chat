@@ -9,26 +9,19 @@ module.exports = function(app, model) {
       , value   : {type: Number, default: 0}
     });
 
-    Counter.methods.getNextValue = function(callback) {
+    Counter.statics.getNextValue = function(roomid, callback) {
         var self = this;
-        this.save(function(err) {
-            CounterModel.collection.findAndModify( {_id: self._id},
-                                                [],
-                                                {$inc: {value: 1}},
-                                                {new: true},
-                                                function(err, doc) {
-                if(err) callback(err, null);
-                else {
-                    self.value = doc.value;
-                    callback(null, doc.value);
-                }
+        var collection = CounterModel.collection;
+        collection.insert({_id: roomid, value: 0}, function(err, docs) {
+            collection.findAndModify({_id: roomid}, [], {$inc: {value: 1}}, {new: true}, function(err, theCounter) {
+                var value = theCounter && theCounter.value;
+                callback(err, value);
             });
         });
     };
 
-    Counter.methods.reset = function(callback) {
-        this.value = 0;
-        this.save(callback);
+    Counter.statics.reset = function(roomid, callback) {
+        CounterModel.collection.remove({_id: roomid}, callback);
     };
     
     var CounterModel = mongoose.model('Counter', Counter);

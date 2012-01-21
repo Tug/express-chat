@@ -1,5 +1,7 @@
 /*
-Copyright (c) 2010 Tim Caswell <tim@creationix.com>
+Copyright (c) 2011 Tim Caswell <tim@creationix.com>
+
+MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +26,11 @@ SOFTWARE.
 // modified to fit my taste and the node.JS error handling system.
 function Step() {
   var steps = Array.prototype.slice.call(arguments),
-      counter, results, lock;
+      pending, counter, results, lock;
 
   // Define the main callback that's given as `this` to the steps.
   function next() {
+    counter = pending = 0;
 
     // Check if there are no steps left
     if (steps.length === 0) {
@@ -40,7 +43,6 @@ function Step() {
 
     // Get the next step to execute
     var fn = steps.shift();
-    counter = 0;
     results = [];
 
     // Run the step in a try..catch block so exceptions don't get out of hand.
@@ -52,9 +54,12 @@ function Step() {
       next(e);
     }
 
-
-    // If a syncronous return is used, pass it to the callback
-    if (result !== undefined) {
+    if (counter > 0 && pending == 0) {
+      // If parallel() was called, and all parallel branches executed
+      // synchronously, go on to the next step immediately.
+      next.apply(null, results);
+    } else if (result !== undefined) {
+      // If a synchronous return is used, pass it to the callback
       next(undefined, result);
     }
     lock = false;
@@ -62,27 +67,21 @@ function Step() {
 
   // Add a special callback generator `this.parallel()` that groups stuff.
   next.parallel = function () {
-    var i = counter;
-    counter++;
-    function check() {
-      counter--;
-      if (counter === 0) {
-        // When they're all done, call the callback
-        next.apply(null, results);
-      }
-    }
+    var index = 1 + counter++;
+    pending++;
+
     return function () {
+      pending--;
       // Compress the error from any result to the first argument
       if (arguments[0]) {
         results[0] = arguments[0];
       }
       // Send the other results as arguments
-      results[i + 1] = arguments[1];
-      if (lock) {
-        process.nextTick(check);
-        return
+      results[index] = arguments[1];
+      if (!lock && pending === 0) {
+        // When all parallel branches done, call the callback
+        next.apply(null, results);
       }
-      check();
     };
   };
 
@@ -90,47 +89,37 @@ function Step() {
   next.group = function () {
     var localCallback = next.parallel();
     var counter = 0;
+    var pending = 0;
     var result = [];
     var error = undefined;
+
+    function check() {
+      if (pending === 0) {
+        // When group is done, call the callback
+        localCallback(error, result);
+      }
+    }
+    process.nextTick(check); // Ensures that check is called at least once
+
     // Generates a callback for the group
     return function () {
-      var i = counter;
-      counter++;
-      function check() {
-        counter--;
-        if (counter === 0) {
-          // When they're all done, call the callback
-          localCallback(error, result);
-        }
-      }
+      var index = counter++;
+      pending++;
       return function () {
+        pending--;
         // Compress the error from any result to the first argument
         if (arguments[0]) {
           error = arguments[0];
         }
         // Send the other results as arguments
-        result[i] = arguments[1];
-        if (lock) {
-          process.nextTick(check);
-          return
-        }
-        check();
-      }
-
-    }
-  };
-
-  // attach more functions to the steps-stack
-  next.attach = function() {
-    Array.prototype.slice.call(arguments).forEach(function(_){steps.push(_);});
-  };
-  
-  next.destroy = function() {
-	steps = [];
+        result[index] = arguments[1];
+        if (!lock) { check(); }
+      };
+    };
   };
 
   // Start the engine an pass nothing to the first step.
-  next([]);
+  next();
 }
 
 // Tack on leading and tailing steps for input and output and return

@@ -10,6 +10,10 @@ module.exports = function(app, model) {
     var redisClient = redis.createClient();
     var anonCounter = new Counter({_id: "Anon"});
 
+    var MAX_MSG_LEN = 500;
+    var MAX_USR_LEN = 50;
+    var MAX_ROOMID_LEN = 64;
+
     var actions = {};
     
     actions.create = function(req, res, next) {
@@ -30,31 +34,35 @@ module.exports = function(app, model) {
 
     actions.socket = function(socket) {
         
-        socket.on('join room', function(data) {
-            if(!data || !data.username || !data.roomid) {
-                socket.emit('error', 'data invalid');
-                console.log('error', 'data invalid');
+        socket.on('join room', function(roomid, callback) {
+            if(!roomid || roomid.length > MAX_ROOMID_LEN) {
+                callback('roomid invalid');
                 return;
             }
-            console.log('join room', 'data', data);
-            var username = data.username;
-            var roomid = data.roomid;
-            var secureData = {
-                username: username,
+            var userData = {
                 roomid: roomid
             };
             Step(
+                function generateUsername() {
+                    var next = this;
+                    Counter.getNextValue(roomid, function(err, value) {
+                        if(!err && value != null) {
+                            userData.username = "Anonymous"+value;
+                            callback(null, userData.username);
+                            next();
+                        }
+                    });
+                },
                 function saveUserInfo() {
-                    socket.set('userinfo', secureData, this);
+                    socket.set('userinfo', userData, this);
                 },
                 function addUser() {
-                    redisClient.sadd(roomid+' users', username, this);
+                    redisClient.sadd(roomid+' users', userData.username, this);
                 },
                 function sendMessagesAndUsers() {
                     var messageCallback = this.parallel();
                     var userCallback = this.parallel();
                     Message.allFrom(roomid, 1, function(err, messages) {
-                        console.log('sending msg', messages);
                         if(!err && messages) {
                             socket.emit('new messages', messages);
                         }
@@ -67,13 +75,16 @@ module.exports = function(app, model) {
                 },
                 function announceUser() {
                     socket.join(roomid);
-                    socket.broadcast.to(roomid).json.emit('user joined', username);
+                    socket.broadcast.to(roomid).json.emit('user joined', userData.username);
                     socket.emit('ready');
                 }
             );
         });
 
         socket.on('message', function(data) {
+            if(!data || data.length > MAX_MSG_LEN) {
+                return;
+            }
             socket.get('userinfo', function (err, userinfo) {
                 if(err || !userinfo) return;
                 var username = userinfo.username;
@@ -92,22 +103,50 @@ module.exports = function(app, model) {
         });
 
         socket.on('username change', function(data, callback) {
+            if(!data || data.length > MAX_USR_LEN) {
+                callback('roomid invalid');
+                return;
+            }
             var newname = data;
             socket.get('userinfo', function (err, userinfo) {
-                if(err || !userinfo) return;
+                if(err || !userinfo) {
+                    callback('user not found');
+                    return;
+                }
                 var oldname = userinfo.username;
                 var roomid = userinfo.roomid;
-                userinfo.username = newname;
-                socket.set('userinfo', userinfo, function (err) {
-                    redisClient.srem(roomid+' users', oldname, function() {
-                        redisClient.sadd(roomid+' users', newname, function() {
-                            var renameObj = {oldname: oldname, newname: newname};
-                            console.log('user renamed', renameObj);
-                            socket.broadcast.to(roomid).json.emit('user renamed', renameObj);
-                            callback(null, newname);
+                Step(
+                    function checkUsername() {
+                        var next = this;
+                        redisClient.sismember(roomid+' users', newname, function(err, ismemb){
+                            if(err || ismemb === 1) {
+                                callback('username exist');
+                            } else next();
                         });
-                    });
-                });
+                    },
+                    function updateUsernameInRedis() {
+                        var next = this;
+                        redisClient.srem(roomid+' users', oldname, function() {
+                            redisClient.sadd(roomid+' users', newname, function() {
+                                next();
+                            });
+                        });
+                    },
+                    function updateUserInfo() {
+                        var next = this;
+                        userinfo.username = newname;
+                        socket.set('userinfo', userinfo, function (err) {
+                            if(err) callback(err);
+                            else next();
+                        });
+                    },
+                    function notifyUsernameChange() {
+                        var renameObj = {oldname: oldname, newname: newname};
+                        socket.broadcast.to(userinfo.roomid).json.emit('user renamed', renameObj);
+                        callback(null, newname);
+                    }
+                );
+                
             });
         });
         

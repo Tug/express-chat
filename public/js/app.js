@@ -1,27 +1,18 @@
 
 $(document).ready(function() {
 
-function randomString() {
-	var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
-	var string_length = 8;
-	var randomstring = '';
-	for (var i=0; i<string_length; i++) {
-		var rnum = Math.floor(Math.random() * chars.length);
-		randomstring += chars.substring(rnum,rnum+1);
-	}
-	return randomstring;
-}
+    var MAX_MSG_LEN = 500;
+    var MAX_USR_LEN = 50;
+    var MAX_ROOMID_LEN = 64;
 
     var roompath = document.location.pathname;
     var roomid = roompath.replace('/r/', '');
     var nextmsgnum = 1;
     var users = [];
-    var username = "user"+randomString();
-    var serverMount = 'bayeux';
+    var username = "Anonymous";
     
     var messagebox = $('#message');
     var namebox = $('#name');
-    namebox.val(username);
     var messagesbox = $('#messages');
     var usersbox = $('#users');
     var submitMessage = $('#submitMessageButton');
@@ -30,11 +21,11 @@ function randomString() {
     
     var client = io.connect("/chat");
     client.on('connect', function () {
-        var data = {
-            username: username,
-            roomid: roomid
-        };
-        client.emit('join room', data);
+        client.emit('join room', roomid, function(err, name) {
+            username = name;
+            namebox.val(username);
+            refreshUserList();
+        });
     });
 
     client.on('ready', function() {
@@ -51,14 +42,18 @@ function randomString() {
     
     function sendMessage(message) {
         if(message) {
+            if(message > MAX_MSG_LEN) message = message.substr(0, MAX_MSG_LEN);
 		        client.emit("message", message);
         }
     }
 
     function changeUsername(newname) {
         if(newname) {
+            if(newname > MAX_USR_LEN) newname = newname.substr(0, MAX_USR_LEN);
 		        client.emit("username change", newname, function(err, name) {
-                if(!err) {
+                if(err) {
+                    alert(err);
+                } else {
                     userRenamed({oldname: username, newname: name});
                     username = name;
                 }
@@ -131,11 +126,11 @@ function randomString() {
     bindEnter(namebox, function() {
         var name = namebox.val();
         if(name && name != username) {
-            if($.inArray(name, users) != -1) {
-                alert("Username already in use !");
-            } else {
+            //if($.inArray(name, users) != -1) {
+            //    alert("Username already in use !");
+            //} else {
                 changeUsername(name);
-            }
+            //}
         }
         messagebox.val('');
     });
@@ -148,7 +143,7 @@ function randomString() {
             }
         });
     }
-    
+
     function formatMessage(msg) {
         return msg.username + ": " + msg.body;
     }
@@ -160,7 +155,7 @@ function randomString() {
     }
 
     function showWelcomeMessage() {
-        showMessage("Welcome on the room.");
+        showMessage("Welcome on the room. You are known as "+username+".");
     }
 
     function refreshUserList() {
