@@ -15,6 +15,7 @@
       , "socket.io"       : ">= 0.8.7"
       , "socket.io-client": ">= 0.8.7"
       , "underscore"      : ">= 1.2.3"
+      , "cloudfoundry"    : ">= 0.1.0"
     }
     , "main"        : "./app.js"
     , "engines"     : { "node": ">= 0.6.2" }

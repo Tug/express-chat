@@ -1,0 +1,13 @@
+{
+	"name": "cloudfoundry",
+	"description": "Helper library for CloudFoundry",
+	"version": "0.1.0",
+	"homepage": "https://github.com/igo/cloudfoundry",
+	"keywords": ["cloud", "cloudfoundry", "helper"],
+	"author": "Igor Urminček",
+	"main": "index.js",
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/igo/cloudfoundry.git"
+	}
+}
