@@ -5,7 +5,6 @@ var express = require('express');
 exports.urls = [
 ["/",                                   "index.index",              "get"  ],
 ["/rooms/create",                       "index.createRoom",         "post" , express.bodyParser()],
-["/rooms/list",                         "index.listRooms",          "get"  ],
 ["/r/:roomid",                          "chat.index",               "get"  ],
 ["/r/:roomid/upload",                   "file.upload",              "post" , [upload_middleware, "session.load"] ],
 ["/r/:roomid/download/:fileid",         "file.download",            "get"  ],
