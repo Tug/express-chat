@@ -42,7 +42,7 @@ $(document).ready(function() {
         addMessageToUl: function(msg) {
             app.messagesBox
               .append('<li>'+msg+'</li>')
-              .get(0).scrollTop = app.messagesBox.get(0).scrollHeight;
+              .parent().get(0).scrollTop = messagesBox.get(0).scrollHeight;
         },
 
         showSystemMessage: function(msg) {
