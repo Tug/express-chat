@@ -23,7 +23,7 @@ module.exports = function(app, model) {
                                             {$inc: {messageCount: 1}},
                                             {new: true},
                                             function(err, doc) {
-            if(err) next(err);
+            if(err || !doc) next(err || new Error('doc is null'));
             else {
                 self.num = doc.messageCount;
                 next();

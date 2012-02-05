@@ -1,31 +1,76 @@
-<?xml version='1.0' encoding='utf-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-  <head>
-    <title>Chat +</title>
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
-    <link rel="stylesheet/less" type="text/css" href="/css/styles.less">
-    <script src="/js/less-1.1.5.min.js" type="text/javascript"></script>
-  </head>
-  <body>
-    <div id='wrapper'>
-      <h1>Chat+</h1>
-      <img class='bubble' src='/images/bubble.png'/>
-      <div class='CreateChatBox'>
-        Welcome on the Chat+ application.
-        <br/>
-        Enter your name below and get started now!
-        <br/><br/><br/><br/><br/>
-        <form id='CreateChatForm' name='formAction' method='post' action='/room/create'>
-          <fieldset>
-            <legend>Create chat room</legend>
-            <input type='submit' value='Create' />
-            <input type="checkbox" name="ispublic" value="1" /> public
-          </fieldset>
-        </form>
-      </div>
-    </div>
-    <div id='footer'></div>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Express-chat</title>
+    <meta name="description" content="Cloud chat application">
+    <meta name="author" content="Tug">
 
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+	<link rel="stylesheet/less" type="text/css" href="/css/styles.less">
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script src="/js/lib/less-1.1.5.min.js" type="text/javascript"></script>
+    <script src="/js/lib/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="/js/lib/phpjs.js" type="text/javascript"></script>
+	  <script src="/js/lib/bootstrap-modal.js" type="text/javascript"></script>
+    
+</head>
+<body>
+    <div class="container">
+      	<div class="content">
+        	<div class="page-header">
+	          	<h1>Express-chat demo</h1>
+	        </div> <!-- /page-header -->
+      <div class="row">
+        <div class="span4">
+          <h2>Create chat room</h2>
+        </div>
+        <div class="span10">
+          <form id='CreateChatForm' name='formAction' method='post' action='/rooms/create'>
+            <fieldset>
+              <legend>Enter Room information</legend>
+              <div class="clearfix">
+                <label for="xlInput">Name</label>
+                <div class="input">
+                  <input class="xlarge" id="title" name="title" size="30" type="text">
+                </div>
+              </div>
+              <div class="clearfix">
+                <label for="xlInput">Public</label>
+                <div class="input">
+                  <input type="checkbox" class="input" name="ispublic" value="1" />
+                </div>
+              </div>
+              <div class="actions">
+                <input type="submit" class="btn primary" value="Create">
+              </div>
+            </fieldset>
+          </form>
+        </div>
+			</div> <!-- /row -->
+      <div class="row">
+        <div class="span4">
+          <h2>Public rooms</h2>
+        </div>
+				<div class="span10">
+          <br/>
+          <ul id="rooms">
+          {{each(i, room) rooms}}
+            <li><a href="/r/${room.id}">${room.title || 'Room '+room.id}</a></li>
+          {{/each}}
+				  </ul>
+        </div>
+      </div>
+		</div> <!-- /content -->
+
+		<footer>
+			<p>&copy; GPL licensed</p>
+		</footer>
+
+	</div> <!-- /container -->
+</body>
+</html>

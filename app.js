@@ -1,4 +1,4 @@
-
+var fs = require('fs');
 var userconfig = JSON.parse(fs.readFileSync("./config.json", "utf8"));
 var config = require('./config')(userconfig);
 

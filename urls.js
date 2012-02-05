@@ -1,10 +1,18 @@
 
+var upload_middleware = require('upload-middleware');
+var express = require('express');
+
 exports.urls = [
-
 ["/",                                   "index.index",              "get"  ],
-["/room/create",                        "chat.create",              "post" ],
+["/rooms/create",                       "index.createRoom",         "post" , express.bodyParser()],
+["/rooms/list",                         "index.listRooms",          "get"  ],
 ["/r/:roomid",                          "chat.index",               "get"  ],
-["/chat",                               "chat.socket",              "io"   ],
+["/r/:roomid/upload",                   "file.upload",              "post" , [upload_middleware, "session.load"] ],
+["/r/:roomid/download/:fileid",         "file.download",            "get"  ],
+];
 
+exports.ios = [
+["/chat",                               "chat.socket",              "io"   ],
+["/file",                               "file.socket",              "io"   ],
 ];
 

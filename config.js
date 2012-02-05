@@ -19,7 +19,7 @@ var config = {
   },
   views : {
     type: "html",
-    //engine: require("jqtpl").express,
+    engine: require("jqtpl").express,
     cache: "enable", //disable
     options : {
         layout: false
@@ -37,8 +37,10 @@ var config = {
     favicon : path.join(application_root,"public","favicon.ico")
   },
   urls : require("./urls").urls,
+  ios : require("./urls").ios,
   session : {
     secret : "mouse dog",
+    key: "express.sid",
     cookie : {
       maxAge: 24 * 3600 * 1000, // need the cookie while uploading with flash so max upload time is 24h
       path: "/",

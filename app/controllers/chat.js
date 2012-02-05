@@ -10,55 +10,52 @@ module.exports = function(app, model) {
     var redisClient = redis.createClient();
     var anonCounter = new Counter({_id: "Anon"});
 
-    var MAX_MSG_LEN = 500;
-    var MAX_USR_LEN = 50;
-    var MAX_ROOMID_LEN = 64;
-
     var actions = {};
-    
-    actions.create = function(req, res, next) {
-        var ispublic = req.body.ispublic || false;
-        var room = new Room({ispublic: ispublic});
-        room.save(function(err) {
-            if(err) {
-                console.log(err);
-                next(err);
-            } else {
-                res.redirect(app.url("chat.index", {"roomid": room.id }));
+
+    actions.index = function(req, res, next) {
+        var roomid = req.params.roomid;
+        Room.findOne({_id: roomid}, function(err, room) {
+            if(err || !room) {
+                //next(err || new Error('room not found'));
+                res.redirect(app.url("index.index"));
+                return;
             }
+            var roomName = room.title || "Room "+room.id;
+            res.render('chat.html', {title: roomName});
         });
     };
 
-    actions.index = function(req, res, next) {
-        res.render('chat.html');
-    };
-
     actions.socket = function(socket) {
+        var hs = socket.handshake;
         
         socket.on('join room', function(roomid, callback) {
-            if(!roomid || roomid.length > MAX_ROOMID_LEN) {
+            if(typeof callback !== "function") {
+                return;
+            }
+            if(typeof roomid !== "string" || roomid.length > 64) {
                 callback('roomid invalid');
                 return;
             }
-            var userData = {
-                roomid: roomid
-            };
+            var username = null;
             Step(
                 function generateUsername() {
                     var next = this;
                     Counter.getNextValue(roomid, function(err, value) {
-                        if(!err && value != null) {
-                            userData.username = "Anonymous"+value;
-                            callback(null, userData.username);
-                            next();
+                        if(err || value == null) {
+                            callback('server could not generate a username');
+                            return;
                         }
+                        username = "Anonymous"+value;
+                        callback(null, username);
+                        var userinfo = {
+                            roomid: roomid,
+                            username: username
+                        };
+                        next(null, userinfo);
                     });
                 },
-                function saveUserInfo() {
-                    socket.set('userinfo', userData, this);
-                },
-                function addUser() {
-                    redisClient.sadd(roomid+' users', userData.username, this);
+                function setUserInfo(err, userinfo) {
+                    socket.set('userinfo', userinfo, this);
                 },
                 function sendMessagesAndUsers() {
                     var messageCallback = this.parallel();
@@ -74,22 +71,28 @@ module.exports = function(app, model) {
                         userCallback();
                     });
                 },
+                function addUser() {
+                    // TODO: check if not present
+                    redisClient.sadd(roomid+' users', username, this);
+                },
                 function announceUser() {
                     socket.join(roomid);
-                    socket.broadcast.to(roomid).json.emit('user joined', userData.username);
+                    socket.broadcast.to(roomid).json.emit('user joined', username);
                     socket.emit('ready');
                 }
             );
         });
 
         socket.on('message', function(data) {
-            if(!data || data.length > MAX_MSG_LEN) {
+            if(typeof data !== "string" || data.length > 500) {
                 return;
             }
-            socket.get('userinfo', function (err, userinfo) {
-                if(err || !userinfo) return;
-                var username = userinfo.username;
+            socket.get('userinfo', function(err, userinfo) {
+                if(err || !userinfo) {
+                    return;
+                }
                 var roomid = userinfo.roomid;
+                var username = userinfo.username;
                 var message = new Message({
                     roomid: roomid,
                     username: username,
@@ -104,14 +107,18 @@ module.exports = function(app, model) {
         });
 
         socket.on('username change', function(data, callback) {
-            if(!data || data.length > MAX_USR_LEN) {
-                callback('roomid invalid');
+            if(typeof callback !== "function") {
+                console.log('username change without callback');
+                return;
+            }
+            if(typeof data !== "string" || data.length > 50) {
+                callback('username invalid');
                 return;
             }
             var newname = data;
-            socket.get('userinfo', function (err, userinfo) {
+            socket.get('userinfo', function(err, userinfo) {
                 if(err || !userinfo) {
-                    callback('user not found');
+                    callback('user info not found');
                     return;
                 }
                 var oldname = userinfo.username;
@@ -134,30 +141,28 @@ module.exports = function(app, model) {
                         });
                     },
                     function updateUserInfo() {
-                        var next = this;
                         userinfo.username = newname;
-                        socket.set('userinfo', userinfo, function (err) {
-                            if(err) callback(err);
-                            else next();
-                        });
+                        socket.set('userinfo', userinfo, this);
                     },
                     function notifyUsernameChange() {
                         var renameObj = {oldname: oldname, newname: newname};
-                        socket.broadcast.to(userinfo.roomid).json.emit('user renamed', renameObj);
-                        callback(null, newname);
+                        socket.broadcast.to(roomid).json.emit('user renamed', renameObj);
+                        callback(null, renameObj);
                     }
                 );
-                
             });
         });
         
         socket.on('disconnect', function () {
-            socket.get('userinfo', function (err, userinfo) {
-                if(err || !userinfo) return;
+            socket.get('userinfo', function(err, userinfo) {
+                if(err || !userinfo) {
+                    return;
+                }
                 var username = userinfo.username;
                 var roomid = userinfo.roomid;
                 redisClient.srem(roomid+' users', username, function() {
                     socket.broadcast.to(roomid).json.emit("user left", username);
+                    console.log('disconnect emitting');
                     //socket.leave(roomid);
                 });
             });
