@@ -12,11 +12,14 @@ module.exports = function(app, model) {
     var MAX_SIMUL_UP = 1;
     var MAX_UP_MB = 1000;
     
+    
+    
     actions.upload = function(req, res, next) {
         var roomid = req.params.roomid;
         var filesize = req.form.fileInfo.filesize;
         var userip = req.connection.remoteAddress;
         var filename = req.form.fileInfo.filename;
+        var clientfileid = req.form.fileInfo.fileid;
         
         if(!req.session.rooms) {
             next(new Error('user is not connected to any room'));
@@ -69,8 +72,13 @@ module.exports = function(app, model) {
                 
                 req.form.speedTarget = 1000;
                 
+                var watchProgress = UploadWatcher();
+                
                 req.form.onChunk = function(data, callback) {
-                    gs.write(data, callback);
+                    gs.write(data, function() {
+                        watchProgress(data.length);
+                        callback();
+                    });
                 };
                 
                 req.form.on('close', function() {
@@ -94,6 +102,7 @@ module.exports = function(app, model) {
                 req.form.read();
                 var fileurl = app.url("file.download", {roomid: roomid, fileid: file.servername });
                 var fileinfo = {
+                    id          : file.id,
                     url         : fileurl, 
                     size        : filesize, 
                     name        : file.originalname, 
@@ -102,6 +111,22 @@ module.exports = function(app, model) {
                 app.io.of('/file').in(roomid).emit('new file', fileinfo);
             }
         );
+        
+        function UploadWatcher() {
+            var totalRead = 0;
+            var fileinfo = {
+                fileid: clientfileid,
+                progress: 0
+            };
+            return function watchProgress(bytesRead) {
+                totalRead += bytesRead;
+                var newprogress = Math.floor(totalRead/filesize);
+                if(newprogress > fileinfo.progress) {
+                    fileinfo.progress = newprogress;
+                    app.io.of('/file').in(roomid).emit('progress', fileinfo);
+                }
+            };
+        }
         
     };
 

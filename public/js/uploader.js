@@ -1,10 +1,10 @@
 
 function loadUploader(app) {
   
-  var fileList = new FileList(app.filelist);
+  var fileList = loadFileList(app);
   
   var uploader = new plupload.Uploader({
-	  runtimes : 'gears,flash,html5,html4,silverlight,browserplus',
+	  runtimes : 'html4', //'gears,flash,html5,silverlight,browserplus,html4',
 	  max_file_size : app.MAX_FILE_SIZE,
 	  browse_button : app.browseButton.attr('id'),
 	  unique_names : true,
@@ -25,20 +25,18 @@ function loadUploader(app) {
   });
 
   uploader.bind('FilesAdded', function(up, files) {
-    files.forEach(function(fileInfo) {
-      fileList.add(new File(fileInfo, fileList));
-    });
+    files.forEach(fileList.add);
     up.refresh(); // Reposition Flash/Silverlight
   });
 
   uploader.bind('UploadFile', function(up, file) {
-    fileList.get(file.id).setStatus("Uploading");
+    file.status = "Uploading";
+    fileList.update(file);
   });
 
   uploader.bind('UploadProgress', function(up, file) {
-    var fileObj = fileList.get(file.id);
-    fileObj.setProgress(file.percent);
-    fileObj.setSpeed(up.total.bytesPerSec);
+    file.bytesPerSec = up.total.bytesPerSec;
+    fileList.update(file);
   });
 
   uploader.bind('BeforeUpload', function(up, file) {

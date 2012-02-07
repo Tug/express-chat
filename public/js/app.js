@@ -24,7 +24,7 @@ $(document).ready(function() {
         messagesBox         : $('#messages'),
         usersBox            : $('#users'),
         submitMessageButton : $('#submitMessageButton'),
-        filelist            : $('#fileList'),
+        fileList            : $('#fileList'),
         browseButton        : $('#upFile'),
         uploadButton        : $('#upSendBtn'),
         renameButton        : $('#renameButton'),
@@ -102,7 +102,7 @@ $(document).ready(function() {
             app.username = newusername;
             app.nameBox.val(newusername);
             app.refreshUserList();
-            app.showSystemMessage("you are now known as "+newusername+".");
+            app.showSystemMessage("you are now known as "+htmlentities(newusername)+".");
         },
 
         notifyFile: function(fileinfo) {
