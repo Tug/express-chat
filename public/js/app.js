@@ -105,10 +105,21 @@ $(document).ready(function() {
             app.showSystemMessage("you are now known as "+htmlentities(newusername)+".");
         },
 
-        notifyFile: function(fileinfo) {
-            var msg = fileinfo.uploadername+' is sharing <a href="'+fileinfo.url+'" target="_blank">'+fileinfo.name+'</a> ('+fileinfo.size+')';
+        notifyFile: function(file) {
+            var msg = file.uploadername+' is sharing '
+                      +'<a href="'+file.url+'" target="_blank">'+file.name+'</a>'
+                      +' - '+readableSize(file.size)+' - uploading '
+                      +'<span id="'+file.id+'progress">0</span>%';
             app.showSystemMessage(msg);
+        },
+        
+        updateFileProgress: function(file) {
+            if(file.percent)
+                $('#'+file.id+'progress').html(file.percent);
+            if(file.bytesPerSec)
+                $('#'+file.id+'speed').html(file.bytesPerSec);
         }
+        
     }
 
     runChatClient(app);

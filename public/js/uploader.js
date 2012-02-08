@@ -1,7 +1,7 @@
 
 function loadUploader(app) {
   
-  var fileList = loadFileList(app);
+  var fileList = loadFileList(app.fileList);
   
   var uploader = new plupload.Uploader({
 	  runtimes : 'html4', //'gears,flash,html5,silverlight,browserplus,html4',
@@ -19,16 +19,19 @@ function loadUploader(app) {
     $('#runtimeInfo').html("Current runtime: " + params.runtime);
   });
 
-
   app.uploadButton.click(function(e) {
-    uploader.start();
+    if (uploader.files.length > 0) {
+        uploader.start();
+    } else {
+        alert('Select a file first.');
+    }
   });
 
   uploader.bind('FilesAdded', function(up, files) {
     files.forEach(fileList.add);
     up.refresh(); // Reposition Flash/Silverlight
   });
-
+  
   uploader.bind('UploadFile', function(up, file) {
     file.status = "Uploading";
     fileList.update(file);
