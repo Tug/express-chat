@@ -36,7 +36,7 @@ function loadFileList(fileList) {
       if(file.percent)
         $('#'+file.id+'progress').width(file.percent+'%');
       if(file.bytesPerSec)
-        $('#'+file.id+'speed').html(readableSize(file.bytesPerSec)+'/s');
+        $('#uploadSpeed').html(readableSize(file.bytesPerSec)+'/s');
       if(file.status != lastStatus) {
         lastStatus = file.status;
         var statusStr = getStatusString(file.status);

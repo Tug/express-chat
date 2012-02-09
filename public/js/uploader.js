@@ -7,6 +7,7 @@ function loadUploader(app) {
 	  runtimes : 'gears,flash,html5,silverlight,browserplus,html4',
 	  max_file_size : app.MAX_FILE_SIZE,
 	  browse_button : app.browseButton.attr('id'),
+	  container: app.uploadModal.attr('id'),
 	  unique_names : true,
 	  multipart: true,
 	  url : app.UP_URL,
@@ -52,7 +53,7 @@ function loadUploader(app) {
   });
 
   uploader.bind('Error', function(up, err) {
-    console.log(err.message);
+    alert(err.message);
     up.refresh(); // Reposition Flash/Silverlight
   });
 

@@ -12,7 +12,21 @@ module.exports = function(app, model) {
     var MAX_SIMUL_UP = 1;
     var MAX_UP_MB = 1000;
     
-    
+    function UploadWatcher(roomid, clientfileid, filesize) {
+        var totalRead = 0;
+        var fileinfo = {
+            id: clientfileid,
+            percent: 0
+        };
+        return function watchProgress(bytesRead) {
+            totalRead += bytesRead;
+            var newprogress = Math.floor(100*totalRead/filesize);
+            if(newprogress > fileinfo.percent) {
+                fileinfo.percent = newprogress;
+                app.io.of('/file').in(roomid).emit('progress', fileinfo);
+            }
+        };
+    }
     
     actions.upload = function(req, res, next) {
         var roomid = req.params.roomid;
@@ -32,6 +46,8 @@ module.exports = function(app, model) {
             next(new Error('client not found in room'));
             return;
         }
+        
+        var watchProgress = UploadWatcher(roomid, clientfileid, filesize);
         
         Step(
             function loadUser() {
@@ -72,8 +88,6 @@ module.exports = function(app, model) {
                 
                 req.form.speedTarget = 1000;
                 
-                var watchProgress = UploadWatcher();
-                
                 req.form.onChunk = function(data, callback) {
                     gs.write(data, function() {
                         watchProgress(data.length);
@@ -102,7 +116,7 @@ module.exports = function(app, model) {
                 req.form.read();
                 var fileurl = app.url("file.download", {roomid: roomid, fileid: file.servername });
                 var fileinfo = {
-                    id          : file.id,
+                    id          : clientfileid,
                     url         : fileurl, 
                     size        : filesize, 
                     name        : file.originalname, 
@@ -112,21 +126,7 @@ module.exports = function(app, model) {
             }
         );
         
-        function UploadWatcher() {
-            var totalRead = 0;
-            var fileinfo = {
-                fileid: clientfileid,
-                progress: 0
-            };
-            return function watchProgress(bytesRead) {
-                totalRead += bytesRead;
-                var newprogress = Math.floor(totalRead/filesize);
-                if(newprogress > fileinfo.progress) {
-                    fileinfo.progress = newprogress;
-                    app.io.of('/file').in(roomid).emit('progress', fileinfo);
-                }
-            };
-        }
+        
         
     };
 

@@ -16,8 +16,8 @@
       , "underscore"        : ">= 1.2.3"
       , "cloudfoundry"      : ">= 0.1.0"
       , "upload-middleware" : ">= 0.1.2"
-      , "growing-mongofile" : ">= 0.1.2"
-      , "mongodb"           : ">= 0.9.8"
+      , "growing-mongofile" : ">= 0.1.3"
+      , "mongodb"           : ">= 0.9.8-7"
       , "jqtpl"             : ">= 1.0.9"
     }
     , "main"        : "./app.js"

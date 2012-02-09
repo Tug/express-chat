@@ -108,16 +108,22 @@ $(document).ready(function() {
         notifyFile: function(file) {
             var msg = file.uploadername+' is sharing '
                       +'<a href="'+file.url+'" target="_blank">'+file.name+'</a>'
-                      +' - '+readableSize(file.size)+' - uploading '
-                      +'<span id="'+file.id+'progress">0</span>%';
+                      +' - '+readableSize(file.size)
+                      +' - <span id="c'+file.id+'status">'
+                        +'Uploading <span id="c'+file.id+'progress">0</span>%'
+                      +'</span>';
             app.showSystemMessage(msg);
         },
         
         updateFileProgress: function(file) {
-            if(file.percent)
-                $('#'+file.id+'progress').html(file.percent);
-            if(file.bytesPerSec)
-                $('#'+file.id+'speed').html(file.bytesPerSec);
+            if(file.percent) {
+              $('#c'+file.id+'progress').html(file.percent);
+              if(file.percent == 100) {
+                $('#c'+file.id+'status').html('Completed');
+              }
+            }  
+            //if(file.bytesPerSec)
+            //    $('#'+file.id+'speed').html(file.bytesPerSec);
         }
         
     }
