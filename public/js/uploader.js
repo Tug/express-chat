@@ -4,7 +4,7 @@ function loadUploader(app) {
   var fileList = loadFileList(app.fileList);
   
   var uploader = new plupload.Uploader({
-	  runtimes : 'html4', //'gears,flash,html5,silverlight,browserplus,html4',
+	  runtimes : 'gears,flash,html5,silverlight,browserplus,html4',
 	  max_file_size : app.MAX_FILE_SIZE,
 	  browse_button : app.browseButton.attr('id'),
 	  unique_names : true,
@@ -33,7 +33,6 @@ function loadUploader(app) {
   });
   
   uploader.bind('UploadFile', function(up, file) {
-    file.status = "Uploading";
     fileList.update(file);
   });
 
@@ -46,9 +45,14 @@ function loadUploader(app) {
     up.settings.multipart_params.filesize = file.size;
     up.settings.multipart_params.fileid = file.id;
   });
+  
+  uploader.bind('FileUploaded', function(up, file, res) {
+    file.percent = 100;
+    fileList.update(file);
+  });
 
   uploader.bind('Error', function(up, err) {
-    alert(err.message);
+    console.log(err.message);
     up.refresh(); // Reposition Flash/Silverlight
   });
 
