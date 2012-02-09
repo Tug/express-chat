@@ -35,7 +35,7 @@ $(document).ready(function() {
         },
         
         showMessage: function(username, words) {
-            var msg = '<span class="nickname">'+htmlentities('<'+username+'>')+'</span> '+htmlentities(words);
+            var msg = '<span class="nickname">'+htmlentities('<'+username+'>')+'</span> '+linkify(htmlentities(words));
             app.addMessageToUl(msg);
         },
         
@@ -102,7 +102,7 @@ $(document).ready(function() {
             app.username = newusername;
             app.nameBox.val(newusername);
             app.refreshUserList();
-            app.showSystemMessage("you are now known as "+htmlentities(newusername)+".");
+            app.showSystemMessage("You are now known as "+htmlentities(newusername)+".");
         },
 
         notifyFile: function(file) {
