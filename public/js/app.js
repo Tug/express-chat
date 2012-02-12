@@ -121,7 +121,7 @@ $(document).ready(function() {
               if(file.percent == 100) {
                 $('#c'+file.id+'status').html('Completed');
               }
-            }  
+            }
             //if(file.bytesPerSec)
             //    $('#'+file.id+'speed').html(file.bytesPerSec);
         }
