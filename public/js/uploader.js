@@ -4,7 +4,7 @@ function loadUploader(app) {
   var fileList = loadFileList(app.fileList);
   
   var uploader = new plupload.Uploader({
-	  runtimes : 'gears,flash,html5,silverlight,browserplus,html4',
+	  runtimes : 'html4,gears,flash,html5,silverlight,browserplus',
 	  max_file_size : app.MAX_FILE_SIZE,
 	  browse_button : app.browseButton.attr('id'),
 	  container: app.uploadModal.attr('id'),
@@ -23,6 +23,7 @@ function loadUploader(app) {
   app.uploadButton.click(function(e) {
     if (uploader.files.length > 0) {
         uploader.start();
+        app.uploadModal.modal('hide');
     } else {
         alert('Select a file first.');
     }
@@ -53,7 +54,7 @@ function loadUploader(app) {
   });
 
   uploader.bind('Error', function(up, err) {
-    alert(err.message);
+    alert('Error for '+err.file.name+' : '+err.message);
     up.refresh(); // Reposition Flash/Silverlight
   });
 
