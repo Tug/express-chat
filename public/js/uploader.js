@@ -59,11 +59,11 @@ function loadUploader(app) {
   });
 
   app.uploadModal.on('shown', function() {
-    uploader.refresh();
+    //uploader.refresh();
   });
   
   app.uploadModal.on('hidden', function() {
-    uploader.refresh();
+    //uploader.refresh();
   });
 
   uploader.init();
