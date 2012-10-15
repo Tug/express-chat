@@ -8,9 +8,9 @@ setup.createApplication(config, function(err, app) {
     
     if(err) console.log(err);
     
-    app.listen(config.port);
+    app.server.listen(config.port);
     
-    console.log('Express server started on port %s', app.address().port);
+    console.log('Express server started on port %s', app.server.address().port);
     
 });
 

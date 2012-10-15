@@ -59,9 +59,9 @@
 				<div class="span10">
           <br/>
           <ul id="rooms">
-          {{each(i, room) rooms}}
-            <li><a href="/r/${room.id}">${room.title || 'Room '+room.id}</a></li>
-          {{/each}}
+          <% rooms.forEach(function(room) { %>
+            <li><a href="/r/<%= room.id %>"><%= room.title || 'Room '+room.id %></a></li>
+          <% }); %>
 				  </ul>
         </div>
       </div>

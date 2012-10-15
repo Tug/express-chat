@@ -18,6 +18,9 @@ module.exports = function(app, model) {
         var userip = req.connection.remoteAddress;
         var filename = req.form.fileInfo.filename;
         
+        // we store the username in the socket object
+        // and the socket ids (one for each room) in the session
+        
         if(!req.session.rooms) {
             next(new Error('user is not connected to any room'));
             return;
@@ -107,7 +110,8 @@ module.exports = function(app, model) {
 
     actions.download = function(req, res, next) {
         var servername = req.params.fileid;
-        /*FileModel.findOne({servername: servername}, function(err, doc) { 
+        /* NOTE: Not used yet.
+        FileModel.findOne({servername: servername}, function(err, doc) { 
         });*/
         GrowingFile.open(db, servername, null, function(err, gf) {
             if(err || !gf || !gf.originalname) {

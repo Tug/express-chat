@@ -42,7 +42,7 @@ module.exports = function(app, model) {
                     var next = this;
                     Counter.getNextValue(roomid, function(err, value) {
                         if(err || value == null) {
-                            callback('server could not generate a username');
+                            callback('server could not generate a username : '+err.message);
                             return;
                         }
                         username = "Anonymous"+value;

@@ -18,7 +18,6 @@ function runChatClient(app) {
             else app.setUsername(name);
         });
     });
-    
 
     function addMessage(msg) {
         app.showMessage(msg.username, msg.body);

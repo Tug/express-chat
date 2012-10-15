@@ -6,13 +6,13 @@ module.exports = function(app, model) {
     var actions = {};
     
     actions.index = function(req, res, next) {
-        Room.find()
-          .where('ispublic', true)
-          .limit(100)
-          .run(function(err, docs) {
+        var query = Room.find()
+                        .where('ispublic').equals(true)
+                        .limit(100);
+        query.exec(function(err, docs) {
             var rooms = [];
             docs.forEach(function(room) { rooms.push(room.publicFields()); });
-            res.render('home.html', {rooms: rooms});
+            res.render('home', {rooms: rooms});
         });
     };
     

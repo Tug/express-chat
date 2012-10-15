@@ -18,11 +18,7 @@ module.exports = function(app, model) {
         var RoomModel = mongoose.model('Room');
         var self = this;
         //TODO: update query with fields = { "messageCount: 1 } when available in node-mongodb-native
-        RoomModel.collection.findAndModify( {_id: self.roomid},
-                                            [],
-                                            {$inc: {messageCount: 1}},
-                                            {new: true},
-                                            function(err, doc) {
+        RoomModel.findByIdAndUpdate( self.roomid, {$inc: {messageCount: 1}}, function(err, doc) {
             if(err || !doc) next(err || new Error('doc is null'));
             else {
                 self.num = doc.messageCount;
@@ -34,8 +30,8 @@ module.exports = function(app, model) {
     Message.statics.allFrom = function(roomid, messageNum, callback) {
         MessageModel.find({'roomid': roomid})
                .where('num').gte(messageNum)
-               .only('num','username', 'body', 'date')
-               .run(callback);
+               .select('num username body date')
+               .exec(callback);
     };
 
     Message.methods.publicFields = function() {

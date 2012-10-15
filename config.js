@@ -8,9 +8,7 @@ var config = {
   port : 3000,
   database : {
     mongodb: {
-      db: "db",
-      host: "localhost",
-      port: 27017,
+      uri: "mongodb://localhost:27017/db"
     },
     redis: {
         host: "localhost",
@@ -19,11 +17,8 @@ var config = {
   },
   views : {
     type: "html",
-    engine: require("jqtpl").express,
-    cache: "enable", //disable
-    options : {
-        layout: false
-    }
+    engine: require('ejs').__express,
+    cache: "enable" //disable
   },
   paths : {
     root : application_root,
@@ -39,10 +34,10 @@ var config = {
   urls : require("./urls").urls,
   ios : require("./urls").ios,
   session : {
-    secret : "mouse dog",
+    secret : "rgkervdgmigeccxvfezf",
     key: "express.sid",
     cookie : {
-      maxAge: 24 * 3600 * 1000, // need the cookie while uploading with flash so max upload time is 24h
+      maxAge: 24 * 3600 * 1000,
       path: "/",
       httpOnly: false
     },

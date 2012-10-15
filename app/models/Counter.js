@@ -11,11 +11,11 @@ module.exports = function(app, model) {
 
     Counter.statics.getNextValue = function(roomid, callback) {
         var self = this;
-        var collection = CounterModel.collection;
-        collection.insert({_id: roomid, value: 0}, function(err, docs) {
-            collection.findAndModify({_id: roomid}, [], {$inc: {value: 1}}, {new: true}, function(err, theCounter) {
+        var counter = new CounterModel({_id: roomid, value: 0});
+        counter.save(function(errSave) {
+            CounterModel.findByIdAndUpdate(roomid, {$inc: {value: 1}}, function(errUpdate, theCounter) {
                 var value = theCounter && theCounter.value;
-                callback(err, value);
+                callback(errUpdate, value);
             });
         });
     };
@@ -25,6 +25,7 @@ module.exports = function(app, model) {
     };
     
     var CounterModel = mongoose.model('Counter', Counter);
+    
     return CounterModel;
 }
 
