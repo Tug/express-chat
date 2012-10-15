@@ -12,7 +12,7 @@ function loadUploader(app) {
 	  url : app.UP_URL,
 	  flash_swf_url : app.PLUPLOAD_ROOT+'plupload.flash.swf',
 	  silverlight_xap_url : app.PLUPLOAD_ROOT+'plupload.silverlight.xap',
-	  multipart_params: { sessionid: app.SESSIONID }
+	  multipart_params: { cookie: document.cookie }
   });
 
   uploader.bind('Init', function(up, params) {

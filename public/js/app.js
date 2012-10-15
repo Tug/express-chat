@@ -14,7 +14,6 @@ $(document).ready(function() {
         UP_URL          : '/r/'+roomid+'/upload',
         PLUPLOAD_ROOT   : '/js/lib/plupload/',
         MAX_FILE_SIZE   : '1000mb',
-        SESSIONID       : $.cookie("express.sid"),
         
         users           : [],
         username        : 'Anonymous',

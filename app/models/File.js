@@ -24,7 +24,7 @@ module.exports = function(app, model) {
             callback(null, randName);
           } else {
             if(iter --> 0) {
-              generateUniqueId(iter, callback);
+              generateUniqueId(callback, iter);
             } else {
               callback(new Error("Failed generating unique file id"), null);
             }

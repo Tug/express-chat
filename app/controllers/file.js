@@ -54,7 +54,11 @@ module.exports = function(app, model) {
                 });
                 var nextstep = this;
                 file.save(function(err) {
-                    nextstep(err, file);
+                    if(err) {
+                        next(err);
+                        return;
+                    }
+                    nextstep(null, file);
                 });
             },
             function createGridStore(err, file) {
@@ -64,7 +68,7 @@ module.exports = function(app, model) {
                 var nextstep = this;
                 var gs = new GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
                     if(err || !gs) {
-                        next(err);
+                        next(new Error('Error creating gridstore : '+(err && err.message)));
                         return;
                     }
                     nextstep(null, file);

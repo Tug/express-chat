@@ -2,9 +2,6 @@
 $(document).ready(function() {
 
   var socket = new io.connect();
-  socket.on('connect', function() {
-    socket.emit('connect', { sessionid: $.cookie("connect.sid") });
-  });
   
   socket.on("uploadinfo", function(data) {
     if(data.fileurl) {
@@ -25,6 +22,7 @@ $(document).ready(function() {
   
   var downloaders = {};
   var downId = 1;
+
   socket.on("newdl", function(data) {
     if(data.clientfileid && data.downloaderid) {
       var downloaderId = data.downloaderid;
@@ -32,6 +30,7 @@ $(document).ready(function() {
       $("#downloads").append("<div id='"+downloaderId+"' class='downloader'><div class='title'>Client "+ (downId++) +"</div></div><br/>");
     }
   });
+
   socket.on("progress", function(data) {
     if(data.clientfileid && data.downloaderid) {
       var downloaderId = data.downloaderid;
