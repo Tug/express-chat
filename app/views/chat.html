@@ -17,9 +17,9 @@
     <script src="/js/lib/jquery-1.7.1.min.js" type="text/javascript"></script>
     <script src="/js/lib/phpjs.js" type="text/javascript"></script>
     <script src="/js/lib/plupload/plupload.full.js" type="text/javascript"></script>
-	  <script src="/js/lib/bootstrap-modal.js"></script>
-  	<script src="/js/lib/bootstrap-dropdown.js"></script>
-	
+    <script src="/js/lib/bootstrap-modal.js"></script>
+    <script src="/js/lib/bootstrap-dropdown.js"></script>
+
     <script src="/js/ui.filelist.js" type="text/javascript"></script>
     <script src="/js/uploader.js" type="text/javascript"></script>
     
@@ -89,12 +89,15 @@
 				<h3>Upload files</h3>
 			</div>
 			<div class="modal-body">
-				<p>Select files to upload…</p>
-				<p><input type="button" id="upFile" class="btn" value="Add files"/>
-				<div id='fileList'></div></p>
+			    <input type="button" id="upFile" class="btn" value="Add files"/>
+			    <div>
+				    <ul id="fileList">
+				    </ul>
+				</div>
 			</div>
 			<div class="modal-footer">
         <div id="runtimeInfo"></div>
+        <div id="uploadSpeed"></div>
 				<input type="button" id="upSendBtn" class="btn primary" value="Upload">
 			</div>
 		</div> <!-- /upload-modal -->

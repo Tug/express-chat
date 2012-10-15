@@ -1,12 +1,13 @@
 
 function loadUploader(app) {
   
-  var fileList = new FileList(app.filelist);
+  var fileList = loadFileList(app.fileList);
   
   var uploader = new plupload.Uploader({
-	  runtimes : 'gears,flash,html5,html4,silverlight,browserplus',
+	  runtimes : 'html4,html5,gears,flash,silverlight,browserplus',
 	  max_file_size : app.MAX_FILE_SIZE,
 	  browse_button : app.browseButton.attr('id'),
+	  container: app.uploadModal.attr('id'),
 	  unique_names : true,
 	  multipart: true,
 	  url : app.UP_URL,
@@ -19,44 +20,50 @@ function loadUploader(app) {
     $('#runtimeInfo').html("Current runtime: " + params.runtime);
   });
 
-
   app.uploadButton.click(function(e) {
-    uploader.start();
+    if (uploader.files.length > 0) {
+        uploader.start();
+        app.uploadModal.modal('hide');
+    } else {
+        alert('Select a file first.');
+    }
   });
 
   uploader.bind('FilesAdded', function(up, files) {
-    files.forEach(function(fileInfo) {
-      fileList.add(new File(fileInfo, fileList));
-    });
+    files.forEach(fileList.add);
     up.refresh(); // Reposition Flash/Silverlight
   });
-
+  
   uploader.bind('UploadFile', function(up, file) {
-    fileList.get(file.id).setStatus("Uploading");
+    fileList.update(file);
   });
 
   uploader.bind('UploadProgress', function(up, file) {
-    var fileObj = fileList.get(file.id);
-    fileObj.setProgress(file.percent);
-    fileObj.setSpeed(up.total.bytesPerSec);
+    file.bytesPerSec = up.total.bytesPerSec;
+    fileList.update(file);
   });
 
   uploader.bind('BeforeUpload', function(up, file) {
     up.settings.multipart_params.filesize = file.size;
     up.settings.multipart_params.fileid = file.id;
   });
+  
+  uploader.bind('FileUploaded', function(up, file, res) {
+    file.percent = 100;
+    fileList.update(file);
+  });
 
   uploader.bind('Error', function(up, err) {
-    alert(err.message);
+    alert('Error for '+err.file.name+' : '+err.message);
     up.refresh(); // Reposition Flash/Silverlight
   });
 
   app.uploadModal.on('shown', function() {
-    uploader.refresh();
+    //uploader.refresh();
   });
   
   app.uploadModal.on('hidden', function() {
-    uploader.refresh();
+    //uploader.refresh();
   });
 
   uploader.init();

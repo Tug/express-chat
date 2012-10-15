@@ -11,5 +11,7 @@ function runFileClient(app) {
     
     client.on('new file', app.notifyFile);
 
+    client.on("progress", app.updateFileProgress);
+    
 }
 

@@ -23,7 +23,7 @@ $(document).ready(function() {
         messagesBox         : $('#messages'),
         usersBox            : $('#users'),
         submitMessageButton : $('#submitMessageButton'),
-        filelist            : $('#fileList'),
+        fileList            : $('#fileList'),
         browseButton        : $('#upFile'),
         uploadButton        : $('#upSendBtn'),
         renameButton        : $('#renameButton'),
@@ -34,7 +34,7 @@ $(document).ready(function() {
         },
         
         showMessage: function(username, words) {
-            var msg = '<span class="nickname">'+htmlentities('<'+username+'>')+'</span> '+htmlentities(words);
+            var msg = '<span class="nickname">'+htmlentities('<'+username+'>')+'</span> '+linkify(htmlentities(words));
             app.addMessageToUl(msg);
         },
         
@@ -101,13 +101,30 @@ $(document).ready(function() {
             app.username = newusername;
             app.nameBox.val(newusername);
             app.refreshUserList();
-            app.showSystemMessage("you are now known as "+newusername+".");
+            app.showSystemMessage("You are now known as "+htmlentities(newusername)+".");
         },
 
-        notifyFile: function(fileinfo) {
-            var msg = fileinfo.uploadername+' is sharing <a href="'+fileinfo.url+'" target="_blank">'+fileinfo.name+'</a> ('+fileinfo.size+')';
+        notifyFile: function(file) {
+            var msg = file.uploadername+' is sharing '
+                      +'<a href="'+file.url+'" target="_blank">'+file.name+'</a>'
+                      +' - '+readableSize(file.size)
+                      +' - <span id="c'+file.id+'status">'
+                        +'Uploading <span id="c'+file.id+'progress">0</span>%'
+                      +'</span>';
             app.showSystemMessage(msg);
+        },
+        
+        updateFileProgress: function(file) {
+            if(file.percent) {
+              $('#c'+file.id+'progress').html(file.percent);
+              if(file.percent == 100) {
+                $('#c'+file.id+'status').html('Completed');
+              }
+            }
+            //if(file.bytesPerSec)
+            //    $('#'+file.id+'speed').html(file.bytesPerSec);
         }
+        
     }
 
     runChatClient(app);

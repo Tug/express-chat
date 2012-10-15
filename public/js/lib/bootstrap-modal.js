@@ -82,7 +82,7 @@
           var transition = $.support.transition && that.$element.hasClass('fade')
 
           that.$element
-            .appendTo(document.body)
+            //.appendTo(document.body)
             .show()
 
           if (transition) {

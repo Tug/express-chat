@@ -1,3 +1,29 @@
+
+function readableSize(size) {
+    if(size == null) return 'unknown';
+    var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    var i = 0;
+    while(size >= 1024) {
+        size /= 1024;
+        ++i;
+    }
+    return size.toFixed(1) + ' ' + units[i];
+}
+
+function linkify(inputText) {
+    var replaceText, replacePattern1, replacePattern2, replacePattern3;
+
+    //URLs starting with http://, https://, or ftp://
+    replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+    replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+
+    //URLs starting with "www." (without // before it, or it'd re-link the ones done above).
+    replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+    replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+    
+    return replacedText
+}
+
 function htmlentities (string, quote_style, charset, double_encode) {
     // http://kevin.vanzonneveld.net
     // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
@@ -211,6 +237,4 @@ function get_html_translation_table (table, quote_style) {
 
     return hash_map;
 }
-
-
 

@@ -17,8 +17,12 @@ module.exports = function(app, model) {
     };
     
     actions.createRoom = function(req, res, next) {
-        var ispublic = req.body.ispublic || false;
+        var ispublic = !!req.body.ispublic;
         var title = req.body.title || null;
+        if(title !== null && (typeof title !== 'string' || title.length > 100)) {
+            next(new Error("wrong input name"));
+            return;
+        }
         var room = new Room({ispublic: ispublic, title: title});
         room.save(function(err) {
             if(err) {

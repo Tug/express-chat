@@ -16,6 +16,8 @@ module.exports = function(app, model) {
                     req.session = session;
                     next(err || parseErr);
                 });
+            } else {
+                next(parseErr);
             }
         });
     };

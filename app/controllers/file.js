@@ -12,27 +12,46 @@ module.exports = function(app, model) {
     var MAX_SIMUL_UP = 1;
     var MAX_UP_MB = 1000;
     
+    function UploadWatcher(roomid, clientfileid, filesize) {
+        var totalRead = 0;
+        var fileinfo = {
+            id: clientfileid,
+            percent: 0
+        };
+        return function watchProgress(bytesRead) {
+            totalRead += bytesRead;
+            var newprogress = Math.floor(100*totalRead/filesize);
+            if(newprogress > fileinfo.percent) {
+                fileinfo.percent = newprogress;
+                app.io.of('/file').in(roomid).emit('progress', fileinfo);
+            }
+        };
+    }
+    
     actions.upload = function(req, res, next) {
         var roomid = req.params.roomid;
         var filesize = req.form.fileInfo.filesize;
         var userip = req.connection.remoteAddress;
         var filename = req.form.fileInfo.filename;
+        var clientfileid = req.form.fileInfo.fileid;
         
         // we store the username in the socket object
         // and the socket ids (one for each room) in the session
-        
+        console.log("1");
         if(!req.session.rooms) {
             next(new Error('user is not connected to any room'));
             return;
         }
-
+console.log("2");
         var socketid = req.session.rooms[roomid];
 
         if(!socketid) {
             next(new Error('client not found in room'));
             return;
         }
-        
+        console.log("3");
+        var watchProgress = UploadWatcher(roomid, clientfileid, filesize);
+        console.log("4");
         Step(
             function loadUser() {
                 var nextstep = this;
@@ -41,7 +60,7 @@ module.exports = function(app, model) {
                         next(new Error('user info not found'));
                         return;
                     }
-                    
+                    console.log("5");
                     nextstep(null, userinfo.username);
                 });
             },
@@ -65,7 +84,7 @@ module.exports = function(app, model) {
                 var servername = file.servername;
                 var filename = file.originalname;
                 var meta = {filesize: filesize, originalname: file.originalname};
-                var nextstep = this;
+                var nextstep = this;console.log("6");
                 var gs = new GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
                     if(err || !gs) {
                         next(new Error('Error creating gridstore : '+(err && err.message)));
@@ -77,7 +96,10 @@ module.exports = function(app, model) {
                 req.form.speedTarget = 1000;
                 
                 req.form.onChunk = function(data, callback) {
-                    gs.write(data, callback);
+                    gs.write(data, function() {
+                        watchProgress(data.length);
+                        callback();
+                    });
                 };
                 
                 req.form.on('close', function() {
@@ -101,6 +123,7 @@ module.exports = function(app, model) {
                 req.form.read();
                 var fileurl = app.url("file.download", {roomid: roomid, fileid: file.servername });
                 var fileinfo = {
+                    id          : clientfileid,
                     url         : fileurl, 
                     size        : filesize, 
                     name        : file.originalname, 
@@ -109,6 +132,8 @@ module.exports = function(app, model) {
                 app.io.of('/file').in(roomid).emit('new file', fileinfo);
             }
         );
+        
+        
         
     };
 
