@@ -37,8 +37,12 @@ function runChatClient(app) {
         component.keyup(function(e) {
             var code = (e.keyCode ? e.keyCode : e.which);
             if(code == 13) { // ENTER
-                e.preventDefault();
                 callback();
+            }
+        }).keydown(function(e) {
+            var code = (e.keyCode ? e.keyCode : e.which);
+            if (code == 13) {
+              e.preventDefault();
             }
         });
     }
