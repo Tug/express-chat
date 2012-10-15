@@ -14,8 +14,8 @@
       , "socket.io"         : "0.9.10"
       , "socket.io-client"  : "0.9.10"
       , "underscore"        : "1.4.2"
-      , "upload-middleware" : ">= 0.1.2"
-      , "growing-mongofile" : ">= 0.1.2"
+      , "upload-middleware" : "0.1.4"
+      , "growing-mongofile" : "0.1.2"
       , "mongodb"           : "1.1.11"
       , "ejs"               : "0.8.3"
     }
