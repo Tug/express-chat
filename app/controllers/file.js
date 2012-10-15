@@ -37,21 +37,21 @@ module.exports = function(app, model) {
         
         // we store the username in the socket object
         // and the socket ids (one for each room) in the session
-        console.log("1");
+        
         if(!req.session.rooms) {
             next(new Error('user is not connected to any room'));
             return;
         }
-console.log("2");
+
         var socketid = req.session.rooms[roomid];
 
         if(!socketid) {
             next(new Error('client not found in room'));
             return;
         }
-        console.log("3");
+        
         var watchProgress = UploadWatcher(roomid, clientfileid, filesize);
-        console.log("4");
+        
         Step(
             function loadUser() {
                 var nextstep = this;
@@ -60,7 +60,7 @@ console.log("2");
                         next(new Error('user info not found'));
                         return;
                     }
-                    console.log("5");
+                    
                     nextstep(null, userinfo.username);
                 });
             },
@@ -84,7 +84,7 @@ console.log("2");
                 var servername = file.servername;
                 var filename = file.originalname;
                 var meta = {filesize: filesize, originalname: file.originalname};
-                var nextstep = this;console.log("6");
+                var nextstep = this;
                 var gs = new GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
                     if(err || !gs) {
                         next(new Error('Error creating gridstore : '+(err && err.message)));
