@@ -9,8 +9,9 @@ module.exports = function(app, model) {
 
     var actions = {};
     
-    var MAX_SIMUL_UP = 1;
-    var MAX_UP_MB = 1000;
+    var MAX_SIMUL_UP = app.config.upload.maxSimulUp;
+    var MAX_UP_MB = app.config.upload.maxUpMB;
+    var SPEED_TARGET_KBs = app.config.upload.speedTargetKBs;
     
     function UploadWatcher(roomid, clientfileid, filesize) {
         var totalRead = 0;
@@ -93,7 +94,7 @@ module.exports = function(app, model) {
                     nextstep(null, file);
                 });
                 
-                req.form.speedTarget = 1000;
+                req.form.speedTarget = SPEED_TARGET_KBs;
                 
                 req.form.onChunk = function(data, callback) {
                     gs.write(data, function() {

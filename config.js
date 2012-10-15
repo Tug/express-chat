@@ -43,6 +43,11 @@ var config = {
     },
     reapInterval: 15 * 60 * 1000,
     engine: "redis" // "mongodb", false
+  },
+  upload : {
+    maxSimulUp: 1,
+    maxUpMB: 1000,
+    speedTargetKBs: 1000
   }
 };
 
