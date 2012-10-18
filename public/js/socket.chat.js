@@ -1,7 +1,7 @@
 
 function runChatClient(app) {
     
-    var client = io.connect('/chat');//app.client;
+    var client = io.connect('/chat');
     
     client.on('new message',  addMessage);
     client.on('new messages', addMessages);
@@ -20,7 +20,17 @@ function runChatClient(app) {
     });
 
     function addMessage(msg) {
-        app.showMessage(msg.username, msg.body);
+        if(msg.attachment != null) {
+            var file = msg.attachment;
+            file.url = "/r/"+app.ROOMID+"/download/"+file.id;
+            app.notifyFile(file);
+            if(file.status == 'Uploading') {
+                app.watchFile(file);
+            }
+        }
+        if(msg.body != null) {
+            app.showMessage(msg.username, msg.body);
+        }
     }
     
     function addMessages(messages) {
@@ -28,7 +38,6 @@ function runChatClient(app) {
             messages.forEach(addMessage);
         }
     }
-
 
 
     /* ---- bind ui events ---- */
@@ -72,14 +81,14 @@ function runChatClient(app) {
     function sendMessage(message) {
         if(message) {
             if(message > app.MAX_MSG_LEN) message = message.substr(0, app.MAX_MSG_LEN);
-		    client.emit("message", message);
+		        client.emit("message", message);
         }
     }
 
     function changeUsername(newname) {
         if(newname) {
             if(newname > app.MAX_USR_LEN) newname = newname.substr(0, app.MAX_USR_LEN);
-		        client.emit("username change", newname, function(err, name) {
+		        client.emit("change name", newname, function(err, name) {
                 if(err) {
                     alert(err);
                 } else {

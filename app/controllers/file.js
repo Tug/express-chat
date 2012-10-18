@@ -3,38 +3,24 @@ module.exports = function(app, model) {
 
     var mongoose = model.mongoose,
         FileModel = mongoose.model('File'),
+        MessageModel = mongoose.model('Message'),
         db = model.mongodb,
         GrowingFile = require('growing-mongofile'),
         Step = app.libs.step;
 
     var actions = {};
-    
+
     var MAX_SIMUL_UP = app.config.upload.maxSimulUp;
     var MAX_UP_MB = app.config.upload.maxUpMB;
     var SPEED_TARGET_KBs = app.config.upload.speedTargetKBs;
-    
-    function UploadWatcher(roomid, clientfileid, filesize) {
-        var totalRead = 0;
-        var fileinfo = {
-            id: clientfileid,
-            percent: 0
-        };
-        return function watchProgress(bytesRead) {
-            totalRead += bytesRead;
-            var newprogress = Math.floor(100*totalRead/filesize);
-            if(newprogress > fileinfo.percent) {
-                fileinfo.percent = newprogress;
-                app.io.of('/file').in(roomid).emit('progress', fileinfo);
-            }
-        };
-    }
-    
+    var chatIOUrl = app.routes.io("chat.socket");
+    var fileIOUrl = app.routes.io("file.socket");
+
     actions.upload = function(req, res, next) {
         var roomid = req.params.roomid;
         var filesize = req.form.fileInfo.filesize;
         var userip = req.connection.remoteAddress;
         var filename = req.form.fileInfo.filename;
-        var clientfileid = req.form.fileInfo.fileid;
         
         // we store the username in the socket object
         // and the socket ids (one for each room) in the session
@@ -51,8 +37,6 @@ module.exports = function(app, model) {
             return;
         }
         
-        var watchProgress = UploadWatcher(roomid, clientfileid, filesize);
-        
         Step(
             function loadUser() {
                 var nextstep = this;
@@ -66,13 +50,13 @@ module.exports = function(app, model) {
                 });
             },
             function createFile(err, username) {
+                var nextstep = this;
                 var file = new FileModel({
                     originalname  : filename,
                     uploaderip    : userip,
                     uploadername  : username,
                     size          : filesize
                 });
-                var nextstep = this;
                 file.save(function(err) {
                     if(err) {
                         next(err);
@@ -82,10 +66,10 @@ module.exports = function(app, model) {
                 });
             },
             function createGridStore(err, file) {
+                var nextstep = this;
                 var servername = file.servername;
                 var filename = file.originalname;
                 var meta = {filesize: filesize, originalname: file.originalname};
-                var nextstep = this;
                 var gs = new GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
                     if(err || !gs) {
                         next(new Error('Error creating gridstore : '+(err && err.message)));
@@ -93,12 +77,24 @@ module.exports = function(app, model) {
                     }
                     nextstep(null, file);
                 });
-                
+
                 req.form.speedTarget = SPEED_TARGET_KBs;
+
+                var fileInfoStatus = {
+                    id: file.servername,
+                    status: file.status,
+                    percent: 0
+                };
                 
+                var totalRead = 0;
                 req.form.onChunk = function(data, callback) {
                     gs.write(data, function() {
-                        watchProgress(data.length);
+                        totalRead += data.length;
+                        var newProgress = Math.floor(100*totalRead/file.size);
+                        if(newProgress > fileInfoStatus.percent) {
+                            fileInfoStatus.percent = newProgress;
+                            app.io.of(fileIOUrl).in(fileInfoStatus.id).emit('status', fileInfoStatus);
+                        }
                         callback();
                     });
                 };
@@ -106,6 +102,11 @@ module.exports = function(app, model) {
                 req.form.on('close', function() {
                     gs.close(function(err, result) {
                         res.send('ok');
+                        file.status = "Completed";
+                        file.save(function(err) {
+                            fileInfoStatus.status = file.status;
+                            app.io.of(fileIOUrl).in(fileInfoStatus.id).emit('status', fileInfoStatus);
+                        });
                     });
                 });
 
@@ -117,20 +118,34 @@ module.exports = function(app, model) {
                     console.log("client has disconnected");
                     gs.unlink(function(err) {
                         next(err);
+                        file.status = "Removed";
+                        file.save(function(err) {
+                            fileInfoStatus.status = file.status;
+                            app.io.of(fileIOUrl).in(fileInfoStatus.id).emit('status', fileInfoStatus);
+                        });
                     });
                 });
             },
             function start(err, file) {
+                var nextstep = this;
                 req.form.read();
-                var fileurl = app.url("file.download", {roomid: roomid, fileid: file.servername });
-                var fileinfo = {
-                    id          : clientfileid,
-                    url         : fileurl, 
-                    size        : filesize, 
-                    name        : file.originalname, 
-                    uploadername: file.uploadername
-                };
-                app.io.of('/file').in(roomid).emit('new file', fileinfo);
+                nextstep(err, file);
+            },
+            function announceFile(err, file) {
+                var fileurl = app.routes.url("file.download", {roomid: roomid, fileid: file.servername });
+                var message = MessageModel.createEmptyFileMessage(roomid, file);
+                message.save(function(err) {
+                    if(err) {
+                        next(err);
+                        return;
+                    }
+                    MessageModel
+                    .findById(message._id)
+                    .populate("_attachment")
+                    .exec(function (err, msg) {
+                        app.io.of(chatIOUrl).in(roomid).json.emit("new message", msg.publicFields());
+                    });
+                });
             }
         );
         
@@ -161,7 +176,7 @@ module.exports = function(app, model) {
     actions.socket = function(socket) {
         var hs = socket.handshake;
         
-        socket.on('register user', function(roomid, callback) {
+        socket.on('user register', function(roomid, callback) {
             if(typeof callback !== "function") {
                 return;
             }
@@ -181,6 +196,27 @@ module.exports = function(app, model) {
                 hs.session.rooms[roomid] = socket.id;
                 hs.session.save(callback);
             });
+        });
+
+        socket.on('file watch', function(fileid) {
+            console.log("watching file");
+            
+            FileModel
+            .findOne({'servername': fileid})
+            .exec(function(err, file) {
+                if(err || !file) {
+                    return;
+                }
+                if(file.status == 'Uploading') {
+                    socket.join(fileid);
+                } else {
+                    socket.emit("status", file.publicFields());
+                }
+            });
+        });
+
+        socket.on('file unwatch', function(fileid) {
+            socket.leave(fileid);
         });
 
         socket.on('disconnect', function() {

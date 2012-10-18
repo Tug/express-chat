@@ -29,7 +29,7 @@ module.exports = function(app, model) {
                 console.log(err);
                 next(err);
             } else {
-                res.redirect(app.url("chat.index", {"roomid": room.id }));
+                res.redirect(app.routes.url("chat.index", {"roomid": room.id }));
             }
         });
     };

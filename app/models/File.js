@@ -11,7 +11,6 @@ module.exports = function(app, model) {
         , uploadername    : String
         , originalname    : String
         , status          : { type: String, enum: ['Uploading','Available','Stopped','Removed'], default: 'Uploading' }
-        , clientfileid    : String
         , size            : Number
         , uploaddate      : { type: Date, default: Date.now }
     });
@@ -42,6 +41,16 @@ module.exports = function(app, model) {
             }
         }, 5);
     });
+
+    File.methods.publicFields = function() {
+        return {
+            id            : this.servername
+          , originalname  : this.originalname
+          , uploadername  : this.uploadername
+          , status        : this.status
+          , size          : this.size
+        };
+    };
 
     var FileModel = mongoose.model('File', File);
     return FileModel;

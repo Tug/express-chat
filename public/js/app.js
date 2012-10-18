@@ -26,6 +26,7 @@ $(document).ready(function() {
         fileList            : $('#fileList'),
         browseButton        : $('#upFile'),
         uploadButton        : $('#upSendBtn'),
+        hideModalButton     : $('#hideModalBtn'),
         renameButton        : $('#renameButton'),
         uploadModal         : $('#upload-modal'),
         
@@ -106,20 +107,24 @@ $(document).ready(function() {
 
         notifyFile: function(file) {
             var msg = file.uploadername+' is sharing '
-                      +'<a href="'+file.url+'" target="_blank">'+file.name+'</a>'
-                      +' - '+readableSize(file.size)
-                      +' - <span id="c'+file.id+'status">'
-                        +'Uploading <span id="c'+file.id+'progress">0</span>%'
-                      +'</span>';
+                      +'<a href="'+file.url+'" target="_blank">'
+                      +file.originalname
+                      +'</a>'
+                      +' - '+ readableSize(file.size)+' - '
+                      +'<span id="c'+file.id+'status">'
+                      + file.status
+                      +'</span> '
+                      +'<span id="c'+file.id+'progress">'
+                      +'</span>'
             app.showSystemMessage(msg);
         },
-        
-        updateFileProgress: function(file) {
-            if(file.percent) {
-              $('#c'+file.id+'progress').html(file.percent);
-              if(file.percent == 100) {
-                $('#c'+file.id+'status').html('Completed');
-              }
+
+        updateFileStatus: function(file) {
+            $('#c'+file.id+'status').html(file.status);
+            if(file.percent >= 0) {
+                $('#c'+file.id+'progress').html(file.percent+'%');
+            } else {
+                //$('#c'+file.id+'progress').html('');
             }
             //if(file.bytesPerSec)
             //    $('#'+file.id+'speed').html(file.bytesPerSec);

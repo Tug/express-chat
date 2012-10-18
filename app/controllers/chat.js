@@ -16,7 +16,6 @@ module.exports = function(app, model) {
         var roomid = req.params.roomid;
         Room.findOne({_id: roomid}, function(err, room) {
             if(err || !room) {
-                //next(err || new Error('room not found'));
                 res.redirect(app.url("index.index"));
                 return;
             }
@@ -62,7 +61,9 @@ module.exports = function(app, model) {
                     var userCallback = this.parallel();
                     Message.allFrom(roomid, 1, function(err, messages) {
                         if(!err && messages) {
-                            socket.emit('new messages', messages);
+                            messages.forEach(function(msg) {
+                                socket.emit("new message", msg.publicFields()); 
+                            });
                         }
                         messageCallback();
                     });
@@ -106,7 +107,7 @@ module.exports = function(app, model) {
             });
         });
 
-        socket.on('username change', function(data, callback) {
+        socket.on('change name', function(data, callback) {
             if(typeof callback !== "function") {
                 console.log('username change without callback');
                 return;

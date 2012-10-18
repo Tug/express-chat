@@ -6,9 +6,9 @@
     <meta name="description" content="Cloud chat application">
     <meta name="author" content="Tug">
 
-	  <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
-	  <link rel="stylesheet/less" type="text/css" href="/css/styles.less">
-	
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+    <link rel="stylesheet/less" type="text/css" href="/css/styles.less">
+    
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -19,89 +19,87 @@
     <script src="/js/lib/plupload/plupload.full.js" type="text/javascript"></script>
     <script src="/js/lib/bootstrap-modal.js"></script>
     <script src="/js/lib/bootstrap-dropdown.js"></script>
-
-    <script src="/js/ui.filelist.js" type="text/javascript"></script>
     <script src="/js/uploader.js" type="text/javascript"></script>
-    
     <script src="/socket.io/socket.io.js" type="text/javascript"></script>
     <script src="/js/socket.chat.js" type="text/javascript"></script>
     <script src="/js/socket.file.js" type="text/javascript"></script>
     <script src="/js/app.js" type="text/javascript"></script>
 
 </head>
+
 <body>
-	<div class="topbar">
-	  <div class="fill">
-			<div class="container">
-				<a class="brand" href="#">Express-chat</a>
-				<ul class="nav">
-					<li class="active"><a href="/">Home</a></li>
-					<li class="menu" data-dropdown="dropdown">
-						<a class="menu" href="#">Actions</a>
-						<ul class="menu-dropdown">
-							<li><a href="#" data-controls-modal="upload-modal" data-backdrop="true">Share file</a></li>
-						</ul>
-					</li>
-				</ul>
-				<form action="" class="pull-right" onSubmit="return false">
-					<input id='name' type='text' name='name' class="input" placeholder="Username"/>
-					<button id='renameButton' class="btn" type="button">Rename</button>
-				</form>
-			</div>
-	  </div>
-  </div>
+    <div class="topbar">
+        <div class="fill">
+            <div class="container">
+                <a class="brand" href="#">Express-chat</a>
+                <ul class="nav">
+                    <li class="active">
+                        <a href="/">Home</a>
+                    </li>
+                    <li class="menu">
+                        <a href="#" data-controls-modal="upload-modal" data-backdrop="true">
+                            Share file
+                        </a>
+                    </li>
+                </ul>
+                <form action="" class="pull-right" onSubmit="return false">
+                    <input id='name' type='text' name='name' class="input" placeholder="Username"/>
+                    <button id='renameButton' class="btn" type="button">Rename</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-  <div class="container">
-	
-	  <div class="content">
-    	<div class="page-header">
-      	<h1><%= title %></h1>
-    	</div>
-    	<div class="row">
-      	<div class="span10">
-			<div>
-				<pre class="prettyprint scrollcontent"><ul id="messages" class="unstyled"></ul></pre>
-			</div>
-			<div>
-				<form class="form-horizontal">
-					<textarea class="write-area" rows="4" id='message' name='message'></textarea>
-				</form>
-			</div>
-      	</div>
-      	<div class="span4">
-			<div>
-				<pre class="prettyprint scrollcontent userlist"><ul id="users" class="unstyled"></ul></pre>
-			</div>
-			<div>
-    			<button id='submitMessageButton' class="btn large">Send</button>
-			</div>
-      	</div> <!-- /span4 -->
-    	</div> <!-- /row -->
-    </div> <!-- /content -->
-	
-		<footer>
-		  <p>&copy; GPL licensed</p>
-		</footer>
-		
-		<div id="upload-modal" class="modal hide fade" style="display: block; ">
-			<div class="modal-header">
-				<a href="#" class="close">×</a>
-				<h3>Upload files</h3>
-			</div>
-			<div class="modal-body">
-			    <input type="button" id="upFile" class="btn" value="Add files"/>
-			    <div>
-				    <ul id="fileList">
-				    </ul>
-				</div>
-			</div>
-			<div class="modal-footer">
-        <div id="runtimeInfo"></div>
-        <div id="uploadSpeed"></div>
-				<input type="button" id="upSendBtn" class="btn primary" value="Upload">
-			</div>
-		</div> <!-- /upload-modal -->
-  </div> <!-- /container -->
-
+    <div class="container">
+        <div class="content">
+            <div class="page-header">
+                <h1><%= title %></h1>
+            </div>
+            <div class="row">
+                <div class="span10">
+                    <div>
+                        <pre class="prettyprint scrollcontent"><ul id="messages" class="unstyled"></ul></pre>
+                    </div>
+                    <div>
+                        <form class="form-horizontal">
+                            <textarea class="write-area" rows="4" id='message' name='message'></textarea>
+                        </form>
+                    </div>
+                </div>
+                <div class="span4">
+                    <div>
+                        <pre class="prettyprint scrollcontent userlist"><ul id="users" class="unstyled"></ul></pre>
+                    </div>
+                    <div>
+                        <button id='submitMessageButton' class="btn large">Send</button>
+                    </div>
+              </div> <!-- /span4 -->
+            </div> <!-- /row -->
+        </div> <!-- /content -->
+    
+        <footer>
+            <p>&copy; GPL licensed</p>
+        </footer>
+      
+        <div id="upload-modal" class="modal hide fade" style="display: block; ">
+            <div class="modal-header">
+                <a href="#" class="close">×</a>
+                <h3>Upload files</h3>
+            </div>
+            <div class="modal-body">
+                <input type="button" id="upFile" class="btn" value="Add files"/>
+                <div>
+                    <ul id="fileList">
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+            <div id="runtimeInfo"></div>
+            <div id="uploadSpeed"></div>
+                <input type="button" id="hideModalBtn" class="btn danger" value="Hide">
+                <input type="button" id="upSendBtn" class="btn primary" value="Upload">
+            </div>
+        </div> <!-- /upload-modal -->
+    </div> <!-- /container -->
 </body>
 </html>

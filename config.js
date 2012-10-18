@@ -31,7 +31,7 @@ var config = {
     crons : path.join(application_root,"app","crons"),
     favicon : path.join(application_root,"public","favicon.ico")
   },
-  urls : require("./urls").urls,
+  urls: require("./urls").urls,
   ios : require("./urls").ios,
   session : {
     secret : "rgkervdgmigeccxvfezf",
