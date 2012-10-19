@@ -39,11 +39,11 @@ module.exports = function(app, model) {
     };
 
     Message.statics.allFrom = function(roomid, messageNum, callback) {
-        MessageModel.where('roomid', roomid)
-               .where('num').gte(messageNum)
-               .select('num username body date')
-               .populate('_attachment')
-               .exec(callback);
+        MessageModel
+        .where('roomid', roomid)
+        .where('num').gte(messageNum)
+        .populate('_attachment')
+        .exec(callback);
     };
 
     Message.methods.publicFields = function() {
@@ -52,9 +52,7 @@ module.exports = function(app, model) {
           , username    : this.username
           , body        : this.body
           , date        : this.date
-          , attachment  : ( (this._attachment && typeof(this._attachment.publicFields) == 'function')
-                            ? this._attachment.publicFields()
-                            : null )
+          , attachment  : ((this._attachment) ? this._attachment.publicFields() : null)
         };
     };
 

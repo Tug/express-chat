@@ -105,8 +105,8 @@ $(document).ready(function() {
             app.showSystemMessage("You are now known as "+htmlentities(newusername)+".");
         },
 
-        notifyFile: function(file) {
-            var msg = file.uploadername+' is sharing '
+        notifyFile: function(file, text) {
+            var msg = file.uploadername+' '+(text || 'is sharing')+' '
                       +'<a href="'+file.url+'" target="_blank">'
                       +file.originalname
                       +'</a>'

@@ -22,8 +22,9 @@ function runChatClient(app) {
     function addMessage(msg) {
         if(msg.attachment != null) {
             var file = msg.attachment;
+            if(file.status == 'Removed') return;
             file.url = "/r/"+app.ROOMID+"/download/"+file.id;
-            app.notifyFile(file);
+            app.notifyFile(file, 'shared');
             if(file.status == 'Uploading') {
                 app.watchFile(file);
             }

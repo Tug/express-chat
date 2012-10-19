@@ -199,8 +199,6 @@ module.exports = function(app, model) {
         });
 
         socket.on('file watch', function(fileid) {
-            console.log("watching file");
-            
             FileModel
             .findOne({'servername': fileid})
             .exec(function(err, file) {
