@@ -29,6 +29,22 @@ module.exports = function(app, model) {
         });
     });
 
+    Message.pre('remove', function(next) {
+        if(this._attachment != null) {
+            if(this._attachment.remove) {
+                this._attachment.remove(next);
+            } else {
+                Message
+                .findById(this._id)
+                .populate('_attachment')
+                .exec(function(err, file) {
+                    this._attachment.remove(next);
+                });
+            }
+        }
+        next();
+    });
+
     Message.statics.createEmptyFileMessage = function(roomid, file) {
         return new MessageModel({
             roomid            : roomid

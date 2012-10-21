@@ -16,7 +16,7 @@ module.exports = function(app, model) {
     var chatIOUrl = app.routes.io("chat.socket");
     var fileIOUrl = app.routes.io("file.socket");
 
-    actions.upload = function(req, res, next) {
+    actions.upload = function(req, res, error) {
         var roomid = req.params.roomid;
         var filesize = req.form.fileInfo.filesize;
         var userip = req.connection.remoteAddress;
@@ -26,14 +26,14 @@ module.exports = function(app, model) {
         // and the socket ids (one for each room) in the session
         
         if(!req.session.rooms) {
-            next(new Error('user is not connected to any room'));
+            error(new Error('user is not connected to any room'));
             return;
         }
 
         var socketid = req.session.rooms[roomid];
 
         if(!socketid) {
-            next(new Error('client not found in room'));
+            error(new Error('client not found in room'));
             return;
         }
         
@@ -42,7 +42,7 @@ module.exports = function(app, model) {
                 var nextstep = this;
                 app.io.sockets.socket(socketid).get('userinfo', function(err, userinfo) {
                     if(err || !userinfo || !userinfo.username) {
-                        next(new Error('user info not found'));
+                        error(new Error('user info not found'));
                         return;
                     }
                     
@@ -70,9 +70,9 @@ module.exports = function(app, model) {
                 var servername = file.servername;
                 var filename = file.originalname;
                 var meta = {filesize: filesize, originalname: file.originalname};
-                var gs = new GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
+                var gs = GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
                     if(err || !gs) {
-                        next(new Error('Error creating gridstore : '+(err && err.message)));
+                        error(new Error('Error creating gridstore : '+(err && err.message)));
                         return;
                     }
                     nextstep(null, file);
@@ -80,7 +80,7 @@ module.exports = function(app, model) {
 
                 req.form.speedTarget = SPEED_TARGET_KBs;
 
-                var fileInfoStatus = {
+                var fileStatus = {
                     id: file.servername,
                     status: file.status,
                     percent: 0
@@ -91,9 +91,9 @@ module.exports = function(app, model) {
                     gs.write(data, function() {
                         totalRead += data.length;
                         var newProgress = Math.floor(100*totalRead/file.size);
-                        if(newProgress > fileInfoStatus.percent) {
-                            fileInfoStatus.percent = newProgress;
-                            app.io.of(fileIOUrl).in(fileInfoStatus.id).emit('status', fileInfoStatus);
+                        if(newProgress > fileStatus.percent) {
+                            fileStatus.percent = newProgress;
+                            app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
                         }
                         callback();
                     });
@@ -104,24 +104,28 @@ module.exports = function(app, model) {
                         res.send('ok');
                         file.status = "Completed";
                         file.save(function(err) {
-                            fileInfoStatus.status = file.status;
-                            app.io.of(fileIOUrl).in(fileInfoStatus.id).emit('status', fileInfoStatus);
+                            fileStatus.status = file.status;
+                            app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
                         });
                     });
                 });
 
                 req.form.on('error', function(err) {
                     console.log(err);
+                    file.remove(function(err) {
+                        fileStatus.status = file.status;
+                        app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
+                        error(err);
+                    });
                 });
 
                 req.form.on('aborted', function() {
                     console.log("client has disconnected");
                     gs.unlink(function(err) {
-                        next(err);
-                        file.status = "Removed";
-                        file.save(function(err) {
-                            fileInfoStatus.status = file.status;
-                            app.io.of(fileIOUrl).in(fileInfoStatus.id).emit('status', fileInfoStatus);
+                        file.remove(function(err) {
+                            fileStatus.status = file.status;
+                            app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
+                            error(err);
                         });
                     });
                 });
@@ -136,7 +140,7 @@ module.exports = function(app, model) {
                 var message = MessageModel.createEmptyFileMessage(roomid, file);
                 message.save(function(err) {
                     if(err) {
-                        next(err);
+                        error(err);
                         return;
                     }
                     MessageModel
@@ -153,24 +157,32 @@ module.exports = function(app, model) {
         
     };
 
-    actions.download = function(req, res, next) {
+    actions.download = function(req, res, error) {
         var servername = req.params.fileid;
-        /* NOTE: Not used yet.
-        FileModel.findOne({servername: servername}, function(err, doc) { 
-        });*/
-        GrowingFile.open(db, servername, null, function(err, gf) {
-            if(err || !gf || !gf.originalname) {
-                next(err || new Error('File not found'));
+        FileModel.findOne({servername: servername}, function(err, file) {
+            if(err || !file) {
+                error(err || new Error('File not found'));
                 return;
             }
-            var filename = gf.originalname;
-            var filesize = gf.filesize;
-            console.log("downloading "+filename+ " (size : "+filesize+")");
-            res.contentType(filename);
-            res.attachment(filename);
-            res.header('Content-Length', filesize);
-            gf.pipe(res);
+            if(file.status == 'Removed') {
+                error(new Error("File has been removed !"));
+                return;
+            }
+            GrowingFile.open(db, servername, null, function(err, gf) {
+                if(err || !gf || !gf.originalname) {
+                    error(err || new Error('File not found'));
+                    return;
+                }
+                var filename = gf.originalname;
+                var filesize = gf.filesize;
+                console.log("downloading "+filename+ " (size : "+filesize+")");
+                res.contentType(filename);
+                res.attachment(filename);
+                res.header('Content-Length', filesize);
+                gf.pipe(res);
+            });
         });
+        
     };
 
     actions.socket = function(socket) {

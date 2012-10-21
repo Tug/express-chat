@@ -25,6 +25,19 @@ module.exports = function(app, model) {
             messageCount  : this.messageCount
         };
     };
+
+    Room.pre('remove', function(next) {
+        var MessageModel = mongoose.model('Message');
+        var FileModel = mongoose.model('File');
+        MessageModel.allFrom(this._id, 0, function(err, messages) {
+            if(messages != null) {
+                messages.forEach(function(msg) {
+                    msg.remove();
+                });
+            }
+            next();
+        });
+    });
     
     var RoomModel = mongoose.model('Room', Room);
     return RoomModel;

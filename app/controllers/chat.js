@@ -16,7 +16,7 @@ module.exports = function(app, model) {
         var roomid = req.params.roomid;
         Room.findOne({_id: roomid}, function(err, room) {
             if(err || !room) {
-                res.redirect(app.url("index.index"));
+                res.redirect(app.routes.url("index.index"));
                 return;
             }
             var roomName = room.title || "Room "+room.id;
@@ -98,7 +98,7 @@ module.exports = function(app, model) {
                     roomid: roomid,
                     username: username,
                     body: data,
-                    userip: socket.handshake.address
+                    userip: socket.handshake.address.address
                 });
                 message.save(function(err) {
                     if(err) console.log(err);
@@ -163,7 +163,6 @@ module.exports = function(app, model) {
                 var roomid = userinfo.roomid;
                 redisClient.srem(roomid+' users', username, function() {
                     socket.broadcast.to(roomid).json.emit("user left", username);
-                    console.log('disconnect emitting');
                     //socket.leave(roomid);
                 });
             });

@@ -29,6 +29,7 @@ $(document).ready(function() {
         hideModalButton     : $('#hideModalBtn'),
         renameButton        : $('#renameButton'),
         uploadModal         : $('#upload-modal'),
+        clearFilesButton    : $('#clearFiles'),
         
         showWelcomeMessage: function() {
             app.showSystemMessage("Welcome on the room. You are known as "+htmlentities(app.username)+".");
@@ -107,7 +108,7 @@ $(document).ready(function() {
 
         notifyFile: function(file, text) {
             var msg = file.uploadername+' '+(text || 'is sharing')+' '
-                      +'<a href="'+file.url+'" target="_blank">'
+                      +'<a id="c'+file.id+'link" href="'+file.url+'" target="_blank">'
                       +file.originalname
                       +'</a>'
                       +' - '+ readableSize(file.size)+' - '
@@ -121,10 +122,13 @@ $(document).ready(function() {
 
         updateFileStatus: function(file) {
             $('#c'+file.id+'status').html(file.status);
-            if(file.percent >= 0) {
+            if(file.status == "Uploading" && file.percent >= 0) {
                 $('#c'+file.id+'progress').html(file.percent+'%');
             } else {
-                //$('#c'+file.id+'progress').html('');
+                $('#c'+file.id+'progress').html('');
+            }
+            if(file.status == 'Removed') {
+                $('#c'+file.id+'link').attr('href', '#');
             }
             //if(file.bytesPerSec)
             //    $('#'+file.id+'speed').html(file.bytesPerSec);

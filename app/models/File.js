@@ -3,7 +3,8 @@ module.exports = function(app, model) {
     
     var util = app.libs.util,
         mongoose = model.mongoose,
-        ObjectId = mongoose.Schema.ObjectId;
+        ObjectId = mongoose.Schema.ObjectId,
+        GridStore = require('mongodb').GridStore;
     
     var File = new mongoose.Schema({
           servername      : { type: String, index: { unique: true } }
@@ -42,6 +43,15 @@ module.exports = function(app, model) {
         }, 5);
     });
 
+    File.pre('remove', function(next) {
+        GridStore.unlink(model.mongodb, this.servername, next);
+    });
+
+    File.methods.remove = function(callback) {
+        this.status = 'Removed';
+        this.save(callback);
+    };
+    
     File.methods.publicFields = function() {
         return {
             id            : this.servername

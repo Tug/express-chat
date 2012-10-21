@@ -60,6 +60,16 @@ var md5 = function(plaintext) {
   return crypto.createHash("md5").update(""+plaintext).digest('hex');
 }
 
+var clientIP = function(req) {
+  var ip_address = null;
+  try {
+    ip_address = req.headers['x-forwarded-for'];
+  } catch(error) {
+    ip_address = req.connection.remoteAddress;
+  }
+  return ip_address;
+}
+
 
 exports.randomString = randomString;
 exports.cast = cast;
@@ -68,4 +78,5 @@ exports.clone = clone;
 exports.array_intersect_key_value = array_intersect_key_value;
 exports.arrayChain = arrayChain;
 exports.md5 = md5;
+exports.clientIP = clientIP;
 

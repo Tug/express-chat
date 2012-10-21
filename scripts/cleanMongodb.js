@@ -1,11 +1,10 @@
 
-var mongodb = require('mongodb');
+var mongoose = require("mongoose");
 var config = require('../config.js')();
-var options = config.database.mongodb;
-var db = new mongodb.Db(options.db, new mongodb.Server(options.host, options.port, {}));
-db.open(function(err, db) {
-    db.dropDatabase(function(err, result){
-        console.log(err || 'ok');
+var conn = mongoose.createConnection(config.database.mongodb.uri, function(err) {
+    conn.db.dropDatabase(function(err, done) {
+        console.log(err || "Database "+config.database.mongodb.uri+((!done)?" NOT ":" ") +"droped !");
         process.exit(0);
     });
 });
+
