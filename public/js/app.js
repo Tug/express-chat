@@ -5,6 +5,11 @@ $(document).ready(function() {
     var roomid = roompath.replace('/r/', '');
     var nextmsgnum = 1;
     
+    function datePrefix(dateObj) {
+        dateObj = dateObj || new Date();
+        return '<span class="msgdate">'+date('j M Y, g:i:s a', (dateObj.getTime()/1000))+'</span> ';
+    }
+    
     var app = {
 
         ROOMID          : roomid,
@@ -32,12 +37,8 @@ $(document).ready(function() {
         clearFilesButton    : $('#clearFiles'),
         
         showWelcomeMessage: function() {
-            app.showSystemMessage("Welcome on the room. You are known as "+htmlentities(app.username)+".");
-        },
-        
-        showMessage: function(username, words) {
-            var msg = '<span class="nickname">'+htmlentities('<'+username+'>')+'</span> '+linkify(htmlentities(words));
-            app.addMessageToUl(msg);
+            app.addMessageToUl("----------------------------------------------");
+            app.showSystemMessage({ body : "Welcome on the room. You are known as "+htmlentities(app.username)+"."});
         },
         
         addMessageToUl: function(msg) {
@@ -46,8 +47,15 @@ $(document).ready(function() {
               .parent().get(0).scrollTop = app.messagesBox.get(0).scrollHeight;
         },
 
+        showMessage: function(msg) {
+            var msgStr = datePrefix(msg.date);
+            msgStr += '<span class="nickname">'+htmlentities('<'+msg.username+'>')+'</span> ';
+            msgStr += linkify(htmlentities(msg.body));
+            app.addMessageToUl(msgStr);
+        },
+
         showSystemMessage: function(msg) {
-            app.addMessageToUl('* '+msg);
+            app.addMessageToUl(datePrefix(msg.date) + '* ' + msg.body);
         },
 
         setUsers: function(newusers) {
@@ -61,7 +69,7 @@ $(document).ready(function() {
             if(newuser != null) {
                 app.users.push(newuser);
                 app.refreshUserList();
-                app.showSystemMessage(newuser+" joined the room.");
+                app.showSystemMessage({ body: newuser+" joined the room." });
             }
         },
 
@@ -73,7 +81,7 @@ $(document).ready(function() {
                 }
             }
             app.refreshUserList();
-            app.showSystemMessage(olduser+" left the room.");
+            app.showSystemMessage({ body: olduser+" left the room." });
         },
 
         userRenamed: function(obj) {
@@ -93,7 +101,7 @@ $(document).ready(function() {
             } else {
                 msg = htmlentities(oldname)+" is now known as "+htmlentities(newname)+".";
             }
-            app.showSystemMessage(msg);
+            app.showSystemMessage({ body: msg });
         },
 
         refreshUserList: function() {
@@ -116,7 +124,7 @@ $(document).ready(function() {
                       +'</span> '
                       +'<span id="c'+file.id+'progress">'
                       +'</span>'
-            app.showSystemMessage(msg);
+            app.showSystemMessage({ date: file.date, body: msg });
         },
 
         updateFileStatus: function(file) {

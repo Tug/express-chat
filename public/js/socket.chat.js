@@ -20,17 +20,21 @@ function runChatClient(app) {
     });
 
     function addMessage(msg) {
+        if(msg.date != null) {
+            msg.date = new Date(msg.date);
+        }
         if(msg.attachment != null) {
             var file = msg.attachment;
             if(file.status == 'Removed') return;
             file.url = "/r/"+app.ROOMID+"/download/"+file.id;
+            file.date = msg.date;
             app.notifyFile(file, 'shared');
             if(file.status == 'Uploading') {
                 app.watchFile(file);
             }
         }
         if(msg.body != null) {
-            app.showMessage(msg.username, msg.body);
+            app.showMessage(msg);
         }
     }
     
