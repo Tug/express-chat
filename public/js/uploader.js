@@ -16,6 +16,10 @@ function loadUploader(app) {
 	      multipart_params: { cookie: document.cookie }
     });
 
+    var warningWhenQuit = function() {
+        return 'You are currently uploading a file.\nLeaving now will cause the file to be removed from our server.';
+    };
+
     uploader.bind('Init', function(up, params) {
         $('#runtimeInfo').html("Current runtime: " + params.runtime);
     });
@@ -58,11 +62,13 @@ function loadUploader(app) {
     uploader.bind('BeforeUpload', function(up, file) {
         up.settings.multipart_params.filesize = file.size;
         up.settings.multipart_params.fileid = file.id;
+        window.onbeforeunload = warningWhenQuit;
     });
     
     uploader.bind('FileUploaded', function(up, file, res) {
         file.percent = 100;
         fileList.update(file);
+        window.onbeforeunload = null;
     });
 
     uploader.bind('Error', function(up, err) {

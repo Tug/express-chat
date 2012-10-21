@@ -86,24 +86,23 @@ $(document).ready(function() {
                 }
             }
             app.refreshUserList();
-            app.showSystemMessage(oldname+" is now known as "+newname+".");
+            if(oldname == app.username) {
+                msg = "You are now known as "+htmlentities(newname)+".";
+                app.username = newname;
+                app.nameBox.val(newname);
+            } else {
+                msg = htmlentities(oldname)+" is now known as "+htmlentities(newname)+".";
+            }
+            app.showSystemMessage(msg);
         },
 
         refreshUserList: function() {
             var allusers = app.users.slice(0);
-            allusers.push(app.username);
             allusers.sort(function(a,b){return a.toLowerCase() > b.toLowerCase()});
             app.usersBox.empty();
             $.each(allusers, function(i, usr) {
                 app.usersBox.append('<li>' + htmlentities(usr) + '</li>');
             });
-        },
-
-        setUsername: function(newusername) {
-            app.username = newusername;
-            app.nameBox.val(newusername);
-            app.refreshUserList();
-            app.showSystemMessage("You are now known as "+htmlentities(newusername)+".");
         },
 
         notifyFile: function(file, text) {
@@ -122,7 +121,7 @@ $(document).ready(function() {
 
         updateFileStatus: function(file) {
             $('#c'+file.id+'status').html(file.status);
-            if(file.status == "Uploading" && file.percent >= 0) {
+            if(file.status == 'Uploading' && file.percent >= 0) {
                 $('#c'+file.id+'progress').html(file.percent+'%');
             } else {
                 $('#c'+file.id+'progress').html('');

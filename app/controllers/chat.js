@@ -27,6 +27,11 @@ module.exports = function(app, model) {
     actions.socket = function(socket) {
         var hs = socket.handshake;
         
+        var sroomid = null;
+        if(!hs.session.rooms) {
+            hs.session.rooms = {};
+        }
+        
         socket.on('join room', function(roomid, callback) {
             if(typeof callback !== "function") {
                 return;
@@ -35,26 +40,54 @@ module.exports = function(app, model) {
                 callback('roomid invalid');
                 return;
             }
+            sroomid = roomid;
             var username = null;
             Step(
-                function generateUsername() {
+                function userExists() {
                     var next = this;
-                    Counter.getNextValue(roomid, function(err, value) {
-                        if(err || value == null) {
-                            callback('server could not generate a username : '+err.message);
+                    // if the session of the user contains an object for this room
+                    // we reuse this object (the page was probably refreshed)
+                    // and try to force disconnect the previous socket 
+                    if(!hs.session.rooms[roomid]) {
+                        var userinfo = hs.session.rooms[roomid];
+                        username = userinfo.username;
+                        var sid = userinfo.sid;
+                        if(sid && sid != socket.id) { // disconnect previous socket
+                            app.io.sockets[sid].disconnect();
+                        }
+                        next(null, true);
+                    } else {
+                        next(null, false);
+                    }
+                },
+                function generateUsername(err, exist) {
+                    var next = this;
+                    if(exist === true) {
+                        next();
+                        return;
+                    }
+                    Counter.getNextValue(roomid, function(errc, value) {
+                        if(errc || value == null) {
+                            callback('server could not generate a username : '+errc.message);
                             return;
                         }
                         username = "Anonymous"+value;
-                        callback(null, username);
-                        var userinfo = {
-                            roomid: roomid,
-                            username: username
-                        };
-                        next(null, userinfo);
+                        
+                        hs.session.rooms[roomid] = username;
+                        next();
                     });
                 },
-                function setUserInfo(err, userinfo) {
-                    socket.set('userinfo', userinfo, this);
+                function sendUsername() {
+                    var next = this;
+                    callback(null, username);
+                    socket.broadcast.to(roomid).json.emit('user joined', username);
+                    next();
+                },
+                function addUser() {
+                    var next = this;
+                    redisClient.sadd(sroomid+' users', username, function(err) {
+                        next(); // next even if error
+                    });
                 },
                 function sendMessagesAndUsers() {
                     var messageCallback = this.parallel();
@@ -72,13 +105,16 @@ module.exports = function(app, model) {
                         userCallback();
                     });
                 },
-                function addUser() {
-                    // TODO: check if not present
-                    redisClient.sadd(roomid+' users', username, this);
-                },
-                function announceUser() {
+                function joinRoom() {
+                    var next = this;
                     socket.join(roomid);
-                    socket.broadcast.to(roomid).json.emit('user joined', username);
+                    hs.session.rooms[roomid] = {
+                        username: username
+                      , sid: socket.id
+                    };
+                    hs.session.save(next);
+                },
+                function ready() {
                     socket.emit('ready');
                 }
             );
@@ -88,84 +124,78 @@ module.exports = function(app, model) {
             if(typeof data !== "string" || data.length > 500) {
                 return;
             }
-            socket.get('userinfo', function(err, userinfo) {
-                if(err || !userinfo) {
-                    return;
-                }
-                var roomid = userinfo.roomid;
-                var username = userinfo.username;
-                var message = new Message({
-                    roomid: roomid,
-                    username: username,
-                    body: data,
-                    userip: socket.handshake.address.address
-                });
-                message.save(function(err) {
-                    if(err) console.log(err);
-                    socket.broadcast.to(roomid).json.emit('new message', message.publicFields());
-                });
+            if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
+                return;
+            }
+            var userinfo = hs.session.rooms[sroomid];
+            var username = userinfo.username;
+            var message = new Message({
+                roomid: sroomid,
+                username: username,
+                body: data,
+                userip: socket.handshake.address.address
+            });
+            message.save(function(err) {
+                if(err) console.log(err);
+                socket.broadcast.to(sroomid).json.emit('new message', message.publicFields());
             });
         });
 
         socket.on('change name', function(data, callback) {
             if(typeof callback !== "function") {
-                console.log('username change without callback');
                 return;
             }
             if(typeof data !== "string" || data.length > 50) {
                 callback('username invalid');
                 return;
             }
+            if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
+                callback('user info not found');
+                return;
+            }
             var newname = data;
-            socket.get('userinfo', function(err, userinfo) {
-                if(err || !userinfo) {
-                    callback('user info not found');
-                    return;
+            var oldname = hs.session.rooms[sroomid].username;
+            Step(
+                function checkUsername() {
+                    var next = this;
+                    redisClient.sismember(sroomid+' users', newname, function(err, ismemb){
+                        if(err || ismemb === 1) {
+                            callback('username exist');
+                        } else next();
+                    });
+                },
+                function updateUsernameInRedis() {
+                    var next = this;
+                    redisClient.srem(sroomid+' users', oldname, function() {
+                        redisClient.sadd(sroomid+' users', newname, function() {
+                            next();
+                        });
+                    });
+                },
+                function updateUserInfo() {
+                    hs.session.rooms[sroomid].username = newname;
+                    hs.session.save(this);
+                },
+                function notifyUsernameChange() {
+                    var renameObj = {oldname: oldname, newname: newname};
+                    socket.broadcast.to(sroomid).json.emit('user renamed', renameObj);
+                    callback(null, renameObj);
                 }
-                var oldname = userinfo.username;
-                var roomid = userinfo.roomid;
-                Step(
-                    function checkUsername() {
-                        var next = this;
-                        redisClient.sismember(roomid+' users', newname, function(err, ismemb){
-                            if(err || ismemb === 1) {
-                                callback('username exist');
-                            } else next();
-                        });
-                    },
-                    function updateUsernameInRedis() {
-                        var next = this;
-                        redisClient.srem(roomid+' users', oldname, function() {
-                            redisClient.sadd(roomid+' users', newname, function() {
-                                next();
-                            });
-                        });
-                    },
-                    function updateUserInfo() {
-                        userinfo.username = newname;
-                        socket.set('userinfo', userinfo, this);
-                    },
-                    function notifyUsernameChange() {
-                        var renameObj = {oldname: oldname, newname: newname};
-                        socket.broadcast.to(roomid).json.emit('user renamed', renameObj);
-                        callback(null, renameObj);
-                    }
-                );
-            });
+            );
         });
         
         socket.on('disconnect', function () {
-            socket.get('userinfo', function(err, userinfo) {
-                if(err || !userinfo) {
-                    return;
-                }
-                var username = userinfo.username;
-                var roomid = userinfo.roomid;
-                redisClient.srem(roomid+' users', username, function() {
-                    socket.broadcast.to(roomid).json.emit("user left", username);
-                    //socket.leave(roomid);
+            if(hs.session.rooms && hs.session.rooms[sroomid]) {
+                var username = hs.session.rooms[sroomid].username;
+                redisClient.srem(sroomid+' users', username, function(err, isremoved) {
+                    if(isremoved) {
+                        socket.broadcast.to(sroomid).json.emit("user left", username);
+                    }
+                    //socket.leave(sroomid);
+                    delete hs.session.rooms[sroomid];
+                    hs.session.save();
                 });
-            });
+            }
         });
         
     };

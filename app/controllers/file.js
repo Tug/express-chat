@@ -25,31 +25,20 @@ module.exports = function(app, model) {
         // we store the username in the socket object
         // and the socket ids (one for each room) in the session
         
-        if(!req.session.rooms) {
-            error(new Error('user is not connected to any room'));
+        if(!req.session.rooms || !req.session.rooms[roomid]) {
+            error(new Error('User is not connected!'));
             return;
         }
 
-        var socketid = req.session.rooms[roomid];
+        var username = req.session.rooms[roomid].username;
 
-        if(!socketid) {
-            error(new Error('client not found in room'));
+        if(!username) {
+            error(new Error("client's name not found"));
             return;
         }
         
         Step(
-            function loadUser() {
-                var nextstep = this;
-                app.io.sockets.socket(socketid).get('userinfo', function(err, userinfo) {
-                    if(err || !userinfo || !userinfo.username) {
-                        error(new Error('user info not found'));
-                        return;
-                    }
-                    
-                    nextstep(null, userinfo.username);
-                });
-            },
-            function createFile(err, username) {
+            function createFile() {
                 var nextstep = this;
                 var file = new FileModel({
                     originalname  : filename,
@@ -59,7 +48,7 @@ module.exports = function(app, model) {
                 });
                 file.save(function(err) {
                     if(err) {
-                        next(err);
+                        error(err);
                         return;
                     }
                     nextstep(null, file);
@@ -102,7 +91,7 @@ module.exports = function(app, model) {
                 req.form.on('close', function() {
                     gs.close(function(err, result) {
                         res.send('ok');
-                        file.status = "Completed";
+                        file.status = "Available";
                         file.save(function(err) {
                             fileStatus.status = file.status;
                             app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
@@ -120,7 +109,6 @@ module.exports = function(app, model) {
                 });
 
                 req.form.on('aborted', function() {
-                    console.log("client has disconnected");
                     gs.unlink(function(err) {
                         file.remove(function(err) {
                             fileStatus.status = file.status;
@@ -187,6 +175,7 @@ module.exports = function(app, model) {
 
     actions.socket = function(socket) {
         var hs = socket.handshake;
+        var sroomid = null;
         
         socket.on('user register', function(roomid, callback) {
             if(typeof callback !== "function") {
@@ -200,14 +189,8 @@ module.exports = function(app, model) {
                 callback('session expired');
                 return;
             }
-            socket.join(roomid);
-            socket.set('roomid', roomid, function() {
-                if(!hs.session.rooms) {
-                    hs.session.rooms = {};
-                }
-                hs.session.rooms[roomid] = socket.id;
-                hs.session.save(callback);
-            });
+            sroomid = roomid;
+            callback();
         });
 
         socket.on('file watch', function(fileid) {
@@ -229,17 +212,6 @@ module.exports = function(app, model) {
             socket.leave(fileid);
         });
 
-        socket.on('disconnect', function() {
-            if(!hs.session || !hs.session.rooms) {
-                return;
-            }
-            socket.get('roomid', function(err, roomid) {
-                if(hs.session.rooms[roomid]) {
-                    delete hs.session.rooms[roomid];
-                    hs.session.save();
-                }
-            });
-        });
     };
 
     return actions;

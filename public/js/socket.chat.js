@@ -15,7 +15,7 @@ function runChatClient(app) {
     client.on('connect', function () {
         client.emit('join room', app.ROOMID, function(err, name) {
             if(err) console.log(err);
-            else app.setUsername(name);
+            app.username = name;
         });
     });
 
@@ -93,7 +93,7 @@ function runChatClient(app) {
                 if(err) {
                     alert(err);
                 } else {
-                    app.setUsername(newname);
+                    app.userRenamed({ oldname: app.username, newname: newname });
                 }
             });
         }
