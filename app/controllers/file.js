@@ -1,26 +1,27 @@
 
 module.exports = function(app, model) {
 
-    var mongoose = model.mongoose,
-        FileModel = mongoose.model('File'),
-        MessageModel = mongoose.model('Message'),
-        db = model.mongodb,
-        GrowingFile = require('growing-mongofile'),
-        Step = app.libs.step;
+    var mongoose      = model.mongoose
+      , FileModel     = mongoose.model('File')
+      , MessageModel  = mongoose.model('Message')
+      , IPModel       = mongoose.model('IP')
+      , db            = model.mongodb
+      , GrowingFile   = require('growing-mongofile')
+      , Step          = app.libs.step;
 
-    var actions = {};
+    var actions       = {};
 
-    var MAX_SIMUL_UP = app.config.upload.maxSimulUp;
-    var MAX_UP_MB = app.config.upload.maxUpMB;
-    var SPEED_TARGET_KBs = app.config.upload.speedTargetKBs;
-    var chatIOUrl = app.routes.io("chat.socket");
-    var fileIOUrl = app.routes.io("file.socket");
+    var MAX_SIMUL_UP      = app.config.limits.maxSimulUp;
+    var MAX_UP_MB         = app.config.limits.maxUpMB;
+    var SPEED_TARGET_KBs  = app.config.limits.speedTargetKBs;
+    
+    var chatIOUrl     = app.routes.io("chat.socket");
+    var fileIOUrl     = app.routes.io("file.socket");
 
     actions.upload = function(req, res, error) {
-        var roomid = req.params.roomid;
-        var filesize = req.form.fileInfo.filesize;
-        var userip = req.connection.remoteAddress;
-        var filename = req.form.fileInfo.filename;
+        var roomid    = req.params.roomid
+          , filesize  = req.form.fileInfo.filesize
+          , filename  = req.form.fileInfo.filename;
         
         // we store the username in the socket object
         // and the socket ids (one for each room) in the session
@@ -38,23 +39,33 @@ module.exports = function(app, model) {
         }
         
         Step(
-            function createFile() {
+            function loadIP() {
                 var nextstep = this;
-                var file = new FileModel({
-                    originalname  : filename,
-                    uploaderip    : userip,
-                    uploadername  : username,
-                    size          : filesize
-                });
-                file.save(function(err) {
-                    if(err) {
-                        error(err);
-                        return;
+                IPModel.load(req, function(err, ip) {
+                    if(ip && ip.canUpload(filesize)) {
+                        nextstep(null, ip);
+                    } else {
+                        error(new Error("Upload limit exceeded"));
                     }
-                    nextstep(null, file);
                 });
             },
-            function createGridStore(err, file) {
+            function createFile(err, ip) {
+                var nextstep = this;
+                var file = new FileModel({
+                    originalname  : filename
+                  , uploaderip    : ip.ip
+                  , uploadername  : username
+                  , size          : filesize
+                });
+                file.save(function(serr) {
+                    if(serr) {
+                        error(serr);
+                        return;
+                    }
+                    nextstep(err, ip, file);
+                });
+            },
+            function createGridStore(err, ip, file) {
                 var nextstep = this;
                 var servername = file.servername;
                 var filename = file.originalname;
@@ -66,7 +77,7 @@ module.exports = function(app, model) {
                     }
                     nextstep(null, file);
                 });
-
+                
                 req.form.speedTarget = SPEED_TARGET_KBs;
 
                 var fileStatus = {
@@ -74,7 +85,18 @@ module.exports = function(app, model) {
                     status: file.status,
                     percent: 0
                 };
-                
+
+                ip.newUpload();
+
+                function transferOver(err) {
+                    ip.uploadFinished();
+                    file.save(function(err) {
+                        fileStatus.status = file.status;
+                        app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
+                    });
+                    if(err) error(err);
+                }
+
                 var totalRead = 0;
                 req.form.onChunk = function(data, callback) {
                     gs.write(data, function() {
@@ -84,6 +106,7 @@ module.exports = function(app, model) {
                             fileStatus.percent = newProgress;
                             app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
                         }
+                        ip.addUploaded(data.length);
                         callback();
                     });
                 };
@@ -92,29 +115,20 @@ module.exports = function(app, model) {
                     gs.close(function(err, result) {
                         res.send('ok');
                         file.status = "Available";
-                        file.save(function(err) {
-                            fileStatus.status = file.status;
-                            app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
-                        });
+                        transferOver();
                     });
                 });
 
                 req.form.on('error', function(err) {
                     console.log(err);
-                    file.remove(function(err) {
-                        fileStatus.status = file.status;
-                        app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
-                        error(err);
-                    });
+                    file.status = "Removed";
+                    transferOver(err);
                 });
 
                 req.form.on('aborted', function() {
                     gs.unlink(function(err) {
-                        file.remove(function(err) {
-                            fileStatus.status = file.status;
-                            app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
-                            error(err);
-                        });
+                        file.status = "Removed";
+                        transferOver(err);
                     });
                 });
             },
@@ -147,35 +161,58 @@ module.exports = function(app, model) {
 
     actions.download = function(req, res, error) {
         var servername = req.params.fileid;
-        FileModel.findOne({servername: servername}, function(err, file) {
-            if(err || !file) {
-                error(err || new Error('File not found'));
-                return;
+        Step(
+            function findFile() {
+                var nextstep = this;
+                FileModel.findOne({servername: servername}, function(err, file) {
+                    if(err || !file) {
+                        error(err || new Error('File not found'));
+                        return;
+                    }
+                    if(file.status == 'Removed') {
+                        error(new Error("File has been removed !"));
+                        return;
+                    }
+                    nextstep(null, file);
+                });
+            },
+            function loadIP(err, file) {
+                var nextstep = this;
+                IPModel.load(req, function(err, ip) {
+                    if(ip && ip.canDownload(file.size)) {
+                        nextstep(err, ip);
+                    } else {
+                        error(new Error("Download limit exceeded"));
+                    }
+                });
+            },
+            function openFile(err, ip) {
+                GrowingFile.open(db, servername, null, function(err, gf) {
+                    if(err || !gf || !gf.originalname) {
+                        error(err || new Error('File not found'));
+                        return;
+                    }
+                    var filename = gf.originalname;
+                    var filesize = gf.filesize;
+                    console.log("downloading "+filename+ " (size : "+filesize+")");
+                    res.contentType(filename);
+                    res.attachment(filename);
+                    res.header('Content-Length', filesize);
+                    gf.pipe(res);
+                    ip.newDownload();
+                    ip.addDownloaded(filesize);
+                    gf.on('end', function() {
+                        ip.downloadFinished();
+                    });
+                });
             }
-            if(file.status == 'Removed') {
-                error(new Error("File has been removed !"));
-                return;
-            }
-            GrowingFile.open(db, servername, null, function(err, gf) {
-                if(err || !gf || !gf.originalname) {
-                    error(err || new Error('File not found'));
-                    return;
-                }
-                var filename = gf.originalname;
-                var filesize = gf.filesize;
-                console.log("downloading "+filename+ " (size : "+filesize+")");
-                res.contentType(filename);
-                res.attachment(filename);
-                res.header('Content-Length', filesize);
-                gf.pipe(res);
-            });
-        });
+        );
         
     };
 
     actions.socket = function(socket) {
-        var hs = socket.handshake;
-        var sroomid = null;
+        var hs      = socket.handshake
+          , sroomid = null;
         
         socket.on('user register', function(roomid, callback) {
             if(typeof callback !== "function") {
