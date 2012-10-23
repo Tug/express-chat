@@ -25,11 +25,13 @@ module.exports = function(app, model) {
     });
     
     IP.statics.load = function(req, next) {
-        IPModel.findOne({ip: clientIP(req)}, function(err, doc) {
+        var cip = clientIP(req);
+        IPModel.findOne({ip: cip}, function(err, doc) {
             if(doc) {
                 next(null, doc);
+                return;
             }
-            var ip = new IPModel();
+            var ip = new IPModel({ip: cip});
             ip.save(function(err) {
                 next(null, ip);
             });

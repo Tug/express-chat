@@ -42,7 +42,9 @@ module.exports = function(app, model) {
             function loadIP() {
                 var nextstep = this;
                 IPModel.load(req, function(err, ip) {
-                    if(ip && ip.canUpload(filesize)) {
+                    if(err || !ip) {
+                        error(err);
+                    } else if(ip.canUpload(filesize)) {
                         nextstep(null, ip);
                     } else {
                         error(new Error("Upload limit exceeded"));
