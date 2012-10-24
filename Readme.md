@@ -1,15 +1,21 @@
 
- * INSTALL
-- git clone git://github.com/Tug/express-chat.git
-- npm install .
+# Express-chat
 
- * TODO
-- file progress
-- check session expiration
-- fix bugs with plupload runtimes
+Express chat is a node.js multi-server chat application with file exchange capabilities.
+Messages are sent with Socket-IO and saved in MongoDB.
+Users can stream files in MongoDB/GridFS directly!
 
- * features
-- chat can die after a certain time, every uploaded files must be removed
-- image viewer on client side
-- music player on client side
-- video player on client side
+
+## Requirements
+* Node.js >= v0.6.2
+* MongoDB and Redis installed and running.
+
+## Installation
+* git clone git://github.com/Tug/express-chat.git
+* cd express-chat
+* npm install .
+
+## TODO
+* fix bugs with some plupload runtimes (html4 by default for now)
+* image/music/video player on the client side
+
