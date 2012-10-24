@@ -86,7 +86,7 @@ module.exports = function(app, model) {
     };
 
     IP.methods.hasServedTime = function() {
-        return Date.now() - this.lastsaved.getMilliseconds() >= RELOAD_TIME;
+        return Date.now() - this.lastsaved.getTime() >= RELOAD_TIME;
     };
 
     IP.methods.reset = function(next) {

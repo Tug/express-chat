@@ -66,8 +66,12 @@ function loadUploader(app) {
     });
     
     uploader.bind('FileUploaded', function(up, file, res) {
-        file.percent = 100;
-        fileList.update(file);
+        if(res.response != "ok") {
+            alert(res.response);
+        } else {
+            file.percent = 100;
+            fileList.update(file);
+        }
         window.onbeforeunload = null;
     });
 

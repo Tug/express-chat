@@ -67,6 +67,7 @@ var clientIP = function(req) {
   } catch(error) {
     ip_address = req.connection.remoteAddress;
   }
+  if(ip_address == null) ip_address = "127.0.0.1";
   return ip_address;
 }
 

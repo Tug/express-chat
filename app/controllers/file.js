@@ -7,7 +7,7 @@ module.exports = function(app, model) {
       , IPModel       = mongoose.model('IP')
       , db            = model.mongodb
       , GrowingFile   = require('growing-mongofile')
-      , Step          = app.libs.step;
+      , Step          = require('step');
 
     var actions       = {};
 
@@ -64,7 +64,7 @@ module.exports = function(app, model) {
                         error(serr);
                         return;
                     }
-                    nextstep(err, ip, file);
+                    nextstep(null, ip, file);
                 });
             },
             function createGridStore(err, ip, file) {
@@ -92,11 +92,10 @@ module.exports = function(app, model) {
 
                 function transferOver(err) {
                     ip.uploadFinished();
-                    file.save(function(err) {
+                    file.save(function(serr) {
                         fileStatus.status = file.status;
                         app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
                     });
-                    if(err) error(err);
                 }
 
                 var totalRead = 0;
@@ -137,7 +136,7 @@ module.exports = function(app, model) {
             function start(err, file) {
                 var nextstep = this;
                 req.form.read();
-                nextstep(err, file);
+                nextstep(null, file);
             },
             function announceFile(err, file) {
                 var fileurl = app.routes.url("file.download", {roomid: roomid, fileid: file.servername });
@@ -156,7 +155,6 @@ module.exports = function(app, model) {
                 });
             }
         );
-        
         
         
     };
@@ -189,9 +187,9 @@ module.exports = function(app, model) {
                 });
             },
             function openFile(err, ip) {
-                GrowingFile.open(db, servername, null, function(err, gf) {
-                    if(err || !gf || !gf.originalname) {
-                        error(err || new Error('File not found'));
+                GrowingFile.open(db, servername, null, function(oerr, gf) {
+                    if(oerr || !gf || !gf.originalname) {
+                        error(oerr || new Error('File not found'));
                         return;
                     }
                     var filename = gf.originalname;

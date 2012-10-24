@@ -4,7 +4,7 @@ module.exports = function(app, model) {
     var Room = model.mongoose.model('Room'),
         Message = model.mongoose.model('Message'),
         Counter = model.mongoose.model('Counter');
-        Step = app.libs.step;
+        Step = require('step');
     
     var redis = model.redis;
     var redisClient = redis.createClient();
