@@ -85,7 +85,7 @@ module.exports = function(app, model) {
                 },
                 function addUser() {
                     var next = this;
-                    redisClient.sadd(sroomid+' users', username, function(err) {
+                    redisClient.sadd(roomid+' users', username, function(err) {
                         next(); // next even if error
                     });
                 },
