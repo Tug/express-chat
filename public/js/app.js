@@ -17,7 +17,7 @@ $(document).ready(function() {
         MAX_USR_LEN     : 50,
         MAX_ROOMID_LEN  : 64,
         UP_URL          : '/r/'+roomid+'/upload',
-        PLUPLOAD_ROOT   : '/js/lib/plupload/',
+        PLUPLOAD_ROOT   : '/static/js/lib/plupload/',
         MAX_FILE_SIZE   : '1000mb',
         
         users           : [],
