@@ -23,9 +23,18 @@ module.exports = function(app, model) {
           , filesize  = req.form.fileInfo.filesize
           , filename  = req.form.fileInfo.filename;
         
+        if(typeof roomid !== "string" || roomid.length > 16) {
+            error('Invalid Room ID');
+            return;
+        }
+
+        if(typeof filename !== "string" || filename.length > 255) {
+            error('Invalid Filename');
+            return;
+        }
+        
         // we store the username in the socket object
         // and the socket ids (one for each room) in the session
-        
         if(!req.session.rooms || !req.session.rooms[roomid]) {
             error(new Error('User is not connected!'));
             return;
@@ -70,7 +79,6 @@ module.exports = function(app, model) {
             function createGridStore(err, ip, file) {
                 var nextstep = this;
                 var servername = file.servername;
-                var filename = file.originalname;
                 var meta = {filesize: filesize, originalname: file.originalname};
                 var gs = GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
                     if(err || !gs) {
@@ -83,7 +91,7 @@ module.exports = function(app, model) {
                 req.form.speedTarget = SPEED_TARGET_KBs;
 
                 var fileStatus = {
-                    id: file.servername,
+                    id: servername,
                     status: file.status,
                     percent: 0
                 };
@@ -161,6 +169,12 @@ module.exports = function(app, model) {
 
     actions.download = function(req, res, error) {
         var servername = req.params.fileid;
+        
+        if(typeof servername !== "string" || servername.length > 16) {
+            error('Invalid file ID');
+            return;
+        }
+        
         Step(
             function findFile() {
                 var nextstep = this;

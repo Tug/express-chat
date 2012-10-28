@@ -3,8 +3,7 @@ module.exports = function(app, model) {
     
     var util = app.libs.util,
         mongoose = model.mongoose,
-        ObjectId = mongoose.Schema.ObjectId,
-        GridStore = require('mongodb').GridStore;
+        ObjectId = mongoose.Schema.ObjectId;
     
     var File = new mongoose.Schema({
           servername      : { type: String, index: { unique: true } }
@@ -34,13 +33,15 @@ module.exports = function(app, model) {
 
     File.pre('save', function(next) {
         var self = this;
-        generateUniqueId(function(err, uniqueId) {
-            if(err || uniqueId == null) next(err);
-            else {
-                self.servername = uniqueId;
-                next();
-            }
-        }, 5);
+        if(!this.servername) {
+            generateUniqueId(function(err, uniqueId) {
+                if(err || uniqueId == null) next(err);
+                else {
+                    self.servername = uniqueId;
+                    next();
+                }
+            }, 5);
+        } else next();
     });
 
     File.pre('remove', function(next) {
