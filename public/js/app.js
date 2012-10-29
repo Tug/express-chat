@@ -50,7 +50,7 @@ $(document).ready(function() {
         showMessage: function(msg) {
             var msgStr = datePrefix(msg.date);
             msgStr += '<span class="nickname">'+htmlentities('<'+msg.username+'>')+'</span> ';
-            msgStr += linkify(htmlentities(msg.body));
+            msgStr += linkify(htmlentities(msg.body, 'ENT_NOQUOTES'));
             app.addMessageToUl(msgStr);
         },
 
