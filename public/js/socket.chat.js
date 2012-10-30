@@ -85,7 +85,9 @@ function runChatClient(app) {
 
     function sendMessage(message) {
         if(message) {
-            if(message > app.MAX_MSG_LEN) message = message.substr(0, app.MAX_MSG_LEN);
+            if(message.length > app.MAX_MSG_LEN) {
+                message = message.substr(0, app.MAX_MSG_LEN);
+            }
 		        client.emit("message", message);
         }
     }

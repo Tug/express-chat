@@ -53,12 +53,16 @@
     <div class="container">
         <div class="content">
             <div class="page-header">
-                <h1><%= title %></h1>
+                <h1 id="title">Room</h1>
             </div>
             <div class="row">
-                <div class="span10">
+                <div class="span12">
                     <div>
-                        <pre class="prettyprint scrollcontent"><ul id="messages" class="unstyled"></ul></pre>
+                        <pre class="prettyprint scrollcontent"><ul id="messages" class="unstyled">
+<script id="messageTemplate" type="text/template">
+<span class="msgdate"><%= dateFormated %></span> 
+<span class="nickname">&gt;<%= username %>&lt;</span> <%= msg %>
+</script></ul></pre>
                     </div>
                     <div>
                         <form class="form-horizontal">

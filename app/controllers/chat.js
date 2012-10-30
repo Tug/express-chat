@@ -20,7 +20,7 @@ module.exports = function(app, model) {
                 return;
             }
             var roomName = room.title || "Room "+room.id;
-            res.render('chat.html', {title: roomName});
+            res.render('chat.html', { data: { title : roomName } });
         });
     };
 

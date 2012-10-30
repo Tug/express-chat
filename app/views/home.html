@@ -28,7 +28,7 @@
         <div class="span4">
           <h2>Create chat room</h2>
         </div>
-        <div class="span10">
+        <div class="span12">
           <form id='CreateChatForm' name='formAction' method='post' action='/rooms/create'>
             <fieldset>
               <legend>Enter Room information</legend>
@@ -55,12 +55,12 @@
         <div class="span4">
           <h2>Public rooms</h2>
         </div>
-				<div class="span10">
+				<div class="span12">
           <br/>
-          <ul id="rooms">
-          <% rooms.forEach(function(room) { %>
-            <li><a href="/r/<%= room.id %>"><%= room.title || 'Room '+room.id %></a></li>
-          <% }); %>
+          <ul class="rooms">
+            <li class="room">
+              <a href="/r/roomid" class="room-title">Room Title</a>
+            </li>
 				  </ul>
         </div>
       </div>

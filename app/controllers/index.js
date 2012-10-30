@@ -10,9 +10,11 @@ module.exports = function(app, model) {
                         .where('ispublic').equals(true)
                         .limit(100);
         query.exec(function(err, docs) {
-            var rooms = [];
-            docs.forEach(function(room) { rooms.push(room.publicFields()); });
-            res.render('home', {rooms: rooms});
+            var map = app.plates.Map();
+            map.className('room').to('room');
+            map.className('room-title').to('title');
+            map.where('href').has(/roomid/).insert('id');
+            res.render('home', { data : { room : docs }, map: map });
         });
     };
     

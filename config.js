@@ -17,8 +17,8 @@ var config = {
   },
   views : {
     type: "html",
-    engine: require('ejs').__express,
-    cache: "enable" //disable
+    engine: "plates",
+    cache: "enable"
   },
   paths : {
     root : application_root,
