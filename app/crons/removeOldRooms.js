@@ -13,7 +13,6 @@ module.exports = function(app, model) {
                 var count = rooms.length;
                 rooms.forEach(function(room) {
                     room.remove();
-                
                 });
                 if(count > 0) console.log(count+" room(s) cleaned !");
             }
