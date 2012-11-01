@@ -42,9 +42,12 @@ $(document).ready(function() {
         },
         
         addMessageToUl: function(msg) {
-            app.messagesBox
-              .append('<li>'+msg+'</li>')
-              .parent().get(0).scrollTop = app.messagesBox.get(0).scrollHeight;
+            var scroll = (app.messagesBox.scrollTop() == app.messagesBox.height());
+            app.messagesBox.append('<li>'+msg+'</li>');
+            if (scroll) {
+                app.messagesBox.parent().get(0).scrollTop = app.messagesBox.get(0).scrollHeight;
+            }
+
         },
 
         showMessage: function(msg) {

@@ -8,7 +8,7 @@ var config = {
     hostname  : "localhost"
   , port      : 3000
   , database  : {
-        mongodb : {
+        mongo : {
             uri: "mongodb://localhost:27017/db"
         }
       , redis : {
@@ -44,7 +44,25 @@ var config = {
           , httpOnly  : false
         }
       , reapInterval  : 15 * 60 * 1000
-      , engine        : "redis" // "mongodb", false
+      , engine  : "redis"
+    }
+  , socketio : {
+        store   : "mongo"
+      , enable  : [
+            "browser client minification"
+          , "browser client etag"
+        ]
+      , set     : {
+            'log level'   : 2
+          , 'transports'  : [
+                'websocket'
+              , 'flashsocket'
+              , 'htmlfile'
+              , 'xhr-polling'
+              , 'jsonp-polling'
+            ]
+          //, 'browser client gzip' // opened issue : https://github.com/LearnBoost/socket.io/issues/932
+        }
     }
   , limits : {
         maxSimulUp      : 1
