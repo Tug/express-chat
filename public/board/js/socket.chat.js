@@ -16,6 +16,7 @@ function runChatClient(app) {
         client.emit('join room', app.ROOMID, function(err, name) {
             if(err) console.log(err);
             app.username = name;
+            app.nameBox.val(name);
         });
     });
 
@@ -23,19 +24,7 @@ function runChatClient(app) {
         if(msg.date != null) {
             msg.date = new Date(msg.date);
         }
-        if(msg.attachment != null) {
-            var file = msg.attachment;
-            if(file.status == 'Removed') return;
-            file.url = "/r/"+app.ROOMID+"/download/"+file.id;
-            file.date = msg.date;
-            app.notifyFile(file, 'shared');
-            if(file.status == 'Uploading') {
-                app.watchFile(file);
-            }
-        }
-        if(msg.body != null) {
-            app.showMessage(msg);
-        }
+        app.showMessage(msg);
     }
     
     function addMessages(messages) {
@@ -43,28 +32,9 @@ function runChatClient(app) {
             messages.forEach(addMessage);
         }
     }
-
-
-    /* ---- bind ui events ---- */
-    
-    function bindEnter(component, callback) {
-        component.keyup(function(e) {
-            var code = (e.keyCode ? e.keyCode : e.which);
-            if(code == 13) { // ENTER
-                callback();
-            }
-        }).keydown(function(e) {
-            var code = (e.keyCode ? e.keyCode : e.which);
-            if (code == 13) {
-              e.preventDefault();
-            }
-        });
-    }
     
     app.submitMessageButton.click(sendMessageHandler);
     app.renameButton.click(renameHandler);
-    bindEnter(app.messageBox, sendMessageHandler);
-    bindEnter(app.nameBox, renameHandler);
     
     function sendMessageHandler() {
         var msg = app.messageBox.val();

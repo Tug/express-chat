@@ -218,6 +218,9 @@ module.exports = function(app, model) {
                     gf.on('end', function() {
                         ip.downloadFinished();
                     });
+                    gf.on('error', function() {
+                        ip.downloadFinished();
+                    });
                 });
             }
         );

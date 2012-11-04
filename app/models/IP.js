@@ -81,8 +81,7 @@ module.exports = function(app, model) {
 
     IP.methods.canDownload = function(bytes) {
         if(this.hasServedTime()) this.reset();
-        return (this.downloaded + bytes <= MAX_DOWN)
-            && (this.simulDown <= MAX_SIMUL_DOWN);
+        return (this.downloaded + bytes <= MAX_DOWN);
     };
 
     IP.methods.hasServedTime = function() {

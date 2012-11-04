@@ -2,7 +2,7 @@ var path = require('path');
 
 global.application_root = __dirname;
 
-var theme = "default";
+var theme = "board";
 
 var config = {
     hostname  : "localhost"
@@ -25,7 +25,9 @@ var config = {
   , paths : {
           root        : application_root
         , app         : path.join(application_root, "app")
-        , public_root : path.join(application_root, "public", theme)
+        , public_root : path.join(application_root, "public")
+        , public_lib  : path.join(application_root, "public", "lib")
+        , static_root : path.join(application_root, "public", theme)
         , models      : path.join(application_root, "app", "models")
         , views       : path.join(application_root, "app", "views", theme)
         , libs        : path.join(application_root, "app", "libs")
@@ -65,12 +67,13 @@ var config = {
         }
     }
   , limits : {
-        maxSimulUp      : 1
-      , maxSimulDown    : 3
-      , maxUpMB         : 1000
-      , maxDownMB       : 5000
-      , speedTargetKBs  : 1000
-      , reloadTimeMin   : 6 * 60
+        maxMessageLength  : 3000
+      , maxUsernameLength : 50
+      , maxSimulUp        : 1
+      , maxUpMB           : 1000
+      , maxDownMB         : 5000
+      , speedTargetKBs    : 1000
+      , reloadTimeMin     : 6 * 60
     }
 };
 

@@ -10,6 +10,9 @@ module.exports = function(app, model) {
     var redisClient = redis.createClient();
     var anonCounter = new Counter({_id: "Anon"});
 
+    var MAX_MESSAGE_LEN     = app.config.limits.maxMessageLength;
+    var MAX_USERNAME_LEN    = app.config.limits.maxUsernameLength;
+
     var actions = {};
 
     actions.index = function(req, res, next) {
@@ -121,7 +124,7 @@ module.exports = function(app, model) {
         });
 
         socket.on('message', function(data) {
-            if(typeof data !== "string" || data.length > 500) {
+            if(typeof data !== "string" || data.length > MAX_MESSAGE_LEN) {
                 return;
             }
             if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
@@ -145,7 +148,7 @@ module.exports = function(app, model) {
             if(typeof callback !== "function") {
                 return;
             }
-            if(typeof data !== "string" || data.length > 50) {
+            if(typeof data !== "string" || data.length > MAX_USERNAME_LEN) {
                 callback('username invalid');
                 return;
             }

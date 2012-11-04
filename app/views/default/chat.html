@@ -13,12 +13,12 @@
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-    <script src="/static/js/lib/less-1.1.5.min.js" type="text/javascript"></script>
-    <script src="/static/js/lib/jquery-1.7.1.min.js" type="text/javascript"></script>
-    <script src="/static/js/lib/phpjs.js" type="text/javascript"></script>
-    <script src="/static/js/lib/plupload/plupload.full.js" type="text/javascript"></script>
-    <script src="/static/js/lib/bootstrap-modal.js"></script>
-    <script src="/static/js/lib/bootstrap-dropdown.js"></script>
+    <script src="/static/lib/less-1.1.5.min.js" type="text/javascript"></script>
+    <script src="/static/lib/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="/static/lib/phpjs.js" type="text/javascript"></script>
+    <script src="/static/lib/plupload/plupload.full.js" type="text/javascript"></script>
+    <script src="/static/lib/bootstrap-modal.js"></script>
+    <script src="/static/lib/bootstrap-dropdown.js"></script>
     <script src="/static/js/uploader.js" type="text/javascript"></script>
     <script src="/socket.io/socket.io.js" type="text/javascript"></script>
     <script src="/static/js/socket.chat.js" type="text/javascript"></script>
@@ -58,11 +58,7 @@
             <div class="row">
                 <div class="span12">
                     <div>
-                        <pre class="prettyprint scrollcontent"><ul id="messages" class="unstyled">
-<script id="messageTemplate" type="text/template">
-<span class="msgdate"><%= dateFormated %></span> 
-<span class="nickname">&gt;<%= username %>&lt;</span> <%= msg %>
-</script></ul></pre>
+                        <pre class="prettyprint scrollcontent"><ul id="messages" class="unstyled"></ul></pre>
                     </div>
                     <div>
                         <form class="form-horizontal">

@@ -58,6 +58,7 @@ module.exports = function(app, model) {
         MessageModel
         .where('roomid', roomid)
         .where('num').gte(messageNum)
+        .sort('num')
         .populate('_attachment')
         .exec(callback);
     };

@@ -13,11 +13,11 @@ $(document).ready(function() {
     var app = {
 
         ROOMID          : roomid,
-        MAX_MSG_LEN     : 500,
+        MAX_MSG_LEN     : 3000,
         MAX_USR_LEN     : 50,
         MAX_ROOMID_LEN  : 64,
         UP_URL          : '/r/'+roomid+'/upload',
-        PLUPLOAD_ROOT   : '/static/js/lib/plupload/',
+        PLUPLOAD_ROOT   : '/static/lib/plupload/',
         MAX_FILE_SIZE   : '1000mb',
         
         users           : [],
