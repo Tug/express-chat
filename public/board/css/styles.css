@@ -197,3 +197,8 @@ html, body {
     max-height: 1500px;
 }
 
+.embedded-video {
+    width: 640px;
+    height: 363px;
+}
+

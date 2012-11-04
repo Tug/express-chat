@@ -69,7 +69,7 @@ $(document).ready(function() {
                         +'</span></p>';
                 msgStr += getViewer(file);
             }
-            msgStr += '<pre>'+linkify(htmlentities(msg.body, 'ENT_NOQUOTES'))+'</pre>';
+            msgStr += processMessage(msg.body);
             msgStr += '</div>';
             app.addMessageToUl(msgStr);
             if(file) {
@@ -132,9 +132,36 @@ $(document).ready(function() {
         if((/\.(mp3)$/i).test(file.originalname)) {
             AudioPlayer.embed(file.id+'_audio', {soundFile: file.url}); 
         } else if((/\.(flv|mp4)$/i).test(file.originalname)) {
-            $('#'+file.id+'_video').flowplayer().load();
+            $('#'+file.id+'_video').flowplayer();
         }
     }
+
+    function processMessage(message) {
+        var items = '';
+        message = htmlentities(message, 'ENT_NOQUOTES');
+        var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+        var replacer = function(_, url, offset, string) {
+            if(/^https?:\/\/(?:www\.)?youtube.com\/watch\?(?=.*v=\w+)(?:\S+)?$/.test(url)) { // youtube
+                items += '<p>'+embedYoutube(url)+'</p>';
+            }
+            return '<a href="'+url+'" target="_blank">'+url+'</a>';
+        }
+        var userMessage = message.replace(replacePattern1, replacer);
+        return items + '<pre>'+userMessage+'</pre>';
+    }
+
+    function embedYoutube(link) {
+        var strId = link.match(/v=[\w-]{11}/)[0].replace(/v=/,'')
+        var result = '<div class="embedded-video">\n';
+        result += '<object width="640" height="363">\n';
+        result += '<param name="movie" value="http://www.youtube.com/v/' + strId + 'g&hl=en&fs=1&"></param>\n';
+        result += '<param name="allowFullScreen" value="true"></param>\n';
+        result += '<param name="allowscriptaccess" value="always"></param>\n';
+        result += '<embed src="http://www.youtube.com/v/' + strId + '&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="363"></embed>\n';
+        result += '</object>\n';
+        result += '</div>\n';
+        return result;
+     }
 
     runChatClient(app);
     runFileClient(app);
