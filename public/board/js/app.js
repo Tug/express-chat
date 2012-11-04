@@ -137,17 +137,18 @@ $(document).ready(function() {
     }
 
     function processMessage(message) {
-        var items = '';
+        var items = [];
         message = htmlentities(message, 'ENT_NOQUOTES');
         var replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
         var replacer = function(_, url, offset, string) {
             if(/^https?:\/\/(?:www\.)?youtube.com\/watch\?(?=.*v=\w+)(?:\S+)?$/.test(url)) { // youtube
-                items += '<p>'+embedYoutube(url)+'</p>';
+                if(items.length <= 5) // limit to 5 objects per message
+                    items.push('<p>'+embedYoutube(url)+'</p>');
             }
             return '<a href="'+url+'" target="_blank">'+url+'</a>';
         }
         var userMessage = message.replace(replacePattern1, replacer);
-        return items + '<pre>'+userMessage+'</pre>';
+        return items.join('') + '<pre>'+userMessage+'</pre>';
     }
 
     function embedYoutube(link) {
