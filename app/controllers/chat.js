@@ -13,6 +13,8 @@ module.exports = function(app, model) {
     var MAX_MESSAGE_LEN     = app.config.limits.maxMessageLength;
     var MAX_USERNAME_LEN    = app.config.limits.maxUsernameLength;
 
+    var chatIOUrl     = app.routes.io("chat.socket");
+    
     var actions = {};
 
     actions.index = function(req, res, next) {
@@ -140,7 +142,7 @@ module.exports = function(app, model) {
             });
             message.save(function(err) {
                 if(err) console.log(err);
-                socket.broadcast.to(sroomid).json.emit('new message', message.publicFields());
+                app.io.of(chatIOUrl).in(sroomid).emit('new message', message.publicFields());
             });
         });
 

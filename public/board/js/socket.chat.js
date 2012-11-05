@@ -43,7 +43,6 @@ function runChatClient(app) {
                 msg = msg.substr(0, app.MAX_MSG_LEN);
             }
             sendMessage(msg);
-            addMessage({username: app.username, body: msg});
         }
         app.messageBox.val('');
     }

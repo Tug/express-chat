@@ -71,8 +71,8 @@ var config = {
       , maxUsernameLength : 50
       , maxSimulUp        : 1
       , maxUpMB           : 1000
-      , maxDownMB         : 5000
-      , speedTargetKBs    : 1000
+      , maxDownMB         : 10000
+      , speedTargetKBs    : 1500
       , reloadTimeMin     : 6 * 60
     }
 };
