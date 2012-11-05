@@ -36,7 +36,7 @@ function loadUploader(app) {
     app.clearFilesButton.click(function(e) {
         uploader.splice();
         app.fileList.html('<li class="dropText">Drag files here!</li>');
-        clean = true;
+        cleared = true;
     });
     
     var cleared = true;
