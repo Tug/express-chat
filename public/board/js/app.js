@@ -121,9 +121,7 @@ $(document).ready(function() {
         } else if((/\.(mp3)$/i).test(file.originalname)) {
             return '<p id="'+file.id+'_audio">Cannot load music player.</p>  ';
         } else if((/\.(flv|mp4)$/i).test(file.originalname)) {
-            return '<div id="'+file.id+'_video" class="flowplayer is-splash" data-volume="0.5" data-engine="flash">'
-                  +'<video preload="none" type="video/'+readExtension(file.originalname)+'" src="'+file.url+'"></video>'
-                  +'</div>';
+            return '<div id="'+file.id+'_video"></div>';
         }
         return '';
     }
@@ -132,7 +130,13 @@ $(document).ready(function() {
         if((/\.(mp3)$/i).test(file.originalname)) {
             AudioPlayer.embed(file.id+'_audio', {soundFile: file.url}); 
         } else if((/\.(flv|mp4)$/i).test(file.originalname)) {
-            $('#'+file.id+'_video').flowplayer();
+            jwplayer(file.id+'_video').setup({
+                flashplayer: '/static/lib/jwplayer/player.swf',
+                file: file.url,
+                type: 'video',
+                height: 363,
+                width: 640
+            });
         }
     }
 
