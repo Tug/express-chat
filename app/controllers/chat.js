@@ -46,29 +46,29 @@ module.exports = function(app, model) {
                 return;
             }
             sroomid = roomid;
-            var username = null;
             Step(
                 function userExists() {
                     var next = this;
+                    // TODO: verify when this case happens
                     // if the session of the user contains an object for this room
                     // we reuse this object (the page was probably refreshed)
-                    // and try to force disconnect the previous socket 
-                    if(!hs.session.rooms[roomid]) {
+                    // and try to force disconnect the previous socket
+                    if(hs.session.rooms[roomid]) {
                         var userinfo = hs.session.rooms[roomid];
-                        username = userinfo.username;
+                        var username = userinfo.username;
                         var sid = userinfo.sid;
-                        if(sid && sid != socket.id) { // disconnect previous socket
+                        if(sid && sid != socket.id && app.io.sockets[sid]) { // disconnect previous socket
                             app.io.sockets[sid].disconnect();
                         }
-                        next(null, true);
+                        next(null, username);
                     } else {
                         next(null, false);
                     }
                 },
-                function generateUsername(err, exist) {
+                function generateUsername(err, username) {
                     var next = this;
-                    if(exist === true) {
-                        next();
+                    if(username) {
+                        next(null, username);
                         return;
                     }
                     Counter.getNextValue(roomid, function(errc, value) {
@@ -77,18 +77,20 @@ module.exports = function(app, model) {
                             return;
                         }
                         username = "Anonymous"+value;
-                        
-                        hs.session.rooms[roomid] = username;
-                        next();
+                        next(null, username);
                     });
                 },
-                function sendUsername() {
+                function sendUsername(err, username) {
                     var next = this;
+                    hs.session.rooms[roomid] = {
+                        username  : username
+                      , sid       : socket.id
+                    };
                     callback(null, username);
                     socket.broadcast.to(roomid).json.emit('user joined', username);
-                    next();
+                    next(null, username);
                 },
-                function addUser() {
+                function addUser(err, username) {
                     var next = this;
                     redisClient.sadd(roomid+' users', username, function(err) {
                         next(); // next even if error
@@ -113,10 +115,6 @@ module.exports = function(app, model) {
                 function joinRoom() {
                     var next = this;
                     socket.join(roomid);
-                    hs.session.rooms[roomid] = {
-                        username: username
-                      , sid: socket.id
-                    };
                     hs.session.save(next);
                 },
                 function ready() {
@@ -196,9 +194,6 @@ module.exports = function(app, model) {
                     if(isremoved) {
                         socket.broadcast.to(sroomid).json.emit("user left", username);
                     }
-                    //socket.leave(sroomid);
-                    delete hs.session.rooms[sroomid];
-                    hs.session.save();
                 });
             }
         });

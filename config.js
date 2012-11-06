@@ -2,7 +2,7 @@ var path = require('path');
 
 global.application_root = __dirname;
 
-var theme = "default";
+var theme = "board";
 
 var config = {
     hostname  : "localhost"

@@ -4,7 +4,7 @@ function loadUploader(app) {
     var fileList = loadFileList(app.fileList);
     
     var uploader = new plupload.Uploader({
-	      runtimes : 'flash,html5,gears,silverlight,browserplus,html4',
+	      runtimes : 'html5,flash,gears,silverlight,browserplus,html4',
 	      max_file_size : app.MAX_FILE_SIZE,
 	      browse_button : app.browseButton.attr('id'),
 	      container: app.uploadModal.attr('id'),
