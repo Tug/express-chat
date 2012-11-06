@@ -8,6 +8,7 @@ module.exports = function(app, model) {
     actions.index = function(req, res, next) {
         var query = Room.find()
                         .where('ispublic').equals(true)
+                        .sort('-messageCount')
                         .limit(100);
         query.exec(function(err, docs) {
             var map = app.plates.Map();
