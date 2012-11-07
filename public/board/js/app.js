@@ -36,6 +36,7 @@ $(document).ready(function() {
         renameButton        : $('#renameButton'),
         fileContainer       : $('#fileContainer'),
         clearFilesButton    : $('#clearFiles'),
+        enterToSendCheckBox : $('#enterToSend'),
         
         showWelcomeMessage: function() {},
         

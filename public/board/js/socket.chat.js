@@ -32,9 +32,35 @@ function runChatClient(app) {
             messages.forEach(addMessage);
         }
     }
+
+    function bindEnter(component, callback) {
+        component.keyup(function(e) {
+            var code = (e.keyCode ? e.keyCode : e.which);
+            if(code == 13) { // ENTER
+                callback();
+            }
+        }).keydown(function(e) {
+            var code = (e.keyCode ? e.keyCode : e.which);
+            if (code == 13) {
+              e.preventDefault();
+            }
+        });
+    }
+
+    function unbindEnter(component) {
+        component.unbind('keyup').unbind('keydown');
+    }
     
     app.submitMessageButton.click(sendMessageHandler);
     app.renameButton.click(renameHandler);
+    
+    app.enterToSendCheckBox.click(function() {
+        if($(this).is(':checked')) {
+            bindEnter(app.messageBox, sendMessageHandler);
+        } else {
+            unbindEnter(app.messageBox, sendMessageHandler);
+        }
+    });
     
     function sendMessageHandler() {
         var msg = app.messageBox.val();
