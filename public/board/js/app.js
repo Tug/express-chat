@@ -40,10 +40,10 @@ $(document).ready(function() {
         showWelcomeMessage: function() {},
         
         addMessageToUl: function(msg) {
-            var scroll = (app.messagesBox.scrollTop() == app.messagesBox.height());
+            var atBottom = (document.body.scrollHeight - document.body.scrollTop) == document.body.clientHeight;
             app.messagesBox.append('<li>'+msg+'</li>');
-            if (scroll) {
-                app.messagesBox.parent().get(0).scrollTop = app.messagesBox.get(0).scrollHeight;
+            if(atBottom) {
+                document.body.scrollTop = app.messagesBox.get(0).scrollHeight;
             }
         },
 
