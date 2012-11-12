@@ -14,6 +14,10 @@ $(document).ready(function() {
         return /(?:\.([^.]+))?$/.exec(filename)[1];
     }
     
+    function atBottom() {
+        return (document.body.scrollHeight - document.body.scrollTop) == document.body.clientHeight;
+    }
+    
     var app = {
 
         ROOMID          : roomid,
@@ -41,15 +45,17 @@ $(document).ready(function() {
         showWelcomeMessage: function() {},
         
         addMessageToUl: function(msg) {
-            var atBottom = (document.body.scrollHeight - document.body.scrollTop) == document.body.clientHeight;
+            
             app.messagesBox.append('<li>'+msg+'</li>');
-            if(atBottom) {
+            if(atBottom()) {
                 document.body.scrollTop = app.messagesBox.get(0).scrollHeight;
                 var image = $('.message').last().find('.image');
                 if(image) {
                     image.load(function() {
-                        document.body.scrollTop += 10000;
-                        setTimeout(function() { document.body.scrollTop += 10000; }, 200);
+                        if(atBottom()) {
+                            document.body.scrollTop += 10000;
+                            setTimeout(function() { document.body.scrollTop += 10000; }, 200);
+                        }
                     });
                 }
             }
