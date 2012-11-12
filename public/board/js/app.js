@@ -45,6 +45,13 @@ $(document).ready(function() {
             app.messagesBox.append('<li>'+msg+'</li>');
             if(atBottom) {
                 document.body.scrollTop = app.messagesBox.get(0).scrollHeight;
+                var image = $('.message').last().find('.image');
+                if(image) {
+                    image.load(function() {
+                        document.body.scrollTop += 10000;
+                        setTimeout(function() { document.body.scrollTop += 10000; }, 200);
+                    });
+                }
             }
         },
 
