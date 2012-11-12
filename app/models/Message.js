@@ -69,7 +69,7 @@ module.exports = function(app, model) {
           , username    : this.username
           , body        : this.body
           , date        : this.date
-          , attachment  : ((this._attachment) ? this._attachment.publicFields() : null)
+          , attachment  : (this._attachment) ? this._attachment.publicFields() : null
         };
     };
 

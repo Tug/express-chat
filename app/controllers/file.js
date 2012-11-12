@@ -146,7 +146,8 @@ module.exports = function(app, model) {
                 req.form.read();
                 nextstep(null, file);
             },
-            function announceFile(err, file) {
+            function saveMessageFile(err, file) {
+                var nextstep = this;
                 var fileurl = app.routes.url("file.download", {roomid: roomid, fileid: file.servername });
                 var message = MessageModel.createEmptyFileMessage(roomid, file);
                 message.save(function(err) {
@@ -154,12 +155,19 @@ module.exports = function(app, model) {
                         error(err);
                         return;
                     }
-                    MessageModel
-                    .findById(message._id)
-                    .populate("_attachment")
-                    .exec(function (err, msg) {
-                        app.io.of(chatIOUrl).in(roomid).json.emit("new message", msg.publicFields());
-                    });
+                    nextstep(null, message);
+                });
+            },
+            function announceFile(err, message) {
+                MessageModel
+                .findById(message._id)
+                .populate("_attachment")
+                .exec(function (err, msg) {
+                    if(err) {
+                        error(err);
+                        return;
+                    }
+                    app.io.of(chatIOUrl).in(roomid).json.emit("new message", msg.publicFields());
                 });
             }
         );

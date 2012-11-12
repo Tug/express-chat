@@ -33,7 +33,7 @@ var config = {
         , libs        : path.join(application_root, "app", "libs")
         , controllers : path.join(application_root, "app", "controllers")
         , crons       : path.join(application_root, "app", "crons")
-        , favicon     : path.join(application_root, "public", "favicon.ico")
+        , favicon     : path.join(application_root, "public", theme, "favicon.ico")
     }
   , urls: require("./urls").urls
   , ios : require("./urls").ios

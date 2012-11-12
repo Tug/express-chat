@@ -76,7 +76,8 @@ module.exports = function(app, model) {
                             callback('server could not generate a username : '+errc.message);
                             return;
                         }
-                        username = "Anonymous"+value;
+                        if(value == 1) username = "OP";
+                        else username = "Anonymous"+value;
                         next(null, username);
                     });
                 },

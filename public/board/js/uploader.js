@@ -4,7 +4,7 @@ function loadUploader(app) {
     var fileList = loadFileList(app.fileList);
     
     var uploader = new plupload.Uploader({
-	      runtimes : 'html5,flash,gears,silverlight,browserplus,html4',
+	      runtimes : 'flash,gears,silverlight,browserplus,html4,html5',
 	      max_file_size : app.MAX_FILE_SIZE,
 	      browse_button : app.browseButton.attr('id'),
 	      container: app.fileContainer.attr('id'),
@@ -70,8 +70,9 @@ function loadUploader(app) {
     });
     
     uploader.bind('FileUploaded', function(up, file, res) {
-        if(res.response != "ok") {
-            alert(res.response);
+        console.log('FileUploaded', res);
+        if(res.status != 200) {
+           //alert('Error : '+res.response);
         } else {
             file.percent = 100;
             fileList.update(file);
@@ -80,7 +81,8 @@ function loadUploader(app) {
     });
 
     uploader.bind('Error', function(up, err) {
-        alert('Error for '+err.file.name+' : '+err.message);
+        console.log('Error', err);
+        //alert('Error : '+err.message);
         up.refresh(); // Reposition Flash/Silverlight
     });
 
