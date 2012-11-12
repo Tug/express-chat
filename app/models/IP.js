@@ -9,7 +9,7 @@ module.exports = function(app, model) {
     var MAX_UP          = app.config.limits.maxUpMB   * 1024 * 1024;
     var MAX_DOWN        = app.config.limits.maxDownMB * 1024 * 1024;
     var RELOAD_TIME     = app.config.limits.reloadTimeMin * 60 * 1000;
-    
+
     var IP = new mongoose.Schema({
         ip          : { type: String, index: true }
       , lastsaved   : Date
@@ -69,10 +69,11 @@ module.exports = function(app, model) {
     };
     
     IP.methods.reset = function(next) {
-        this.simulDown -= 1;
+        this.simulDown = 0;
+        this.simulUp = 0;
         return this.save(next);
     };
-    
+
     IP.methods.canUpload = function(bytes) {
         if(this.hasServedTime()) this.reset();
         return (this.uploaded + bytes <= MAX_UP)
