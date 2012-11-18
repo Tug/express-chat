@@ -1,7 +1,10 @@
 
+var mongoose = require('mongoose')
+  , Plates = require("plates");
+
 module.exports = function(app, model) {
 
-    var Room = model.mongoose.model('Room');
+    var Room = mongoose.model('Room');
     
     var actions = {};
     
@@ -11,7 +14,7 @@ module.exports = function(app, model) {
                         .sort('-messageCount')
                         .limit(100);
         query.exec(function(err, docs) {
-            var map = app.plates.Map();
+            var map = Plates.Map();
             map.className('room').to('room');
             map.className('room-title').to('title');
             map.where('href').has(/roomid/).insert('id');

@@ -1,13 +1,13 @@
 
+var mongoose = require('mongoose');
+
 module.exports = function(app, model) {
 
-    var Room = model.mongoose.model('Room'),
-        Message = model.mongoose.model('Message'),
-        Counter = model.mongoose.model('Counter');
-        Step = require('step');
+    var Room = mongoose.model('Room')
+      , Message = mongoose.model('Message')
+      , Counter = mongoose.model('Counter')
+      , Step = require('step');
     
-    var redis = model.redis;
-    var redisClient = redis.createClient();
     var anonCounter = new Counter({_id: "Anon"});
 
     var MAX_MESSAGE_LEN     = app.config.limits.maxMessageLength;
@@ -93,7 +93,7 @@ module.exports = function(app, model) {
                 },
                 function addUser(err, username) {
                     var next = this;
-                    redisClient.sadd(roomid+' users', username, function(err) {
+                    Room.findByIdAndUpdate(roomid, {"$addToSet": {users: username}}, function(err) {
                         next(); // next even if error
                     });
                 },
@@ -108,8 +108,10 @@ module.exports = function(app, model) {
                         }
                         messageCallback();
                     });
-                    redisClient.smembers(roomid+" users", function(err, users) {
-                        socket.emit('users', users);
+                    Room.findById(roomid, "users", function(err, room) {
+                        if(!err && room) {
+                            socket.emit('users', room.users);
+                        }
                         userCallback();
                     });
                 },
@@ -162,19 +164,18 @@ module.exports = function(app, model) {
             Step(
                 function checkUsername() {
                     var next = this;
-                    redisClient.sismember(sroomid+' users', newname, function(err, ismemb){
-                        if(err || ismemb === 1) {
+                    Room
+                    .findById(sroomid)
+                    .where('users', newname)
+                    .limit(1)
+                    .exec(function(err, doc) {
+                        if(!err && doc) {
                             callback('username exist');
                         } else next();
                     });
                 },
-                function updateUsernameInRedis() {
-                    var next = this;
-                    redisClient.srem(sroomid+' users', oldname, function() {
-                        redisClient.sadd(sroomid+' users', newname, function() {
-                            next();
-                        });
-                    });
+                function updateUsername() {
+                    Room.findByIdAndUpdate(sroomid, {"$addToSet": {users: newname}}, this);
                 },
                 function updateUserInfo() {
                     hs.session.rooms[sroomid].username = newname;
@@ -191,10 +192,8 @@ module.exports = function(app, model) {
         socket.on('disconnect', function () {
             if(hs.session.rooms && hs.session.rooms[sroomid]) {
                 var username = hs.session.rooms[sroomid].username;
-                redisClient.srem(sroomid+' users', username, function(err, isremoved) {
-                    if(isremoved) {
-                        socket.broadcast.to(sroomid).json.emit("user left", username);
-                    }
+                Room.findByIdAndUpdate(sroomid, {"$pull": {users: username}}, function(err, doc) {
+                    socket.broadcast.to(sroomid).json.emit("user left", username);
                 });
             }
         });

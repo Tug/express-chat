@@ -1,8 +1,8 @@
 
+var mongoose = require('mongoose')
+  , ObjectId = mongoose.Schema.ObjectId;
+
 module.exports = function(app, model) {
-    
-    var mongoose = model.mongoose,
-        ObjectId = mongoose.Schema.ObjectId;
     
     var Message = new mongoose.Schema({
         roomid      : { type: String, index: true }
@@ -11,7 +11,7 @@ module.exports = function(app, model) {
       , userip      : String
       , body        : String
       , date        : { type: Date, default: Date.now }
-      , _attachment : { type: mongoose.Schema.Types.ObjectId, ref: 'File' }
+      , attachment  : { type: mongoose.Schema.Types.ObjectId, ref: 'File' }
     });
     
     Message.pre('save', function(next) {
@@ -30,13 +30,13 @@ module.exports = function(app, model) {
     });
 
     Message.pre('remove', function(next) {
-        if(this._attachment != null) {
-            if(this._attachment.remove) {
-                this._attachment.remove(next);
+        if(this.attachment != null) {
+            if(this.attachment.remove) {
+                this.attachment.remove(next);
             } else {
                 Message
                 .findById(this._id)
-                .populate('_attachment')
+                .populate('attachment')
                 .exec(function(err, file) {
                     this._attachment.remove(next);
                 });
@@ -50,7 +50,7 @@ module.exports = function(app, model) {
             roomid            : roomid
           , username          : file.uploadername
           , userip            : file.uploaderip
-          , _attachment       : file
+          , attachment        : file
         });
     };
 
@@ -59,7 +59,7 @@ module.exports = function(app, model) {
         .where('roomid', roomid)
         .where('num').gte(messageNum)
         .sort('num')
-        .populate('_attachment')
+        .populate('attachment')
         .exec(callback);
     };
 
@@ -69,7 +69,9 @@ module.exports = function(app, model) {
           , username    : this.username
           , body        : this.body
           , date        : this.date
-          , attachment  : (this._attachment) ? this._attachment.publicFields() : null
+          , attachment  : (this.attachment && this.attachment.publicFields)
+                            ? this.attachment.publicFields()
+                            : null
         };
     };
 

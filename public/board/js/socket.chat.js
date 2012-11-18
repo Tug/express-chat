@@ -78,7 +78,6 @@ function runChatClient(app) {
         if(name && name != app.username) {
             changeUsername(name);
         }
-        app.messageBox.val('');
     }
 
     function sendMessage(message) {

@@ -2,6 +2,7 @@
 function loadUploader(app) {
   
     var fileList = loadFileList(app.fileList);
+    var dragndropEnabled = false;
     
     var uploader = new plupload.Uploader({
 	      runtimes : 'flash,gears,silverlight,browserplus,html4,html5',
@@ -23,7 +24,21 @@ function loadUploader(app) {
 
     uploader.bind('Init', function(up, params) {
         $('#runtimeInfo').html("Current runtime: " + params.runtime);
+        dragndropEnabled = (params.runtime in ['gears','browserplus','html5']);
+        reset();
     });
+
+    function reset() {
+        uploader.splice();
+        if(dragndropEnabled) {
+            app.fileList.html('<li class="dropText">Drag files here!</li>');
+        } else {
+            app.fileList.html('');
+        }
+        cleared = true;
+    }
+
+    app.clearFilesButton.click(reset);
 
     app.uploadButton.click(function(e) {
         if (uploader.files.length > 0) {
@@ -31,12 +46,6 @@ function loadUploader(app) {
         } else {
             alert('Select a file first.');
         }
-    });
-
-    app.clearFilesButton.click(function(e) {
-        uploader.splice();
-        app.fileList.html('<li class="dropText">Drag files here!</li>');
-        cleared = true;
     });
     
     var cleared = true;
@@ -70,9 +79,8 @@ function loadUploader(app) {
     });
     
     uploader.bind('FileUploaded', function(up, file, res) {
-        console.log('FileUploaded', res);
-        if(res.status != 200) {
-           //alert('Error : '+res.response);
+        if(res.response != "ok") {
+           alert('Error while uploading '+file.name+': '+res.response);
         } else {
             file.percent = 100;
             fileList.update(file);

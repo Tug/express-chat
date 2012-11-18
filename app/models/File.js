@@ -1,10 +1,11 @@
 
+var mongoose = require('mongoose')
+  , ObjectId = mongoose.Schema.ObjectId
+  , mongodb = require('mongodb');
+
 module.exports = function(app, model) {
     
-    var util = app.libs.util,
-        mongoose = model.mongoose,
-        ObjectId = mongoose.Schema.ObjectId,
-        mongodb = require('mongodb');
+    var util = app.libs.util;
     
     var File = new mongoose.Schema({
           servername      : { type: String, index: { unique: true } }
@@ -46,7 +47,7 @@ module.exports = function(app, model) {
     });
 
     File.pre('remove', function(next) {
-        mongodb.GridStore.unlink(model.mongodb, this.servername, next);
+        mongodb.GridStore.unlink(model.mongo, this.servername, next);
     });
 
     File.methods.remove = function(callback) {
@@ -56,7 +57,7 @@ module.exports = function(app, model) {
     
     File.methods.publicFields = function() {
         return {
-            id            : this.servername
+            servername    : this.servername
           , originalname  : this.originalname
           , uploadername  : this.uploadername
           , status        : this.status

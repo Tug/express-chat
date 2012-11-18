@@ -1,11 +1,13 @@
 
+var mongoose = require('mongoose')
+  , debug    = require('debug')('express-chat');
+
 module.exports = function(app, model) {
 
-    var mongoose      = model.mongoose
-      , FileModel     = mongoose.model('File')
+    var FileModel     = mongoose.model('File')
       , MessageModel  = mongoose.model('Message')
       , IPModel       = mongoose.model('IP')
-      , db            = model.mongodb
+      , db            = model.mongo
       , GrowingFile   = require('growing-mongofile')
       , Step          = require('step');
 
@@ -68,9 +70,9 @@ module.exports = function(app, model) {
                   , uploadername  : username
                   , size          : filesize
                 });
-                file.save(function(serr) {
-                    if(serr) {
-                        error(serr);
+                file.save(function(err) {
+                    if(err) {
+                        error(err);
                         return;
                     }
                     nextstep(null, ip, file);
@@ -81,7 +83,7 @@ module.exports = function(app, model) {
                 var servername = file.servername;
                 var meta = {filesize: filesize, originalname: file.originalname};
                 var gs = GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
-                    if(err || !gs) {
+                    if(err || !gs) {debug('Error creating gridstore');
                         error(new Error('Error creating gridstore : '+(err && err.message)));
                         return;
                     }
@@ -91,19 +93,17 @@ module.exports = function(app, model) {
                 req.form.speedTarget = SPEED_TARGET_KBs;
 
                 var fileStatus = {
-                    id: servername,
-                    status: file.status,
-                    percent: 0
+                    servername  : servername,
+                    status      : file.status,
+                    percent     : 0
                 };
-
+                
                 ip.newUpload();
-
+                
                 function transferOver(err) {
                     ip.uploadFinished();
-                    file.save(function(serr) {
-                        fileStatus.status = file.status;
-                        app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
-                    });
+                    fileStatus.status = file.status;
+                    app.io.of(fileIOUrl).in(fileStatus.id).emit('status', fileStatus);
                 }
 
                 var totalRead = 0;
@@ -124,6 +124,7 @@ module.exports = function(app, model) {
                     gs.close(function(err, result) {
                         res.send('ok');
                         file.status = "Available";
+                        file.save();
                         transferOver();
                     });
                 });
@@ -131,12 +132,14 @@ module.exports = function(app, model) {
                 req.form.on('error', function(err) {
                     console.log(err);
                     file.status = "Removed";
+                    file.save();
                     transferOver(err);
                 });
 
                 req.form.on('aborted', function() {
                     gs.unlink(function(err) {
                         file.status = "Removed";
+                        file.save();
                         transferOver(err);
                     });
                 });
@@ -144,6 +147,7 @@ module.exports = function(app, model) {
             function start(err, file) {
                 var nextstep = this;
                 req.form.read();
+                debug("uploading "+file.originalname+ " (size : "+file.size+")");
                 nextstep(null, file);
             },
             function saveMessageFile(err, file) {
@@ -155,25 +159,16 @@ module.exports = function(app, model) {
                         error(err);
                         return;
                     }
-                    nextstep(null, message);
-                });
-            },
-            function announceFile(err, message) {
-                MessageModel
-                .findById(message._id)
-                .populate("_attachment")
-                .exec(function (err, msg) {
-                    if(err) {
-                        error(err);
-                        return;
-                    }
-                    app.io.of(chatIOUrl).in(roomid).json.emit("new message", msg.publicFields());
+                    var msg = message.publicFields();
+                    msg.attachment = file.publicFields();
+                    app.io.of(chatIOUrl).in(roomid).json.emit("new message", msg);
                 });
             }
         );
         
-        
     };
+
+    
 
     actions.download = function(req, res, error) {
         var servername = req.params.fileid;
@@ -184,19 +179,27 @@ module.exports = function(app, model) {
         }
         
         Step(
+            //TODO: find a server which has the file instead of polling
             function findFile() {
                 var nextstep = this;
-                FileModel.findOne({servername: servername}, function(err, file) {
-                    if(err || !file) {
+                function retry(it, err) {
+                    if(it-->0) {
+                        FileModel.findOne({servername: servername}, function(err, file) {
+                            if(err || !file) {
+                                setTimeout(function() { retry(it, err); }, 2000);
+                                return;
+                            }
+                            if(file.status == 'Removed') {
+                                error(new Error("File has been removed !"));
+                                return;
+                            }
+                            nextstep(null, file);
+                        });
+                    } else {
                         error(err || new Error('File not found'));
-                        return;
                     }
-                    if(file.status == 'Removed') {
-                        error(new Error("File has been removed !"));
-                        return;
-                    }
-                    nextstep(null, file);
-                });
+                }
+                retry(5);
             },
             function loadIP(err, file) {
                 var nextstep = this;
@@ -209,26 +212,37 @@ module.exports = function(app, model) {
                 });
             },
             function openFile(err, ip) {
-                GrowingFile.open(db, servername, null, function(oerr, gf) {
-                    if(oerr || !gf || !gf.originalname) {
-                        error(oerr || new Error('File not found'));
-                        return;
+                var nextstep = this;
+                function retry(it, err) {
+                    if(it-->0) {
+                        GrowingFile.open(db, servername, null, function(err, gf) {
+                            if(err || !gf) {
+                                setTimeout(function() { retry(it, err); }, 2000);
+                                return;
+                            }
+                            nextstep(null, gf, ip);
+                        });
+                    } else {
+                        error(err || new Error('File not found'));
                     }
-                    var filename = gf.originalname;
-                    var filesize = gf.filesize;
-                    console.log("downloading "+filename+ " (size : "+filesize+")");
-                    res.contentType(filename);
-                    res.attachment(filename);
-                    res.header('Content-Length', filesize);
-                    gf.pipe(res);
-                    ip.newDownload();
-                    ip.addDownloaded(filesize);
-                    gf.on('end', function() {
-                        ip.downloadFinished();
-                    });
-                    gf.on('error', function() {
-                        ip.downloadFinished();
-                    });
+                }
+                retry(5);
+            },
+            function sendFile(err, gf, ip) {
+                var filename = gf.originalname;
+                var filesize = gf.filesize;
+                debug("downloading "+filename+ " (size : "+filesize+")");
+                res.contentType(filename);
+                res.attachment(filename);
+                res.header('Content-Length', filesize);
+                gf.pipe(res);
+                ip.newDownload();
+                ip.addDownloaded(filesize);
+                gf.on('end', function() {
+                    ip.downloadFinished();
+                });
+                gf.on('error', function() {
+                    ip.downloadFinished();
                 });
             }
         );

@@ -1,11 +1,12 @@
 
+var mongoose = require('mongoose');
+
 module.exports = function(app, model) {
     
-    var mongoose = model.mongoose;
     var clientIP = app.libs.util.clientIP;
     
     var MAX_SIMUL_UP    = app.config.limits.maxSimulUp;
-    var MAX_SIMUL_DOWN  = app.config.limits.maxSimulUp;
+    var MAX_SIMUL_DOWN  = app.config.limits.maxSimulDown;
     var MAX_UP          = app.config.limits.maxUpMB   * 1024 * 1024;
     var MAX_DOWN        = app.config.limits.maxDownMB * 1024 * 1024;
     var RELOAD_TIME     = app.config.limits.reloadTimeMin * 60 * 1000;
@@ -67,17 +68,10 @@ module.exports = function(app, model) {
         this.simulDown -= 1;
         return this.save(next);
     };
-    
-    IP.methods.reset = function(next) {
-        this.simulDown = 0;
-        this.simulUp = 0;
-        return this.save(next);
-    };
 
     IP.methods.canUpload = function(bytes) {
         if(this.hasServedTime()) this.reset();
-        return (this.uploaded + bytes <= MAX_UP)
-            && (this.simulUp <= MAX_SIMUL_UP);
+        return (this.uploaded + bytes <= MAX_UP);
     };
 
     IP.methods.canDownload = function(bytes) {

@@ -45,9 +45,9 @@ $(document).ready(function() {
         showWelcomeMessage: function() {},
         
         addMessageToUl: function(msg) {
-            
+            var wasAtBottom = atBottom();
             app.messagesBox.append('<li>'+msg+'</li>');
-            if(atBottom()) {
+            if(wasAtBottom) {
                 document.body.scrollTop = app.messagesBox.get(0).scrollHeight;
                 var image = $('.message').last().find('.image');
                 if(image) {
@@ -71,15 +71,15 @@ $(document).ready(function() {
             msgStr += '</div><div class="message">';
             var file = msg.attachment;
             if(file && file.status != 'Removed') {
-                file.url = "/r/"+app.ROOMID+"/download/"+file.id;
-                msgStr += '<p><a id="c'+file.id+'link" href="'+file.url+'" target="_blank">'
+                file.url = "/r/"+app.ROOMID+"/download/"+file.servername;
+                msgStr += '<p><a id="c'+file.servername+'link" href="'+file.url+'" target="_blank">'
                         +file.originalname
                         +'</a>'
                         +' - '+ readableSize(file.size)+' - '
-                        +'<span id="c'+file.id+'status">'
+                        +'<span id="c'+file.servername+'status">'
                         + file.status
                         +'</span> '
-                        +'<span id="c'+file.id+'progress">'
+                        +'<span id="c'+file.servername+'progress">'
                         +'</span></p>';
                 msgStr += getViewer(file);
             }
@@ -114,17 +114,17 @@ $(document).ready(function() {
         },
 
         updateFileStatus: function(file) {
-            $('#c'+file.id+'status').html(file.status);
+            $('#c'+file.servername+'status').html(file.status);
             if(file.status == 'Uploading' && file.percent >= 0) {
-                $('#c'+file.id+'progress').html(file.percent+'%');
+                $('#c'+file.servername+'progress').html(file.percent+'%');
             } else {
-                $('#c'+file.id+'progress').html('');
+                $('#c'+file.servername+'progress').html('');
             }
             if(file.status == 'Removed') {
-                $('#c'+file.id+'link').attr('href', '#');
+                $('#c'+file.servername+'link').removeAttr('href');
             }
             //if(file.bytesPerSec)
-            //    $('#'+file.id+'speed').html(file.bytesPerSec);
+            //    $('#'+file.servername+'speed').html(file.bytesPerSec);
         }
         
     }
@@ -133,18 +133,18 @@ $(document).ready(function() {
         if((/\.(gif|jpg|jpeg|tiff|png)$/i).test(file.originalname)) {
             return '<img class="image" src="'+file.url+'" alt="'+file.originalname+'"></img>';
         } else if((/\.(mp3)$/i).test(file.originalname)) {
-            return '<p id="'+file.id+'_audio">Cannot load music player.</p>  ';
+            return '<p id="'+file.servername+'_audio">Cannot load music player.</p>  ';
         } else if((/\.(flv|mp4)$/i).test(file.originalname)) {
-            return '<div id="'+file.id+'_video"></div>';
+            return '<div id="'+file.servername+'_video"></div>';
         }
         return '';
     }
 
     function loadViewer(file) {
         if((/\.(mp3)$/i).test(file.originalname)) {
-            AudioPlayer.embed(file.id+'_audio', {soundFile: file.url}); 
+            AudioPlayer.embed(file.servername+'_audio', {soundFile: file.url}); 
         } else if((/\.(flv|mp4)$/i).test(file.originalname)) {
-            jwplayer(file.id+'_video').setup({
+            jwplayer(file.servername+'_video').setup({
                 flashplayer: '/static/lib/jwplayer/player.swf',
                 file: file.url,
                 type: 'video',

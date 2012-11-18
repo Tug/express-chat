@@ -96,7 +96,7 @@ html, body {
 }
 
 #chatblock {
-    width: 450px;
+    width: 550px;
     margin: 0 10px 0 40px;
 }
 
@@ -118,7 +118,7 @@ html, body {
 
 #fileblock {
     width: 500px;
-    margin: 0 10px 0 550px;
+    margin: 0 10px 0 600px;
 }
 
 
@@ -212,7 +212,7 @@ html, body {
 
 #infoblock {
     width: 250px;
-    margin: 2px 0 0 790px;
+    margin: 2px 0 0 250px;
     font-size: small;
 }
 

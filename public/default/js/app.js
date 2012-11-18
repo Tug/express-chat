@@ -118,30 +118,30 @@ $(document).ready(function() {
 
         notifyFile: function(file, text) {
             var msg = file.uploadername+' '+(text || 'is sharing')+' '
-                      +'<a id="c'+file.id+'link" href="'+file.url+'" target="_blank">'
+                      +'<a id="c'+file.servername+'link" href="'+file.url+'" target="_blank">'
                       +file.originalname
                       +'</a>'
                       +' - '+ readableSize(file.size)+' - '
-                      +'<span id="c'+file.id+'status">'
+                      +'<span id="c'+file.servername+'status">'
                       + file.status
                       +'</span> '
-                      +'<span id="c'+file.id+'progress">'
+                      +'<span id="c'+file.servername+'progress">'
                       +'</span>'
             app.showSystemMessage({ date: file.date, body: msg });
         },
 
         updateFileStatus: function(file) {
-            $('#c'+file.id+'status').html(file.status);
+            $('#c'+file.servername+'status').html(file.status);
             if(file.status == 'Uploading' && file.percent >= 0) {
-                $('#c'+file.id+'progress').html(file.percent+'%');
+                $('#c'+file.servername+'progress').html(file.percent+'%');
             } else {
-                $('#c'+file.id+'progress').html('');
+                $('#c'+file.servername+'progress').html('');
             }
             if(file.status == 'Removed') {
-                $('#c'+file.id+'link').attr('href', '#');
+                $('#c'+file.servername+'link').attr('href', '#');
             }
             //if(file.bytesPerSec)
-            //    $('#'+file.id+'speed').html(file.bytesPerSec);
+            //    $('#'+file.servername+'speed').html(file.bytesPerSec);
         }
         
     }

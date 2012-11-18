@@ -1,7 +1,8 @@
 
+var mongoose = require('mongoose')
+
 module.exports = function(app, model) {
 
-    var mongoose = model.mongoose;
     var randomString = app.libs.util.randomString;
 
     var Room = new mongoose.Schema({
@@ -11,6 +12,7 @@ module.exports = function(app, model) {
         , deathDate       : Date
         , messageCount    : {type: Number, default: 0 }
         , ispublic        : {type: Boolean, default: false, index: true}
+        , users           : [{ type: String }]
     });
 
     Room.statics.exist = function(roomid, callback) {

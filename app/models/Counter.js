@@ -1,9 +1,9 @@
 
+var mongoose = require('mongoose')
+  , ObjectId = mongoose.Schema.ObjectId;
+
 module.exports = function(app, model) {
     
-    var mongoose = model.mongoose,
-        ObjectId = mongoose.Schema.ObjectId;
-
     var Counter = new mongoose.Schema({
         _id     : String
       , value   : {type: Number, default: 0}

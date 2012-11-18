@@ -1,8 +1,10 @@
 
+var mongoose = require('mongoose');
+
 
 module.exports = function(app, model) {
 
-    var Room = model.mongoose.model('Room');
+    var Room = mongoose.model('Room');
     var life = 2 * 24 * 60 * 60 * 1000;
 
     setInterval(function() {
