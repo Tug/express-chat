@@ -63,7 +63,7 @@ html, body {
 .message {
     padding: 20px 45px 20px 45px;
     margin-bottom: 10px;
-    background-color: lightCyan;
+    background-color: #D0FFFF;
     max-width: 1500px;
     word-wrap: break-word;
 }
@@ -241,4 +241,7 @@ html, body {
     
 }
 
-
+#CreateChatForm fieldset {
+    border: 0;
+    background-color: #D0FFFF;
+}
