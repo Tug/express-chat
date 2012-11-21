@@ -12,9 +12,9 @@ var config = {
         mongo : {
             replset : {
                 servers : [
-                    { host: 'localhost', port: 27017, options : { auto_reconnect: true } }
-                  , { host: 'localhost', port: 27018, options : { auto_reconnect: true } }
-                  , { host: 'localhost', port: 27019, options : { auto_reconnect: true } }
+                    { host: 'localhost', port: 27017, options : { auto_reconnect: true, poolSize: 1 } }
+                  , { host: 'localhost', port: 27018, options : { auto_reconnect: true, poolSize: 1 } }
+                  , { host: 'localhost', port: 27019, options : { auto_reconnect: true, poolSize: 1 } }
                 ]
               , options : {
                     rs_name         : 'rs0'

@@ -179,27 +179,19 @@ module.exports = function(app, model) {
         }
         
         Step(
-            //TODO: find a server which has the file instead of polling
             function findFile() {
                 var nextstep = this;
-                function retry(it, err) {
-                    if(it-->0) {
-                        FileModel.findOne({servername: servername}, function(err, file) {
-                            if(err || !file) {
-                                setTimeout(function() { retry(it, err); }, 2000);
-                                return;
-                            }
-                            if(file.status == 'Removed') {
-                                error(new Error("File has been removed !"));
-                                return;
-                            }
-                            nextstep(null, file);
-                        });
-                    } else {
+                FileModel.findOne({servername: servername}, function(err, file) {
+                    if(err || !file) {
                         error(err || new Error('File not found'));
+                        return;
                     }
-                }
-                retry(5);
+                    if(file.status == 'Removed') {
+                        error(new Error("File has been removed !"));
+                        return;
+                    }
+                    nextstep(null, file);
+                });
             },
             function loadIP(err, file) {
                 var nextstep = this;
@@ -213,20 +205,13 @@ module.exports = function(app, model) {
             },
             function openFile(err, ip) {
                 var nextstep = this;
-                function retry(it, err) {
-                    if(it-->0) {
-                        GrowingFile.open(db, servername, null, function(err, gf) {
-                            if(err || !gf) {
-                                setTimeout(function() { retry(it, err); }, 2000);
-                                return;
-                            }
-                            nextstep(null, gf, ip);
-                        });
-                    } else {
-                        error(err || new Error('File not found'));
+                GrowingFile.open(db, servername, null, function(err, gf) {
+                    if(err || !gf) {
+                        error(err || new Error('GrowingFile not found'));
+                        return;
                     }
-                }
-                retry(5);
+                    nextstep(null, gf, ip);
+                });
             },
             function sendFile(err, gf, ip) {
                 var filename = gf.originalname;
