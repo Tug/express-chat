@@ -1,5 +1,6 @@
 
 var mongoose = require('mongoose')
+  , ObjectId = mongoose.Schema.ObjectId;
 
 module.exports = function(app, model) {
 
@@ -41,7 +42,7 @@ module.exports = function(app, model) {
         });
     });
     
-    var RoomModel = mongoose.model('Room', Room);
+    var RoomModel = model.mongoose.model('Room', Room);
     return RoomModel;
 }
 

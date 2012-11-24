@@ -20,8 +20,8 @@ module.exports = function(app, model) {
     function generateUniqueId(callback, it) {
         var iter = it || 20;
         var randName = util.randomString(10);
-        FileModel.find({servername: randName}, function(err, docs) {
-          if(err || !docs || docs.length == 0) {
+        FileModel.findOne({servername: randName}, function(err, doc) {
+          if(err || !doc) {
             callback(null, randName);
           } else {
             if(iter --> 0) {
@@ -65,7 +65,7 @@ module.exports = function(app, model) {
         };
     };
 
-    var FileModel = mongoose.model('File', File);
+    var FileModel = model.mongoose.model('File', File);
     return FileModel;
 
 }

@@ -91,7 +91,7 @@ module.exports = function(app, model) {
         this.save(next);
     };
     
-    var IPModel = mongoose.model('IP', IP);
+    var IPModel = model.mongoose.model('IP', IP);
     return IPModel;
 }
 

@@ -10,26 +10,28 @@ var config = {
   , port      : 3000
   , database  : {
         mongo : {
-            replset : {
-                servers : [
-                    { host: 'localhost', port: 27017, options : { auto_reconnect: true, poolSize: 1 } }
-                  , { host: 'localhost', port: 27018, options : { auto_reconnect: true, poolSize: 1 } }
-                  , { host: 'localhost', port: 27019, options : { auto_reconnect: true, poolSize: 1 } }
-                ]
-              , options : {
+            servers : [
+                'localhost:27017/db'
+              , 'localhost:27018'
+              , 'localhost:27019'
+            ]
+          , options : {
+                server : {
+                    auto_reconnect: true
+                  , poolSize: 1
+                }
+              , replset : {
                     rs_name         : 'rs0'
                   , read_secondary  : true
                 }
+              , db : {
+                    safe          : { w: 'all', wtimeout: 5000 }
+                  //, native_parser : true
+                  //, strict        : true
+                }
+              //, user  : 'express-chat'
+              //, pass  : 'CHANGE_HERE'
             }
-          // server : { host: 'localhost', port: 27017, options : { auto_reconnect: true } }
-          , options : {
-                safe          : { w: 'all', wtimeout: 5000 }
-              //, native_parser : true
-              //, strict        : true
-            }
-          , db   : 'db'
-          //, user : 'board'
-          //, pass : 'CHANGE_HERE'
         }
 /*      , redis : {
             host: 'localhost'

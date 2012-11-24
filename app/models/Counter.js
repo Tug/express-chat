@@ -24,7 +24,7 @@ module.exports = function(app, model) {
         CounterModel.collection.remove({_id: roomid}, callback);
     };
     
-    var CounterModel = mongoose.model('Counter', Counter);
+    var CounterModel = model.mongoose.model('Counter', Counter);
     
     return CounterModel;
 }

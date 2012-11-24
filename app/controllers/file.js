@@ -1,12 +1,11 @@
 
-var mongoose = require('mongoose')
-  , debug    = require('debug')('express-chat');
+var debug = require('debug')('express-chat');
 
 module.exports = function(app, model) {
 
-    var FileModel     = mongoose.model('File')
-      , MessageModel  = mongoose.model('Message')
-      , IPModel       = mongoose.model('IP')
+    var FileModel     = model.mongoose.model('File')
+      , MessageModel  = model.mongoose.model('Message')
+      , IPModel       = model.mongoose.model('IP')
       , db            = model.mongo
       , GrowingFile   = require('growing-mongofile')
       , Step          = require('step');
@@ -75,7 +74,12 @@ module.exports = function(app, model) {
                         error(err);
                         return;
                     }
-                    nextstep(null, ip, file);
+                    console.log("saved : "+file.servername);
+                    FileModel.findOne({servername: file.servername}, function(err, file2) {
+                        if(err || !file2) console.log("and not found : ",err);
+                        else console.log("and found again : "+file2.servername);
+                        nextstep(null, ip, file);
+                    });
                 });
             },
             function createGridStore(err, ip, file) {
@@ -182,7 +186,7 @@ module.exports = function(app, model) {
             function findFile() {
                 var nextstep = this;
                 FileModel.findOne({servername: servername}, function(err, file) {
-                    if(err || !file) {
+                    if(err || !file) {console.log("not found : "+servername);
                         error(err || new Error('File not found'));
                         return;
                     }

@@ -1,11 +1,9 @@
 
-var mongoose = require('mongoose');
-
 module.exports = function(app, model) {
 
-    var Room = mongoose.model('Room')
-      , Message = mongoose.model('Message')
-      , Counter = mongoose.model('Counter')
+    var Room    = model.mongoose.model('Room')
+      , Message = model.mongoose.model('Message')
+      , Counter = model.mongoose.model('Counter')
       , Step = require('step');
     
     var anonCounter = new Counter({_id: "Anon"});

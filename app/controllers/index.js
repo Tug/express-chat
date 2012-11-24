@@ -1,10 +1,9 @@
 
-var mongoose = require('mongoose')
-  , Plates = require("plates");
+var Plates = require("plates");
 
 module.exports = function(app, model) {
 
-    var Room = mongoose.model('Room');
+    var Room = model.mongoose.model('Room');
     
     var actions = {};
     

@@ -15,7 +15,6 @@
       , "redis"             : "0.8.1"
       , "socket.io"         : "0.9.10"
       , "socket.io-client"  : "0.9.10"
-      , "underscore"        : "1.4.2"
       , "upload-middleware" : "0.1.8"
       , "growing-mongofile" : "0.1.3"
       , "mongodb"           : "1.1.11"

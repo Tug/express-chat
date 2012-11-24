@@ -76,7 +76,7 @@ module.exports = function(app, model) {
     };
 
     
-    var MessageModel = mongoose.model('Message', Message);
+    var MessageModel = model.mongoose.model('Message', Message);
     return MessageModel;
 }
 
