@@ -11,9 +11,9 @@ var config = {
   , database  : {
         mongo : {
             servers : [
-                'localhost:27017/db'
-              //, 'localhost:27018'
-              //, 'localhost:27019'
+                'instance1.nochan.fr:27017/db'
+              , 'instance2.nochan.fr:27017'
+              , 'instance3.nochan.fr:27017'
             ]
           , options : {
                 server : {
@@ -29,8 +29,7 @@ var config = {
                   //, native_parser : true
                   //, strict        : true
                 }
-              //, user  : 'express-chat'
-              //, pass  : 'CHANGE_HERE'
+              , user  : 'nochan'
             }
         }
 /*      , redis : {
