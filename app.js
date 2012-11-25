@@ -1,5 +1,7 @@
 var fs = require('fs');
-var userconfig = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+
+var configFile = process.argv.slice(2)[0] || './config.json';
+var userconfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
 var config = require('./config')(userconfig);
 
 var setup = require('./lib/setup');
