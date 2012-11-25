@@ -1,5 +1,4 @@
 {
-    "hostname" : "0.0.0.0",
-    "port" : 80,
-    "database"  : { "mongo" : { "options" : { "pass" : "CHANGE_HERE" } } }
+    "hostname" : "localhost",
+    "port" : 3000
 }
