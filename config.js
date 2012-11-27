@@ -12,8 +12,8 @@ var config = {
         mongo : {
             servers : [
                 'localhost:27017/db'
-              //, 'localhost:27018'
-              //, 'localhost:27019'
+              , 'localhost:27018'
+              , 'localhost:27019'
             ]
           , options : {
                 server : {
@@ -33,10 +33,10 @@ var config = {
               //, pass  : 'CHANGE_HERE'
             }
         }
-/*      , redis : {
+      , redis : {
             host: 'localhost'
           , port: 6379
-        }*/
+        }
     }
   , views : {
         type    : 'html'
@@ -71,7 +71,7 @@ var config = {
       , engine  : 'mongo'
     }
   , socketio : {
-        store   : 'mongo'
+        store   : 'redis'
       , enable  : [
             'browser client minification'
           , 'browser client etag'
