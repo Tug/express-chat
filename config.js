@@ -14,6 +14,7 @@ var config = {
                 'instance1.nochan.fr:27017/db'
               , 'instance2.nochan.fr:27017'
               , 'instance3.nochan.fr:27017'
+
             ]
           , options : {
                 server : {
@@ -32,10 +33,10 @@ var config = {
               , user  : 'nochan'
             }
         }
-/*      , redis : {
+      , redis : {
             host: 'localhost'
           , port: 6379
-        }*/
+        }
     }
   , views : {
         type    : 'html'
@@ -70,7 +71,7 @@ var config = {
       , engine  : 'mongo'
     }
   , socketio : {
-        store   : 'mongo'
+        store   : 'redis'
       , enable  : [
             'browser client minification'
           , 'browser client etag'
