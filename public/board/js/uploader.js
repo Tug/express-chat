@@ -3,7 +3,7 @@ function loadUploader(app) {
   
     var fileList = loadFileList(app.fileList);
     var dragndropEnabled = false;
-    
+
     var uploader = new plupload.Uploader({
 	      runtimes : 'flash,gears,silverlight,browserplus,html4,html5',
 	      max_file_size : app.MAX_FILE_SIZE,
@@ -29,7 +29,7 @@ function loadUploader(app) {
     });
 
     function reset() {
-        uploader.splice();
+        if(uploader.files.length > 0) uploader.splice();
         if(dragndropEnabled) {
             app.fileList.html('<li class="dropText">Drag files here!</li>');
         } else {

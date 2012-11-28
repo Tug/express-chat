@@ -12,8 +12,6 @@ var config = {
         mongo : {
             servers : [
                 'localhost:27017/db'
-              , 'localhost:27018'
-              , 'localhost:27019'
             ]
           , options : {
                 server : {
@@ -25,11 +23,11 @@ var config = {
                   , read_secondary  : true
                 }
               , db : {
-                    safe          : { w: 'all', wtimeout: 5000 }
+                    safe          : { w: 'majority', wtimeout: 5000 }
                   //, native_parser : true
                   //, strict        : true
                 }
-              //, user  : 'express-chat'
+              //, user  : 'board'
               //, pass  : 'CHANGE_HERE'
             }
         }

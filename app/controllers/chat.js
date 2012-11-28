@@ -47,6 +47,9 @@ module.exports = function(app, model) {
             }
             sroomid = roomid;
             Step(
+                function reloadSession() {
+                    hs.session.reload(this);
+                },
                 function userExists() {
                     var next = this;
                     // TODO: verify when this case happens
@@ -155,15 +158,17 @@ module.exports = function(app, model) {
                 callback('username invalid');
                 return;
             }
-            if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
-                callback('user info not found');
-                return;
-            }
             var newname = data;
-            var oldname = hs.session.rooms[sroomid].username;
             Step(
+                function reloadSession() {
+                    hs.session.reload(this);
+                },
                 function checkUsername() {
                     var next = this;
+                    if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
+                        callback('user info not found');
+                        return;
+                    }
                     Room
                     .findById(sroomid)
                     .where('users', newname)
@@ -178,10 +183,14 @@ module.exports = function(app, model) {
                     Room.findByIdAndUpdate(sroomid, {"$addToSet": {users: newname}}, this);
                 },
                 function updateUserInfo() {
+                    var next = this;
+                    var oldname = hs.session.rooms[sroomid].username;
                     hs.session.rooms[sroomid].username = newname;
-                    hs.session.save(this);
+                    hs.session.save(function(err) {
+                        next(err, oldname);
+                    });
                 },
-                function notifyUsernameChange() {
+                function notifyUsernameChange(err, oldname) {
                     var renameObj = {oldname: oldname, newname: newname};
                     socket.broadcast.to(sroomid).json.emit('user renamed', renameObj);
                     callback(null, renameObj);
