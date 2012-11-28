@@ -14,7 +14,6 @@ var config = {
                 'instance1.nochan.fr:27017/db'
               , 'instance2.nochan.fr:27017'
               , 'instance3.nochan.fr:27017'
-
             ]
           , options : {
                 server : {
@@ -34,8 +33,16 @@ var config = {
             }
         }
       , redis : {
-            host: 'localhost'
+            host: 'instance1.nochan.fr'
           , port: 6379
+          /*, options : {
+                parser: 'hiredis'
+              , return_buffers: false
+              , detect_buffers: false
+              , socket_nodelay: true
+              , no_ready_check: false
+              , enable_offline_queue: true
+            }*/
         }
     }
   , views : {
