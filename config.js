@@ -36,6 +36,14 @@ var config = {
       , redis : {
             host: 'localhost'
           , port: 6379
+          /*, options : {
+                parser: 'hiredis'
+              , return_buffers: false
+              , detect_buffers: false
+              , socket_nodelay: true
+              , no_ready_check: false
+              , enable_offline_queue: true
+            }*/
         }
     }
   , views : {
