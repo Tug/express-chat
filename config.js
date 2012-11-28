@@ -11,9 +11,7 @@ var config = {
   , database  : {
         mongo : {
             servers : [
-                'instance1.nochan.fr:27017/db'
-              , 'instance2.nochan.fr:27017'
-              , 'instance3.nochan.fr:27017'
+                'localhost:27017/db'
             ]
           , options : {
                 server : {
@@ -25,15 +23,16 @@ var config = {
                   , read_secondary  : true
                 }
               , db : {
-                    safe          : { w: 'all', wtimeout: 5000 }
+                    safe          : { w: 'majority', wtimeout: 5000 }
                   //, native_parser : true
                   //, strict        : true
                 }
-              , user  : 'nochan'
+              //, user  : 'board'
+              //, pass  : 'CHANGE_HERE'
             }
         }
       , redis : {
-            host: 'instance1.nochan.fr'
+            host: 'localhost'
           , port: 6379
           /*, options : {
                 parser: 'hiredis'
