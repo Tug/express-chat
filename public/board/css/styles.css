@@ -6,6 +6,10 @@ html, body {
     background-color: azure;
 }
 
+pre {
+    white-space: pre-wrap;
+}
+
 .page-header {
     padding-left: 40px;
 }
@@ -64,7 +68,7 @@ html, body {
     padding: 20px 45px 20px 45px;
     margin-bottom: 10px;
     background-color: #D0FFFF;
-    max-width: 1500px;
+    max-width: 1300px;
     word-wrap: break-word;
 }
 
