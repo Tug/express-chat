@@ -1,5 +1,6 @@
 
-var crypto = require('crypto');
+var crypto  = require('crypto')
+  , Step    = require('step');
 
 var randomString = function(strlen) {
   strlen = strlen || 8;
@@ -71,6 +72,12 @@ var clientIP = function(req) {
   return ip_address;
 }
 
+var retryAsync = function(func, num, errorCallback) { 
+  var actions = [];
+  for(var i=0; i<num; i++) actions.push(func);
+  actions.push(errorCallback);
+  Step.apply(null, actions);
+}
 
 exports.randomString = randomString;
 exports.cast = cast;
@@ -80,4 +87,5 @@ exports.array_intersect_key_value = array_intersect_key_value;
 exports.arrayChain = arrayChain;
 exports.md5 = md5;
 exports.clientIP = clientIP;
+exports.retryAsync = retryAsync;
 

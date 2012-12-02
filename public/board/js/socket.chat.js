@@ -13,7 +13,7 @@ function runChatClient(app) {
     client.on('user renamed', app.userRenamed);
 
     client.on('connect', function () {
-        client.emit('join room', app.ROOMID, function(err, name) {
+        client.emit('join room', app.ROOMID, app.msgCount, function(err, name) {
             if(err) console.log(err);
             app.username = name;
             app.nameBox.val(name);

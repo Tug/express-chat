@@ -23,7 +23,7 @@ var config = {
                   , read_secondary  : true
                 }
               , db : {
-                    safe          : { w: 'majority', wtimeout: 5000 }
+                    safe          : { w: 'all', wtimeout: 5000 }
                   //, native_parser : true
                   //, strict        : true
                 }

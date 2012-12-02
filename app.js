@@ -1,12 +1,12 @@
-var fs = require('fs');
 
-var configFile = process.argv.slice(2)[0] || './config.json';
-var userconfig = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-var config = require('./config')(userconfig);
+var fs          = require('fs')
+  , debug       = require('debug')('express-chat')
+  , configFile  = process.argv.slice(2)[0] || './config.json'
+  , userconfig  = JSON.parse(fs.readFileSync(configFile, 'utf8'))
+  , config      = require('./config')(userconfig)
+  , setup       = require('./lib/setup');
 
-var setup = require('./lib/setup');
-
-console.log('Starting application...');
+debug('Starting application...');
 
 setup.createApplication(config, function(err, app) {
     
@@ -16,7 +16,7 @@ setup.createApplication(config, function(err, app) {
     }
     
     app.server.listen(config.port, config.hostname, function() {
-        console.log('Express server started on port %s in %s mode',
+        console.log('Server started on port %s in %s mode',
                     app.server.address().port,
                     app.express.settings.env);
     });

@@ -18,7 +18,8 @@ module.exports = function(app, model) {
       , simulDown   : { type: Number, default: 0 }
       , uploaded    : { type: Number, default: 0 }
       , downloaded  : { type: Number, default: 0 }
-    });
+    },
+    {safe: undefined});
 
     IP.pre('save', function(next) {
         this.lastsaved = new Date();
@@ -91,7 +92,7 @@ module.exports = function(app, model) {
         this.save(next);
     };
     
-    var IPModel = mongoose.model('IP', IP);
+    var IPModel = model.mongoose.model('IP', IP);
     return IPModel;
 }
 

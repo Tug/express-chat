@@ -1,11 +1,9 @@
 
-var mongoose = require('mongoose');
-
 module.exports = function(app, model) {
 
-    var Room = mongoose.model('Room')
-      , Message = mongoose.model('Message')
-      , Counter = mongoose.model('Counter')
+    var Room = model.mongoose.model('Room')
+      , Message = model.mongoose.model('Message')
+      , Counter = model.mongoose.model('Counter')
       , Step = require('step');
     
     var anonCounter = new Counter({_id: "Anon"});
@@ -37,7 +35,7 @@ module.exports = function(app, model) {
             hs.session.rooms = {};
         }
         
-        socket.on('join room', function(roomid, callback) {
+        socket.on('join room', function(roomid, lastMessageNum, callback) {
             if(typeof callback !== "function") {
                 return;
             }
@@ -45,6 +43,11 @@ module.exports = function(app, model) {
                 callback('roomid invalid');
                 return;
             }
+            if(typeof lastMessageNum !== "number" || lastMessageNum < 0) {
+                callback('lastMessageNum invalid');
+                return;
+            }
+            
             sroomid = roomid;
             Step(
                 function reloadSession() {
@@ -103,7 +106,7 @@ module.exports = function(app, model) {
                 function sendMessagesAndUsers() {
                     var messageCallback = this.parallel();
                     var userCallback = this.parallel();
-                    Message.allFrom(roomid, 1, function(err, messages) {
+                    Message.allFrom(roomid, lastMessageNum+1, function(err, messages) {
                         if(!err && messages) {
                             messages.forEach(function(msg) {
                                 socket.emit("new message", msg.publicFields()); 

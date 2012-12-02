@@ -7,7 +7,8 @@ module.exports = function(app, model) {
     var Counter = new mongoose.Schema({
         _id     : String
       , value   : {type: Number, default: 0}
-    });
+    },
+    {safe: undefined});
 
     Counter.statics.getNextValue = function(roomid, callback) {
         var self = this;
@@ -21,10 +22,10 @@ module.exports = function(app, model) {
     };
 
     Counter.statics.reset = function(roomid, callback) {
-        CounterModel.collection.remove({_id: roomid}, callback);
+        CounterModel.remove({_id: roomid}, callback);
     };
     
-    var CounterModel = mongoose.model('Counter', Counter);
+    var CounterModel = model.mongoose.model('Counter', Counter);
     
     return CounterModel;
 }

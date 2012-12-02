@@ -12,10 +12,11 @@ module.exports = function(app, model) {
       , body        : String
       , date        : { type: Date, default: Date.now }
       , attachment  : { type: mongoose.Schema.Types.ObjectId, ref: 'File' }
-    });
+    },
+    {safe: undefined});
     
     Message.pre('save', function(next) {
-        var RoomModel = mongoose.model('Room');
+        var RoomModel = model.mongoose.model('Room');
         var self = this;
         RoomModel.findByIdAndUpdate(self.roomid,
                                     {$inc: {messageCount: 1}},
@@ -29,20 +30,19 @@ module.exports = function(app, model) {
         });
     });
 
-    Message.pre('remove', function(next) {
+    Message.post('remove', function() {
         if(this.attachment != null) {
             if(this.attachment.remove) {
-                this.attachment.remove(next);
+                this.attachment.remove();
             } else {
                 Message
                 .findById(this._id)
                 .populate('attachment')
                 .exec(function(err, file) {
-                    this._attachment.remove(next);
+                    this._attachment.remove();
                 });
             }
         }
-        next();
     });
 
     Message.statics.createEmptyFileMessage = function(roomid, file) {
@@ -76,7 +76,7 @@ module.exports = function(app, model) {
     };
 
     
-    var MessageModel = mongoose.model('Message', Message);
+    var MessageModel = model.mongoose.model('Message', Message);
     return MessageModel;
 }
 

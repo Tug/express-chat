@@ -15,7 +15,8 @@ module.exports = function(app, model) {
         , status          : { type: String, enum: ['Uploading','Available','Stopped','Removed'], default: 'Uploading' }
         , size            : Number
         , uploaddate      : { type: Date, default: Date.now }
-    });
+    },
+    {safe: undefined});
     
     function generateUniqueId(callback, it) {
         var iter = it || 20;
@@ -46,8 +47,8 @@ module.exports = function(app, model) {
         } else next();
     });
 
-    File.pre('remove', function(next) {
-        mongodb.GridStore.unlink(model.mongo, this.servername, next);
+    File.post('remove', function() {
+        mongodb.GridStore.unlink(model.mongo, this.servername, function() {});
     });
 
     File.methods.remove = function(callback) {
@@ -65,7 +66,7 @@ module.exports = function(app, model) {
         };
     };
 
-    var FileModel = mongoose.model('File', File);
+    var FileModel = model.mongoose.model('File', File);
     return FileModel;
 
 }

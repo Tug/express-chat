@@ -4,12 +4,11 @@ var mongoose = require('mongoose');
 
 module.exports = function(app, model) {
 
-    var Room = mongoose.model('Room');
-    var life = 2 * 24 * 60 * 60 * 1000;
-
+    var Room = model.mongoose.model('Room');
+    
     setInterval(function() {
         Room
-        .where('creationDate').lt(new Date(Date.now()-life))
+        .where('deathDate').lt(new Date())
         .exec(function(err, rooms) {
             if(!err && rooms) {
                 var count = rooms.length;
@@ -20,7 +19,7 @@ module.exports = function(app, model) {
             }
         });
         
-    }, 10 * 60 * 1000);
+    }, 1 * 60 * 1000);
     
 };
 

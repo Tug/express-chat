@@ -5,7 +5,7 @@ function loadUploader(app) {
     var dragndropEnabled = false;
 
     var uploader = new plupload.Uploader({
-	      runtimes : 'flash,gears,silverlight,browserplus,html4,html5',
+	      runtimes : 'gears,flash,silverlight,browserplus,html4,html5', // html5 + multipart is not supported in Webkit
 	      max_file_size : app.MAX_FILE_SIZE,
 	      browse_button : app.browseButton.attr('id'),
 	      container: app.fileContainer.attr('id'),

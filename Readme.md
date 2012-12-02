@@ -15,7 +15,19 @@ Users can stream files in MongoDB/GridFS directly!
 * cd express-chat
 * npm install .
 
-## TODO
-* fix bugs with some plupload runtimes (html4 by default for now)
-* image/music/video player on the client side
+## Configuring
+The config.json file will overwrite properties definied in config.js. Edit it to set your configuration properties such as database host, port, username, password, etc.
 
+
+## Running
+* node app
+or
+* node app myconfig.js
+
+
+## TODO
+* fix bugs with plupload :  html5 runtime errors with multiple files, http error content not displayed, max upload file size not detected with some runtimes...
+* Load test
+* Script deployment
+* improve UI : use backbone and mix client and server views, announce new message, add connecting...
+* Set a minimum delay per client for uploads and messages

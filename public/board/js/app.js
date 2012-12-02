@@ -27,7 +27,8 @@ $(document).ready(function() {
         UP_URL          : '/r/'+roomid+'/upload',
         PLUPLOAD_ROOT   : '/static/lib/plupload/',
         MAX_FILE_SIZE   : '1000mb',
-        
+        msgCount        : 0,
+
         username        : 'Anonymous',
 
         messageBox          : $('#messageBox'),
@@ -62,6 +63,7 @@ $(document).ready(function() {
         },
 
         showMessage: function(msg) {
+            app.msgCount = msg.num;
             var msgStr = '<div class="messageHeader">';
             msgStr += '<span class="nickname">'+htmlentities(msg.username)+'</span>';
             msgStr += ' - '+dateStr(msg.date);
