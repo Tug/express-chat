@@ -4,6 +4,7 @@ module.exports = function(app, model) {
     var Room = model.mongoose.model('Room')
       , Message = model.mongoose.model('Message')
       , Counter = model.mongoose.model('Counter')
+      , IP = model.mongoose.model('IP')
       , Step = require('step');
     
     var anonCounter = new Counter({_id: "Anon"});
@@ -139,18 +140,32 @@ module.exports = function(app, model) {
             if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
                 return;
             }
-            var userinfo = hs.session.rooms[sroomid];
-            var username = userinfo.username;
-            var message = new Message({
-                roomid: sroomid,
-                username: username,
-                body: data,
-                userip: socket.handshake.address.address
-            });
-            message.save(function(err) {
-                if(err) console.log(err);
-                app.io.of(chatIOUrl).in(sroomid).emit('new message', message.publicFields());
-            });
+            Step(
+                function canChat() {
+                    var nextstep = this;
+                    IP.loadFromSocket(socket, function(err, ip) {
+                        if(!ip.canChat()) {
+                            socket.emit('new message', { username: "system", body: "No flood !"});
+                        } else {
+                            ip.chat(nextstep);
+                        }
+                    });
+                },
+                function chat() {
+                    var userinfo = hs.session.rooms[sroomid];
+                    var username = userinfo.username;
+                    var message = new Message({
+                        roomid: sroomid,
+                        username: username,
+                        body: data,
+                        userip: socket.handshake.address.address
+                    });
+                    message.save(function(err) {
+                        if(err) console.log(err);
+                        app.io.of(chatIOUrl).in(sroomid).emit('new message', message.publicFields());
+                    });
+                }
+            );
         });
 
         socket.on('change name', function(data, callback) {

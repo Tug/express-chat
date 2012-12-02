@@ -12,10 +12,12 @@ module.exports = function(app, model) {
     var MAX_UP          = app.config.limits.maxUpMB   * 1024 * 1024;
     var MAX_DOWN        = app.config.limits.maxDownMB * 1024 * 1024;
     var RELOAD_TIME     = app.config.limits.reloadTimeMin * 60 * 1000;
-
+    var MIN_MSG_INTERVAL= app.config.limits.minMessageInterval;
+    
     var IP = new mongoose.Schema({
         ip          : { type: String, index: true }
-      , lastsaved   : Date
+      , lastsaved   : { type: Date, default: Date.now }
+      , lastMessage : { type: Date, default: Date.now }
       , totalUp     : { type: Number, default: 0 }
       , totalDown   : { type: Number, default: 0 }
       , simulUp     : { type: Number, default: 0 }
@@ -30,8 +32,7 @@ module.exports = function(app, model) {
         next();
     });
     
-    IP.statics.load = function(req, next) {
-        var cip = clientIP(req);
+    function load(cip, next) {
         IPModel.findOne({ip: cip}, function(err, doc) {
             if(doc) {
                 next(null, doc);
@@ -42,6 +43,16 @@ module.exports = function(app, model) {
                 next(null, ip);
             });
         });
+    }
+    
+    IP.statics.load = function(req, next) {
+        var cip = clientIP(req);
+        load(cip, next);
+    };
+
+    IP.statics.loadFromSocket = function(socket, next) {
+        var cip = socket.handshake.address.address;
+        load(cip, next);
     };
     
     IP.methods.addDownloaded = function(value, next) {
@@ -74,6 +85,15 @@ module.exports = function(app, model) {
     IP.methods.downloadFinished = function(next) {
         this.simulDown -= 1;
         return this.save(next);
+    };
+
+    IP.methods.chat = function(next) {
+        this.lastMessage = new Date();
+        return this.save(next);
+    };
+    
+    IP.methods.canChat = function() {
+        return Date.now() - this.lastMessage.getTime() > MIN_MSG_INTERVAL;
     };
 
     IP.methods.canUpload = function(bytes) {
