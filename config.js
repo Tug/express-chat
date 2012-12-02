@@ -87,7 +87,8 @@ var config = {
       , maxSimulDown      : 3
       , maxUpMB           : 1000
       , maxDownMB         : 10000
-      , speedTargetKBs    : 1500
+      , uploadSpeedKBs    : 500
+      , downloadSpeedKBs  : 500
       , reloadTimeMin     : 6 * 60
     }
 };

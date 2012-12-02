@@ -15,8 +15,9 @@ module.exports = function(app, model) {
 
     var MAX_SIMUL_UP      = app.config.limits.maxSimulUp;
     var MAX_UP_MB         = app.config.limits.maxUpMB;
-    var SPEED_TARGET_KBs  = app.config.limits.speedTargetKBs;
-    
+    var UP_TARGET_KBs     = app.config.limits.uploadSpeedKBs;
+    var DOWN_TARGET_KBs   = app.config.limits.downloadSpeedKBs;
+
     var chatIOUrl     = app.routes.io("chat.socket");
     var fileIOUrl     = app.routes.io("file.socket");
 
@@ -90,7 +91,7 @@ module.exports = function(app, model) {
                     nextstep(null, file);
                 });
                 
-                req.form.speedTarget = SPEED_TARGET_KBs;
+                req.form.speedTarget = UP_TARGET_KBs;
 
                 var fileStatus = {
                     servername  : servername,
@@ -245,6 +246,35 @@ module.exports = function(app, model) {
         );
         
     };
+
+    // live stats on data
+    var lastTime = Date.now();
+    var dtMean = 100, chunkSizeMean = 40900;
+    var statHandler = function(chunk) {
+      var bytesReceived = chunk.length;
+      chunkSizeMean = 0.9 * chunkSizeMean + 0.1 * bytesReceived;
+      var now = Date.now();
+      dtMean = 0.9 * dtMean + 0.1 * (now - lastTime + 1);
+      lastTime = now;
+      form.currentSpeed = chunkSizeMean / dtMean;
+      form.uploaded += bytesReceived;
+    }
+    
+    // waits enough time for the upload to run at req.speedTarget
+    // the wait delay should be auto-adaptative
+    var dtCorrMean = 0;
+    function wait(bytesReceived, callback) {
+      var speedTarget = form.speedTarget;
+      var chunkDelay = bytesReceived/ speedTarget; // B  /  B/ms  =  ms
+      var currentSpeed = form.currentSpeed;
+      var speedDiff = (1 - currentSpeed/speedTarget);
+      var dtCorrection = chunkDelay * speedDiff;
+      chunkDelay -= dtCorrection + dtCorrMean;
+      dtCorrMean = 0.9 * dtCorrMean + 0.1 * dtCorrection
+      if(chunkDelay < 1) chunkDelay = 0;
+      if(chunkDelay > 3000) chunkDelay = 3000; // 3 sec for 40k = 12kb/s
+      setTimeout(callback, chunkDelay);
+    }
 
     actions.socket = function(socket) {
         var hs      = socket.handshake
