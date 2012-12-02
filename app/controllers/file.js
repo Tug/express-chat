@@ -182,8 +182,8 @@ module.exports = function(app, model) {
         Step(
             //TODO: find a server which has the file instead of polling
             function findFile() {
-                var nextstep = this; var i = 0;
-                retryAsync(function() { console.log("trying for the "+(i++)+" times");
+                var nextstep = this;
+                retryAsync(function() {
                     var retry = this;
                     FileModel.findOne({servername: servername}, function(err, file) {
                         if(err || !file) {

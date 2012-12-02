@@ -97,6 +97,8 @@ var config = {
   , limits : {
         maxMessageLength  : 3000
       , maxUsernameLength : 50
+      , maxTotalUp        : 200
+      , maxTotalDown      : 2000
       , maxSimulUp        : 1
       , maxSimulDown      : 3
       , maxUpMB           : 1000

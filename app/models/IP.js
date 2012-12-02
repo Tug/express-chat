@@ -5,6 +5,8 @@ module.exports = function(app, model) {
     
     var clientIP = app.libs.util.clientIP;
     
+    var MAX_TOTAL_UP    = app.config.limits.maxTotalUp;
+    var MAX_TOTAL_DOWN  = app.config.limits.maxTotalDown;
     var MAX_SIMUL_UP    = app.config.limits.maxSimulUp;
     var MAX_SIMUL_DOWN  = app.config.limits.maxSimulDown;
     var MAX_UP          = app.config.limits.maxUpMB   * 1024 * 1024;
@@ -14,6 +16,8 @@ module.exports = function(app, model) {
     var IP = new mongoose.Schema({
         ip          : { type: String, index: true }
       , lastsaved   : Date
+      , totalUp     : { type: Number, default: 0 }
+      , totalDown   : { type: Number, default: 0 }
       , simulUp     : { type: Number, default: 0 }
       , simulDown   : { type: Number, default: 0 }
       , uploaded    : { type: Number, default: 0 }
@@ -52,11 +56,13 @@ module.exports = function(app, model) {
 
     IP.methods.newUpload = function(next) {
         this.simulUp += 1;
+        this.totalUp += 1;
         return this.save(next);
     };
 
     IP.methods.newDownload = function(next) {
         this.simulDown += 1;
+        this.totalDown += 1;
         return this.save(next);
     };
 
@@ -72,12 +78,12 @@ module.exports = function(app, model) {
 
     IP.methods.canUpload = function(bytes) {
         if(this.hasServedTime()) this.reset();
-        return (this.uploaded + bytes <= MAX_UP);
+        return (this.uploaded + bytes <= MAX_UP) && this.totalUp < MAX_TOTAL_UP;
     };
 
     IP.methods.canDownload = function(bytes) {
         if(this.hasServedTime()) this.reset();
-        return (this.downloaded + bytes <= MAX_DOWN);
+        return (this.downloaded + bytes <= MAX_DOWN); // && this.totalDown < MAX_TOTAL_DOWN;
     };
 
     IP.methods.hasServedTime = function() {
@@ -85,6 +91,8 @@ module.exports = function(app, model) {
     };
 
     IP.methods.reset = function(next) {
+        this.totalUp = 0;
+        this.totalDown = 0;
         this.simulUp = 0;
         this.simulDown = 0;
         this.uploaded = 0;
