@@ -16,32 +16,15 @@ var config = {
           , options : {
                 server : {
                     auto_reconnect: true
-                  , poolSize: 1
-                }
-              , replset : {
-                    rs_name         : 'rs0'
-                  , read_secondary  : true
                 }
               , db : {
-                    safe          : { w: 'all', wtimeout: 5000 }
-                  //, native_parser : true
-                  //, strict        : true
+                    safe          : true
                 }
-              //, user  : 'board'
-              //, pass  : 'CHANGE_HERE'
             }
         }
       , redis : {
             host: 'localhost'
           , port: 6379
-          /*, options : {
-                parser: 'hiredis'
-              , return_buffers: false
-              , detect_buffers: false
-              , socket_nodelay: true
-              , no_ready_check: false
-              , enable_offline_queue: true
-            }*/
         }
     }
   , views : {
