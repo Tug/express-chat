@@ -14,7 +14,7 @@ function dropCollections(db) {
             console.log("No collection found");
             process.exit(0);
         } else {
-            names = names.map(function(colObj) { return colObj.name.split('.').splice(1).join(); });
+            names = names.map(function(colObj) { return colObj.name.split('.').splice(1).join('.'); });
             Step(function() {
                 var group = this.group();
                 var groups = {};
