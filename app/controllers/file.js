@@ -1,7 +1,6 @@
 
 var debug       = require('debug')('express-chat')
-  , GrowingFile = require('growing-mongofile')
-  , Step        = require('step');
+  , GrowingFile = require('growing-mongofile');
 
 module.exports = function(app, model) {
 
@@ -9,7 +8,8 @@ module.exports = function(app, model) {
       , MessageModel  = model.mongoose.model('Message')
       , IPModel       = model.mongoose.model('IP')
       , db            = model.mongo
-      , retryAsync    = app.libs.util.retryAsync;
+      , retryAsync    = app.libs.util.retryAsync
+      , Step          = app.libs.Step;
 
     var actions       = {};
 
@@ -83,8 +83,8 @@ module.exports = function(app, model) {
                 var nextstep = this;
                 var servername = file.servername;
                 var meta = {filesize: filesize, originalname: file.originalname};
-                var gs = GrowingFile.createGridStore(db, servername, meta, function(err, gs) {
-                    if(err || !gs) {debug('Error creating gridstore');
+                var gs = GrowingFile.createGridStore(app.libs.mongodb, db, servername, meta, function(err, gs) {
+                    if(err || !gs) {
                         error(new Error('Error creating gridstore : '+(err && err.message)));
                         return;
                     }
@@ -169,7 +169,6 @@ module.exports = function(app, model) {
         );
         
     };
-
     
 
     actions.download = function(req, res, error) {
@@ -202,6 +201,8 @@ module.exports = function(app, model) {
                 });
             },
             function loadIP(err, file) {
+                if(err) throw err;
+                
                 var nextstep = this;
                 IPModel.load(req, function(err, ip) {
                     if(ip && ip.canDownload(file.size)) {
@@ -212,10 +213,12 @@ module.exports = function(app, model) {
                 });
             },
             function openFile(err, ip) {
+                if(err) throw err;
+                
                 var nextstep = this;
                 retryAsync(function() {
                     var retry = this;
-                    GrowingFile.open(db, servername, null, function(err, gf) {
+                    GrowingFile.open(app.libs.mongodb, db, servername, null, function(err, gf) {
                         if(err || !gf) {
                             setTimeout(retry, 2000);
                             return;
@@ -227,6 +230,8 @@ module.exports = function(app, model) {
                 });
             },
             function sendFile(err, gf, ip) {
+                if(err) throw err;
+                
                 var filename = gf.originalname;
                 var filesize = gf.filesize;
                 debug("downloading "+filename+ " (size : "+filesize+")");
@@ -246,35 +251,6 @@ module.exports = function(app, model) {
         );
         
     };
-
-    // live stats on data
-    var lastTime = Date.now();
-    var dtMean = 100, chunkSizeMean = 40900;
-    var statHandler = function(chunk) {
-      var bytesReceived = chunk.length;
-      chunkSizeMean = 0.9 * chunkSizeMean + 0.1 * bytesReceived;
-      var now = Date.now();
-      dtMean = 0.9 * dtMean + 0.1 * (now - lastTime + 1);
-      lastTime = now;
-      form.currentSpeed = chunkSizeMean / dtMean;
-      form.uploaded += bytesReceived;
-    }
-    
-    // waits enough time for the upload to run at req.speedTarget
-    // the wait delay should be auto-adaptative
-    var dtCorrMean = 0;
-    function wait(bytesReceived, callback) {
-      var speedTarget = form.speedTarget;
-      var chunkDelay = bytesReceived/ speedTarget; // B  /  B/ms  =  ms
-      var currentSpeed = form.currentSpeed;
-      var speedDiff = (1 - currentSpeed/speedTarget);
-      var dtCorrection = chunkDelay * speedDiff;
-      chunkDelay -= dtCorrection + dtCorrMean;
-      dtCorrMean = 0.9 * dtCorrMean + 0.1 * dtCorrection
-      if(chunkDelay < 1) chunkDelay = 0;
-      if(chunkDelay > 3000) chunkDelay = 3000; // 3 sec for 40k = 12kb/s
-      setTimeout(callback, chunkDelay);
-    }
 
     actions.socket = function(socket) {
         var hs      = socket.handshake

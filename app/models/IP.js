@@ -1,8 +1,7 @@
 
-var mongoose = require('mongoose');
-
 module.exports = function(app, model) {
     
+    var mongoose = app.libs.mongoose;
     var clientIP = app.libs.util.clientIP;
     
     var MAX_TOTAL_UP    = app.config.limits.maxTotalUp;
@@ -17,7 +16,7 @@ module.exports = function(app, model) {
     var IP = new mongoose.Schema({
         ip          : { type: String, index: true }
       , lastsaved   : { type: Date, default: Date.now }
-      , lastMessage : { type: Date, default: function() { return new Date(0); } }
+      , lastMessage : { type: Date, default: function() { return 0; } }
       , totalUp     : { type: Number, default: 0 }
       , totalDown   : { type: Number, default: 0 }
       , simulUp     : { type: Number, default: 0 }

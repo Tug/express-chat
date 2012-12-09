@@ -1,9 +1,8 @@
 
-var mongoose = require('mongoose')
-
 module.exports = function(app, model) {
 
-    var randomString = app.libs.util.randomString;
+    var mongoose      = app.libs.mongoose;
+    var randomString  = app.libs.util.randomString;
     var life = 2 * 24 * 60 * 60 * 1000; // 2 days
 
     var Room = new mongoose.Schema({

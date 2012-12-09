@@ -1,7 +1,4 @@
 
-var mongoose = require('mongoose');
-
-
 module.exports = function(app, model) {
 
     var Room = model.mongoose.model('Room');

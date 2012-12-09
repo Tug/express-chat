@@ -1,11 +1,9 @@
 
-var mongoose = require('mongoose')
-  , ObjectId = mongoose.Schema.ObjectId
-  , mongodb = require('mongodb');
-
 module.exports = function(app, model) {
     
-    var util = app.libs.util;
+    var mongoose  = app.libs.mongoose;
+    var mongodb   = app.libs.mongodb;
+    var util      = app.libs.util;
     
     var File = new mongoose.Schema({
           servername      : { type: String, index: { unique: true } }

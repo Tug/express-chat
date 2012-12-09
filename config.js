@@ -35,6 +35,7 @@ var config = {
     }
   , paths : {
           root        : application_root
+        , routes      : path.join(application_root, 'urls.js')
         , app         : path.join(application_root, 'app')
         , public_root : path.join(application_root, 'public')
         , public_lib  : path.join(application_root, 'public', 'lib')
@@ -46,8 +47,6 @@ var config = {
         , crons       : path.join(application_root, 'app', 'crons')
         , favicon     : path.join(application_root, 'public', theme, 'favicon.ico')
     }
-  , urls: require('./urls').urls
-  , ios : require('./urls').ios
   , session : {
         secret  : 'rgkervdgmigeccxvfezf'
       , key     : 'express.sid'
@@ -94,6 +93,24 @@ var config = {
 };
 
 module.exports = function(userconfig) {
-    return (userconfig) ? require('./lib/util').mergeRecursive(config, userconfig) : config;
+    return (userconfig) ? mergeRecursive(config, userconfig) : config;
 }
+
+function mergeRecursive(obj1, obj2) {
+    for(var p in obj2) {
+        try {
+            // Property in destination object set; update its value.
+            if(obj2[p].constructor==Object) {
+                obj1[p] = mergeRecursive(obj1[p], obj2[p]);
+            } else {
+                obj1[p] = obj2[p];
+            }
+        } catch(e) {
+            // Property in destination object not set; create it and set its value.
+            obj1[p] = obj2[p];
+        }
+    }
+  return obj1;
+}
+
 

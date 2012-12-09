@@ -5,21 +5,9 @@
     , "author"      : "Tugdual de Kerviler <dekervit@gmail.com>"
     , "keywords"    : ["express-chat","chat","cloud","mongodb","redis","socket-io"]
     , "dependencies": {
-        "connect"           : "2.6.0"
-      , "connect-mongodb"   : "1.1.5"
-      , "connect-redis"     : "1.4.4"
-      , "socket.io-mongo"   : "0.0.8"
-      , "hiredis"           : "0.1.14"
-      , "express"           : "3.0.0"
-      , "mongoose"          : "3.4.0"
-      , "redis"             : "0.8.1"
-      , "socket.io"         : "0.9.10"
-      , "socket.io-client"  : "0.9.10"
+        "express-autoload"  : "0.1.0"
       , "upload-middleware" : "0.2.0"
-      , "growing-mongofile" : "0.1.6"
-      , "mongodb"           : "1.1.11"
-      , "plates"            : "0.4.8"
-      , "step"              : "0.0.5"
+      , "growing-mongofile" : "0.1.8"
       , "debug"             : "0.7.0"
     }
     , "main"        : "./app.js"

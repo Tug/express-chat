@@ -5,7 +5,7 @@ module.exports = function(app, model) {
       , Message = model.mongoose.model('Message')
       , Counter = model.mongoose.model('Counter')
       , IP = model.mongoose.model('IP')
-      , Step = require('step');
+      , Step = app.libs.Step;
     
     var anonCounter = new Counter({_id: "Anon"});
 

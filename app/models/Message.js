@@ -1,8 +1,7 @@
 
-var mongoose = require('mongoose')
-  , ObjectId = mongoose.Schema.ObjectId;
-
 module.exports = function(app, model) {
+    
+    var mongoose  = app.libs.mongoose;
     
     var Message = new mongoose.Schema({
         roomid      : { type: String, index: true }

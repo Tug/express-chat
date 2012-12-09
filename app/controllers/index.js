@@ -1,6 +1,4 @@
 
-var Plates = require("plates");
-
 module.exports = function(app, model) {
 
     var Room = model.mongoose.model('Room');
@@ -13,7 +11,7 @@ module.exports = function(app, model) {
                         .sort('-messageCount')
                         .limit(100);
         query.exec(function(err, docs) {
-            var map = Plates.Map();
+            var map = app.Plates.Map();
             map.className('room').to('room');
             map.className('room-title').to('title');
             map.where('href').has(/roomid/).insert('id');

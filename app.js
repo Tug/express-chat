@@ -3,12 +3,15 @@ var fs          = require('fs')
   , debug       = require('debug')('express-chat')
   , configFile  = process.argv.slice(2)[0] || './config.json'
   , userconfig  = JSON.parse(fs.readFileSync(configFile, 'utf8'))
-  , config      = require('./config')(userconfig)
-  , setup       = require('./lib/setup');
+  , autoload    = require('express-autoload');
 
 debug('Starting application...');
 
-setup.createApplication(config, function(err, app) {
+var model   = {}
+  , app     = {}
+  , config  = require('./config')(userconfig)
+
+autoload(app, model, config, function(err) {
     
     if(err) {
         console.log(err.stack || err);
