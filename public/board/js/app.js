@@ -50,15 +50,6 @@ $(document).ready(function() {
             app.messagesBox.append('<li>'+msg+'</li>');
             if(wasAtBottom) {
                 document.body.scrollTop = app.messagesBox.get(0).scrollHeight;
-                var image = $('.message').last().find('.image');
-                if(image) {
-                    image.load(function() {
-                        if(atBottom()) {
-                            document.body.scrollTop += 10000;
-                            setTimeout(function() { document.body.scrollTop += 10000; }, 200);
-                        }
-                    });
-                }
             }
         },
 
@@ -133,7 +124,7 @@ $(document).ready(function() {
     
     function getViewer(file) {
         if((/\.(gif|jpg|jpeg|tiff|png)$/i).test(file.originalname)) {
-            return '<img class="image" src="'+file.url+'" alt="'+file.originalname+'"></img>';
+            return '<img class="image-small" id="img_'+file.servername+'" src="'+file.url+'" alt="'+file.originalname+'"></img>';
         } else if((/\.(mp3)$/i).test(file.originalname)) {
             return '<p id="'+file.servername+'_audio">Cannot load music player.</p>  ';
         } else if((/\.(flv|mp4)$/i).test(file.originalname)) {
@@ -143,7 +134,11 @@ $(document).ready(function() {
     }
 
     function loadViewer(file) {
-        if((/\.(mp3)$/i).test(file.originalname)) {
+        if((/\.(gif|jpg|jpeg|tiff|png)$/i).test(file.originalname)) {
+            $('#img_'+file.servername).click(function() {
+                $(this).toggleClass("image-small");
+            });
+        } else if((/\.(mp3)$/i).test(file.originalname)) {
             AudioPlayer.embed(file.servername+'_audio', {soundFile: file.url}); 
         } else if((/\.(flv|mp4)$/i).test(file.originalname)) {
             jwplayer(file.servername+'_video').setup({

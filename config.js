@@ -81,8 +81,8 @@ var config = {
         maxMessageLength  : 3000
       , maxUsernameLength : 50
       , minMessageInterval: 3000 //ms
-      , maxTotalUp        : 200
-      , maxTotalDown      : 2000
+      , maxTotalUp        : 200  // files
+      , maxTotalDown      : 2000 // files
       , maxSimulUp        : 1
       , maxSimulDown      : 3
       , maxUpMB           : 1000

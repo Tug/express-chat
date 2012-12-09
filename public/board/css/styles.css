@@ -80,7 +80,8 @@ pre {
     margin: 0;
     padding: 0;
     list-style: none;
-    border: 1px solid black;
+    border: 1px solid;
+    -webkit-appearance: textarea;
     background-color: white;
 }
 
@@ -147,7 +148,7 @@ pre {
 }
 
 .filenamefield {
-    width: 300px;
+    width: 290px;
     padding-right: 5px;
     overflow-x: hidden;
 }
@@ -229,9 +230,8 @@ pre {
     display: inline;
 }
 
-.image {
-    max-width: 1250px;
-    max-height: 1300px;
+.image-small {
+    height: 200px;
 }
 
 .embedded-video {
