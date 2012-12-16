@@ -4,12 +4,18 @@ var args        = process.argv.splice(2)
   , fs          = require('fs')
   , userconfig  = JSON.parse(fs.readFileSync(configFile, 'utf8'))
   , config      = require('../config')(userconfig)
-  , redisLoader = require(application_root+"/lib/redis");
+  , autoload    = require('express-autoload');
 
-redisLoader.autoload({}, config.database.redis, function(err, redis) {
-    redis.createClient().flushdb(function(err) {
+function flush(redisClient) {
+    redisClient.flushdb(function(err) {
         console.log(err || "ok");
         process.exit(0);
     });
-});
+}
 
+var model = {}
+  , app = {};
+autoload(app, model, config, function() {
+    var redisClient = model.redis.createClient();
+    flush(redisClient);
+});

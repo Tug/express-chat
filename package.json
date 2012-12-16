@@ -1,13 +1,11 @@
 {
       "name"        : "express-chat"
     , "description" : "Express chat"
-    , "version"     : "1.2.0"
+    , "version"     : "1.3.0"
     , "author"      : "Tugdual de Kerviler <dekervit@gmail.com>"
     , "keywords"    : ["express-chat","chat","cloud","mongodb","redis","socket-io"]
     , "dependencies": {
         "express-autoload"  : "0.1.0"
-      , "upload-middleware" : "0.2.0"
-      , "growing-mongofile" : "0.1.8"
       , "debug"             : "0.7.0"
     }
     , "main"        : "./app.js"

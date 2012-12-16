@@ -4,9 +4,7 @@ var args        = process.argv.splice(2)
   , fs          = require('fs')
   , userconfig  = JSON.parse(fs.readFileSync(configFile, 'utf8'))
   , config      = require('../config')(userconfig)
-  , mongo       = require(application_root+"/lib/mongo")
-  , Step        = require('step');
-
+  , autoload    = require('express-autoload');
 
 function dropCollections(db) {
     db.collectionNames(function(err, names) {
@@ -15,7 +13,7 @@ function dropCollections(db) {
             process.exit(0);
         } else {
             names = names.map(function(colObj) { return colObj.name.split('.').splice(1).join('.'); });
-            Step(function() {
+            app.libs.Step(function() {
                 var group = this.group();
                 var groups = {};
                 names.forEach(function(name) {
@@ -34,8 +32,10 @@ function dropCollections(db) {
     });
 }
 
-var model = {};
-mongo.autoload(model, config.database.mongo, function(err, db) {
+var model = {}
+  , app = {};
+autoload(app, model, config, function() {
+    var db = model.mongo;
     if(model.mongoose.readyState == 1) {
         dropCollections(db);
     } else {

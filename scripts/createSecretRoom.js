@@ -10,10 +10,12 @@ var configFile  = args[0]
   , fs          = require('fs')
   , userconfig  = JSON.parse(fs.readFileSync(configFile, 'utf8'))
   , config      = require('../config')(userconfig)
-  , setup       = require(application_root+"/lib/setup");
+  , autoload    = require('express-autoload');
 
-setup.createApplication(config, function(err, app, model) {
-    
+var model = {}
+  , app = {};
+autoload(app, model, config, function(err) {
+
     if(err) console.log(err);
     
     var Room = model.mongoose.model('Room');

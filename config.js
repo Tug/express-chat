@@ -3,15 +3,13 @@ var path = require('path');
 
 global.application_root = __dirname;
 
-var theme = 'board';
-
 var config = {
     hostname  : 'localhost'
   , port      : 3000
   , database  : {
         mongo : {
             servers : [
-                'localhost:27017/db'
+                'localhost:27017/express-chat'
             ]
           , options : {
                 server : {
@@ -31,7 +29,6 @@ var config = {
         type    : 'html'
       , engine  : 'plates'
       , cache   : 'enable'
-      , theme   : theme
     }
   , paths : {
           root        : application_root
@@ -39,13 +36,13 @@ var config = {
         , app         : path.join(application_root, 'app')
         , public_root : path.join(application_root, 'public')
         , public_lib  : path.join(application_root, 'public', 'lib')
-        , static_root : path.join(application_root, 'public', theme)
+        , static_root : path.join(application_root, 'public')
         , models      : path.join(application_root, 'app', 'models')
-        , views       : path.join(application_root, 'app', 'views', theme)
+        , views       : path.join(application_root, 'app', 'views')
         , libs        : path.join(application_root, 'app', 'libs')
         , controllers : path.join(application_root, 'app', 'controllers')
         , crons       : path.join(application_root, 'app', 'crons')
-        , favicon     : path.join(application_root, 'public', theme, 'favicon.ico')
+        , favicon     : path.join(application_root, 'public', 'favicon.ico')
     }
   , session : {
         secret  : 'rgkervdgmigeccxvfezf'

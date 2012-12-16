@@ -36,7 +36,6 @@ module.exports = function(app, model) {
 
     Room.post('remove', function() {
         var MessageModel = model.mongoose.model('Message');
-        var FileModel = model.mongoose.model('File');
         var CounterModel = model.mongoose.model('Counter');
         MessageModel.allFrom(this._id, 0, function(err, messages) {
             if(messages != null) {

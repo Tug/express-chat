@@ -16,13 +16,8 @@
     <script src="/static/lib/less-1.1.5.min.js" type="text/javascript"></script>
     <script src="/static/lib/jquery-1.7.1.min.js" type="text/javascript"></script>
     <script src="/static/lib/phpjs.js" type="text/javascript"></script>
-    <script src="/static/lib/plupload/plupload.full.js" type="text/javascript"></script>
-    <script src="/static/lib/bootstrap-modal.js"></script>
-    <script src="/static/lib/bootstrap-dropdown.js"></script>
-    <script src="/static/js/uploader.js" type="text/javascript"></script>
     <script src="/socket.io/socket.io.js" type="text/javascript"></script>
     <script src="/static/js/socket.chat.js" type="text/javascript"></script>
-    <script src="/static/js/socket.file.js" type="text/javascript"></script>
     <script src="/static/js/app.js" type="text/javascript"></script>
 
 </head>
@@ -35,11 +30,6 @@
                 <ul class="nav">
                     <li class="active">
                         <a href="/">Home</a>
-                    </li>
-                    <li class="menu">
-                        <a href="#" data-controls-modal="upload-modal" data-backdrop="true">
-                            Share file
-                        </a>
                     </li>
                 </ul>
                 <form action="" class="pull-right" onSubmit="return false">
@@ -80,27 +70,7 @@
         <footer>
             <p>&copy; GPL licensed</p>
         </footer>
-      
-        <div id="upload-modal" class="modal hide fade" style="display: block; ">
-            <div class="modal-header">
-                <a href="#" class="close">×</a>
-                <h3>Upload files</h3>
-            </div>
-            <div class="modal-body">
-                <input type="button" id="upFile" class="btn" value="Add files"/>
-                <input type="button" id="clearFiles" class="btn" value="Clear files"/>
-                <div>
-                    <ul id="fileList">
-                    </ul>
-                </div>
-            </div>
-            <div class="modal-footer">
-            <div id="runtimeInfo"></div>
-            <div id="uploadSpeed"></div>
-                <input type="button" id="hideModalBtn" class="btn danger" value="Hide">
-                <input type="button" id="upSendBtn" class="btn primary" value="Upload">
-            </div>
-        </div> <!-- /upload-modal -->
+    
     </div> <!-- /container -->
 </body>
 </html>

@@ -16,9 +16,7 @@ $(document).ready(function() {
         MAX_MSG_LEN     : 3000,
         MAX_USR_LEN     : 50,
         MAX_ROOMID_LEN  : 64,
-        UP_URL          : '/r/'+roomid+'/upload',
-        PLUPLOAD_ROOT   : '/static/lib/plupload/',
-        MAX_FILE_SIZE   : '1000mb',
+        msgCount        : 0,
         
         users           : [],
         username        : 'Anonymous',
@@ -28,13 +26,7 @@ $(document).ready(function() {
         messagesBox         : $('#messages'),
         usersBox            : $('#users'),
         submitMessageButton : $('#submitMessageButton'),
-        fileList            : $('#fileList'),
-        browseButton        : $('#upFile'),
-        uploadButton        : $('#upSendBtn'),
-        hideModalButton     : $('#hideModalBtn'),
         renameButton        : $('#renameButton'),
-        uploadModal         : $('#upload-modal'),
-        clearFilesButton    : $('#clearFiles'),
         
         showWelcomeMessage: function() {
             app.addMessageToUl("----------------------------------------------");
@@ -114,40 +106,11 @@ $(document).ready(function() {
             $.each(allusers, function(i, usr) {
                 app.usersBox.append('<li>' + htmlentities(usr) + '</li>');
             });
-        },
-
-        notifyFile: function(file, text) {
-            var msg = file.uploadername+' '+(text || 'is sharing')+' '
-                      +'<a id="c'+file.servername+'link" href="'+file.url+'" target="_blank">'
-                      +file.originalname
-                      +'</a>'
-                      +' - '+ readableSize(file.size)+' - '
-                      +'<span id="c'+file.servername+'status">'
-                      + file.status
-                      +'</span> '
-                      +'<span id="c'+file.servername+'progress">'
-                      +'</span>'
-            app.showSystemMessage({ date: file.date, body: msg });
-        },
-
-        updateFileStatus: function(file) {
-            $('#c'+file.servername+'status').html(file.status);
-            if(file.status == 'Uploading' && file.percent >= 0) {
-                $('#c'+file.servername+'progress').html(file.percent+'%');
-            } else {
-                $('#c'+file.servername+'progress').html('');
-            }
-            if(file.status == 'Removed') {
-                $('#c'+file.servername+'link').attr('href', '#');
-            }
-            //if(file.bytesPerSec)
-            //    $('#'+file.servername+'speed').html(file.bytesPerSec);
         }
         
     }
 
     runChatClient(app);
-    runFileClient(app);
 
 })
 

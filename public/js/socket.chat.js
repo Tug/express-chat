@@ -16,7 +16,6 @@ function runChatClient(app) {
         client.emit('join room', app.ROOMID, app.msgCount, function(err, name) {
             if(err) console.log(err);
             app.username = name;
-            app.nameBox.val(name);
         });
     });
 
@@ -24,7 +23,9 @@ function runChatClient(app) {
         if(msg.date != null) {
             msg.date = new Date(msg.date);
         }
-        app.showMessage(msg);
+        if(msg.body != null) {
+            app.showMessage(msg);
+        }
     }
     
     function addMessages(messages) {
@@ -33,6 +34,9 @@ function runChatClient(app) {
         }
     }
 
+
+    /* ---- bind ui events ---- */
+    
     function bindEnter(component, callback) {
         component.keyup(function(e) {
             var code = (e.keyCode ? e.keyCode : e.which);
@@ -46,21 +50,11 @@ function runChatClient(app) {
             }
         });
     }
-
-    function unbindEnter(component) {
-        component.unbind('keyup').unbind('keydown');
-    }
     
     app.submitMessageButton.click(sendMessageHandler);
     app.renameButton.click(renameHandler);
-    
-    app.enterToSendCheckBox.click(function() {
-        if($(this).is(':checked')) {
-            bindEnter(app.messageBox, sendMessageHandler);
-        } else {
-            unbindEnter(app.messageBox, sendMessageHandler);
-        }
-    });
+    bindEnter(app.messageBox, sendMessageHandler);
+    bindEnter(app.nameBox, renameHandler);
     
     function sendMessageHandler() {
         var msg = app.messageBox.val();

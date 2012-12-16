@@ -10,7 +10,6 @@ module.exports = function(app, model) {
       , userip      : String
       , body        : String
       , date        : { type: Date, default: Date.now }
-      , attachment  : { type: mongoose.Schema.Types.ObjectId, ref: 'File' }
     },
     {safe: undefined});
     
@@ -29,36 +28,11 @@ module.exports = function(app, model) {
         });
     });
 
-    Message.post('remove', function() {
-        if(this.attachment != null) {
-            if(this.attachment.remove) {
-                this.attachment.remove();
-            } else {
-                Message
-                .findById(this._id)
-                .populate('attachment')
-                .exec(function(err, file) {
-                    this._attachment.remove();
-                });
-            }
-        }
-    });
-
-    Message.statics.createEmptyFileMessage = function(roomid, file) {
-        return new MessageModel({
-            roomid            : roomid
-          , username          : file.uploadername
-          , userip            : file.uploaderip
-          , attachment        : file
-        });
-    };
-
     Message.statics.allFrom = function(roomid, messageNum, callback) {
         MessageModel
         .where('roomid', roomid)
         .where('num').gte(messageNum)
         .sort('num')
-        .populate('attachment')
         .exec(callback);
     };
 
@@ -68,12 +42,8 @@ module.exports = function(app, model) {
           , username    : this.username
           , body        : this.body
           , date        : this.date
-          , attachment  : (this.attachment && this.attachment.publicFields)
-                            ? this.attachment.publicFields()
-                            : null
         };
     };
-
     
     var MessageModel = model.mongoose.model('Message', Message);
     return MessageModel;
