@@ -36,13 +36,16 @@ var config = {
         , app         : path.join(application_root, 'app')
         , public_root : path.join(application_root, 'public')
         , public_lib  : path.join(application_root, 'public', 'lib')
-        , static_root : path.join(application_root, 'public')
         , models      : path.join(application_root, 'app', 'models')
         , views       : path.join(application_root, 'app', 'views')
         , libs        : path.join(application_root, 'app', 'libs')
         , controllers : path.join(application_root, 'app', 'controllers')
         , crons       : path.join(application_root, 'app', 'crons')
         , favicon     : path.join(application_root, 'public', 'favicon.ico')
+        , statics     : {
+            '/static'           : path.join(application_root, 'public')
+          , '/static/server_lib': path.join(application_root, 'app', 'libs')
+        }
     }
   , session : {
         secret  : 'rgkervdgmigeccxvfezf'
