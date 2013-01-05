@@ -1,7 +1,6 @@
-
 # Express-chat
 
-Express chat is a node.js multi-server chat application with file exchange capabilities.
+Express chat is a node.js multi-server chat application.
 Messages are sent with Socket-IO and saved in MongoDB.
 
 
@@ -23,3 +22,5 @@ The config.json file will overwrite properties definied in config.js. Edit it to
 or
 * node app myconfig.js
 
+## TODO
+* Reimplement Mubsub and socket.io-mongodb to reuse a mongo connection (don't use mongoskin). The goal would be to use MongoDB for PubSub and get rid of Redis.
