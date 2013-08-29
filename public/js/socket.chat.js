@@ -41,6 +41,7 @@ function runChatClient(app) {
         component.keyup(function(e) {
             var code = (e.keyCode ? e.keyCode : e.which);
             if(code == 13) { // ENTER
+                $(this).blur();
                 callback();
             }
         }).keydown(function(e) {
