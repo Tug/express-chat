@@ -181,35 +181,56 @@ module.exports = function(app, model) {
                 function reloadSession() {
                     hs.session.reload(this);
                 },
-                function tryToUpdateUsername() {
+                // TODO: make $addToSet an $pull into one atomic operation
+                // Forbidden by MongoDB for now : https://jira.mongodb.org/browse/SERVER-1050
+                function addNewUsername(err) {
                     var next = this;
+                    if(err) return next(err);
                     if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
                         callback('user info not found');
                         return;
                     }
                     var oldname = hs.session.rooms[sroomid].username;
-                    Room.findByIdAndUpdate(sroomid, {
-                        "$addToSet": { users: newname },
-                        "$pull": { users: oldname }
+                    Room.update({
+                        _id: sroomid,
+                        users: { $ne: newname }
+                    }, {
+                        "$addToSet": { users: newname }
                     }, function(err, updated) {
-                        if(err || updated != 1) {
+                        if(err) return next(err);
+                        if(updated < 1) {
                             callback('username exist');
                         } else {
                             next(null, oldname);
                         }
                     });
                 },
+                function removeOldUsername(err, oldname) {
+                    var next = this;
+                    if(err) return next(err);
+                    Room.update({ _id: sroomid }, {
+                        "$pull": { users: oldname }
+                    }, function(err) {
+                        next(null, oldname);
+                    });
+                },
                 function updateUserInfo(err, oldname) {
                     var next = this;
+                    if(err) return next(err);
                     hs.session.rooms[sroomid].username = newname;
                     hs.session.save(function(err) {
                         next(err, oldname);
                     });
                 },
                 function notifyUsernameChange(err, oldname) {
+                    var next = this;
+                    if(err) return next(err);
                     var renameObj = {oldname: oldname, newname: newname};
                     socket.broadcast.to(sroomid).json.emit('user renamed', renameObj);
                     callback(null, renameObj);
+                },
+                function handleError(err) {
+                    if(err) console.error(err);
                 }
             );
         });
