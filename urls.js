@@ -6,12 +6,12 @@ module.exports = function(app) {
     return {
         urls : [
             ["/",                               "index.index",          "get"  ],
-            ["/rooms/create",                   "index.createRoom",     "post" , express.bodyParser()],
+            ["/rooms/create",                   "index.createRoom",     "post" ],
             ["/r/:roomid",                      "chat.index",           "get"  ],
         ]
         
       , ios : [
-            ["/chat",                           "chat.socket",          "io"   ],
+            ["/chat",                           "chat.socket",          "on.connection"   ],
         ]
     };
 

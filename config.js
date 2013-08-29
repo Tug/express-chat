@@ -26,9 +26,9 @@ var config = {
         }
     }
   , views : {
-        type    : 'html'
-      , engine  : 'plates'
-      , cache   : 'enable'
+        type    : 'html',
+        engine  : require('express3-plates').renderFile,
+        cache   : 'enable'
     }
   , paths : {
           root        : application_root
@@ -40,7 +40,8 @@ var config = {
         , views       : path.join(application_root, 'app', 'views')
         , libs        : path.join(application_root, 'app', 'libs')
         , controllers : path.join(application_root, 'app', 'controllers')
-        , crons       : path.join(application_root, 'app', 'crons')
+        , conf        : path.join(application_root, 'conf', 'index')
+        //, crons       : path.join(application_root, 'app', 'crons')
         , favicon     : path.join(application_root, 'public', 'favicon.ico')
         , statics     : {
             '/static'           : path.join(application_root, 'public')
@@ -58,6 +59,9 @@ var config = {
       , reapInterval  : 15 * 60 * 1000
       , engine  : 'mongo'
     }
+  , middlewares : [
+        "bodyParser", "cookieParser", "session", "compress", "static", "favicon",
+    ]
   , socketio : {
         store   : 'redis'
       , enable  : [

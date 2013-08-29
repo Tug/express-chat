@@ -1,14 +1,24 @@
 {
-      "name"        : "express-chat"
-    , "description" : "Express chat"
-    , "version"     : "1.3.0"
-    , "author"      : "Tugdual de Kerviler <dekervit@gmail.com>"
-    , "keywords"    : ["express-chat","chat","cloud","mongodb","redis","socket-io"]
-    , "dependencies": {
-        "express-autoload"  : "0.1.1"
-      , "debug"             : "0.7.0"
-      , "step"              : "0.0.5"
-    }
-    , "main"        : "./app.js"
-    , "engines"     : { "node": ">= 0.6.2" }
+  "name": "express-chat",
+  "description": "Express chat",
+  "version": "1.3.0",
+  "author": "Tugdual de Kerviler <dekervit@gmail.com>",
+  "keywords": [
+    "express-chat",
+    "chat",
+    "cloud",
+    "mongodb",
+    "redis",
+    "socket-io"
+  ],
+  "dependencies": {
+    "express-autoload": "0.1.10",
+    "debug": "0.7.0",
+    "step": "0.0.5",
+    "express3-plates": "~0.1.5"
+  },
+  "main": "./app.js",
+  "engines": {
+    "node": ">= 0.6.2"
+  }
 }

@@ -181,28 +181,26 @@ module.exports = function(app, model) {
                 function reloadSession() {
                     hs.session.reload(this);
                 },
-                function checkUsername() {
+                function tryToUpdateUsername() {
                     var next = this;
                     if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
                         callback('user info not found');
                         return;
                     }
-                    Room
-                    .findById(sroomid)
-                    .where('users', newname)
-                    .limit(1)
-                    .exec(function(err, doc) {
-                        if(!err && doc) {
+                    var oldname = hs.session.rooms[sroomid].username;
+                    Room.findByIdAndUpdate(sroomid, {
+                        "$addToSet": { users: newname },
+                        "$pull": { users: oldname }
+                    }, function(err, updated) {
+                        if(err || updated != 1) {
                             callback('username exist');
-                        } else next();
+                        } else {
+                            next(null, oldname);
+                        }
                     });
                 },
-                function updateUsername() {
-                    Room.findByIdAndUpdate(sroomid, {"$addToSet": {users: newname}}, this);
-                },
-                function updateUserInfo() {
+                function updateUserInfo(err, oldname) {
                     var next = this;
-                    var oldname = hs.session.rooms[sroomid].username;
                     hs.session.rooms[sroomid].username = newname;
                     hs.session.save(function(err) {
                         next(err, oldname);
