@@ -12,7 +12,7 @@
     "socket-io"
   ],
   "dependencies": {
-    "express-autoload": "0.1.10",
+    "express-autoload": "0.1.11",
     "debug": "0.7.0",
     "step": "0.0.5",
     "express3-plates": "~0.1.5"
