@@ -60,7 +60,7 @@ var config = {
       , engine  : 'mongo'
     }
   , middlewares : [
-        "bodyParser", "cookieParser", "session", "compress", "static", "favicon",
+        "json", "urlencoded", "cookieParser", "session", "compress", "static", "favicon",
     ]
   , socketio : {
         store   : 'redis'
