@@ -23,4 +23,7 @@ or
 * node app myconfig.js
 
 ## TODO
+* Remove `Plates` template engine
+* Upgrade version of express-autoload
+* Simplify the code
 * Reimplement Mubsub and socket.io-mongodb to reuse a mongo connection (don't use mongoskin). The goal would be to use MongoDB for PubSub and get rid of Redis.
