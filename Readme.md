@@ -5,7 +5,7 @@ Messages are sent with Socket-IO and saved in MongoDB.
 
 
 ## Requirements
-* Node.js >= v0.6.2
+* Node.js >= v0.10.0
 * MongoDB and Redis installed and running.
 
 ## Installation
@@ -22,8 +22,3 @@ The config.json file will overwrite properties definied in config.js. Edit it to
 or
 * node app myconfig.js
 
-## TODO
-* Remove `Plates` template engine
-* Upgrade version of express-autoload
-* Simplify the code
-* Reimplement Mubsub and socket.io-mongodb to reuse a mongo connection (don't use mongoskin). The goal would be to use MongoDB for PubSub and get rid of Redis.
