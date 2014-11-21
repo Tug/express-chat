@@ -5,15 +5,21 @@ var Step = require('step');
 (function(exports) {
     
     exports.randomString = function(strlen) {
-        strlen = strlen || 8;
+        strlen = strlen || 10;
         var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
         var randstr = '';
+        var randBuffer = crypto.randomBytes(strlen);
         for (var i=0; i<strlen; i++) {
-            var rnum = Math.floor(Math.random() * chars.length);
-            randstr += chars.substring(rnum,rnum+1);
+            var rand = randBuffer.readUInt8(i) / 255;
+            var rnum = Math.floor(rand * (chars.length-1));
+            randstr += chars.substring(rnum, rnum+1);
         }
         return randstr;
-    }
+    };
+
+    exports.randomToken = function() {
+        return exports.randomString(20);
+    };
 
     exports.cast = function(obj, SubClass) {
         for(var key in SubClass.prototype)
@@ -28,7 +34,7 @@ var Step = require('step');
         for(var key in obj)
             temp[key] = clone(obj[key]);
         return temp;
-    }
+    };
 
     exports.find = function(arr, el) {
         if(el instanceof Object) {
@@ -42,7 +48,7 @@ var Step = require('step');
                     return i;
         }
         return -1;
-    }
+    };
 
     exports.array_intersect_key_value = function(arr1, arr2) {
         var out = {};
@@ -51,17 +57,17 @@ var Step = require('step');
             out[key] = arr1[key];
         }
         return out;
-    }
+    };
 
     exports.arrayChain = function (arr, func, callback) {
         var actions = arr.map(function(el) { return function() { func(el) }; });
         actions.push(callback);
         Step.apply(this, actions);
-    }
+    };
 
     exports.md5 = function(plaintext) {
         return crypto.createHash("md5").update(""+plaintext).digest('hex');
-    }
+    };
 
     exports.clientIP = function(req) {
         var ip_address = null;
@@ -72,13 +78,13 @@ var Step = require('step');
         }
         if(ip_address == null) ip_address = "127.0.0.1";
         return ip_address;
-    }
+    };
 
     exports.retryAsync = function(func, num, errorCallback) { 
         var actions = [];
         for(var i=0; i<num; i++) actions.push(func);
         actions.push(errorCallback);
         Step.apply(null, actions);
-    }
+    };
 
 })(exports);

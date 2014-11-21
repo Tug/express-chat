@@ -5,21 +5,17 @@ if(args.length < 2) {
     process.exit(0);
 }
 
-var configFile  = args[0]
-  , roomTitle   = args[1]
-  , fs          = require('fs')
-  , userconfig  = JSON.parse(fs.readFileSync(configFile, 'utf8'))
-  , config      = require('../config')(userconfig)
-  , autoload    = require('express-autoload');
+var configFile = args[0];
+var roomTitle = args[1];
 
-var model = {}
-  , app = {};
-autoload(app, model, config, function(err) {
+var userconfig = require('../loadConfig');
+
+require('../loadApp')(userconfig, function(err, app, model, config) {
 
     if(err) console.log(err);
     
     var Room = model.mongoose.model('Room');
-    var room = new Room({_id: roomTitle, ispublic: false, title: roomTitle});
+    var room = new Room({ _id: roomTitle, ispublic: false, title: roomTitle });
     room.save(function(err) {
         if(err) {
             console.log(err.message);
@@ -29,6 +25,6 @@ autoload(app, model, config, function(err) {
         }
         process.exit(0);
     });
-    
+
 });
 

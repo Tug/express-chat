@@ -11,11 +11,8 @@ module.exports = function(app, model) {
                         .sort('-messageCount')
                         .limit(100);
         query.exec(function(err, docs) {
-            var map = app.Plates.Map();
-            map.className('room').to('room');
-            map.className('room-title').to('title');
-            map.where('href').has(/roomid/).insert('id');
-            res.render('home', { data : { room : docs }, map: map });
+            var rooms = docs.map(function(doc) { return doc.publicFields(); });
+            res.render('home', { rooms: rooms });
         });
     };
     

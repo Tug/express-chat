@@ -24,16 +24,25 @@ module.exports = function(app, model) {
                 return;
             }
             var roomName = room.title || "Room "+room.id;
-            res.render('chat.html', { data: { title : roomName } });
+            res.render('chat.html', { title: roomName });
         });
     };
 
+    /*
+     * Always authorize
+     */
+    actions.authorizeSocket = function(socket, next) {
+        var req = socket.request;
+        next();
+    };
+
     actions.socket = function(socket) {
+        var req = socket.request;
         var hs = socket.handshake;
         
         var sroomid = null;
-        if(!hs.session.rooms) {
-            hs.session.rooms = {};
+        if(!req.session.rooms) {
+            req.session.rooms = {};
         }
         
         socket.on('join room', function(roomid, lastMessageNum, callback) {
@@ -52,7 +61,7 @@ module.exports = function(app, model) {
             sroomid = roomid;
             Step(
                 function reloadSession() {
-                    hs.session.reload(this);
+                    req.session.reload(this);
                 },
                 function userExists() {
                     var next = this;
@@ -60,8 +69,8 @@ module.exports = function(app, model) {
                     // if the session of the user contains an object for this room
                     // we reuse this object (the page was probably refreshed)
                     // and try to force disconnect the previous socket
-                    if(hs.session.rooms[roomid]) {
-                        var userinfo = hs.session.rooms[roomid];
+                    if(req.session.rooms[roomid]) {
+                        var userinfo = req.session.rooms[roomid];
                         var username = userinfo.username;
                         var sid = userinfo.sid;
                         if(sid && sid != socket.id && app.io.sockets[sid]) { // disconnect previous socket
@@ -90,7 +99,7 @@ module.exports = function(app, model) {
                 },
                 function sendUsername(err, username) {
                     var next = this;
-                    hs.session.rooms[roomid] = {
+                    req.session.rooms[roomid] = {
                         username  : username
                       , sid       : socket.id
                     };
@@ -125,7 +134,7 @@ module.exports = function(app, model) {
                 function joinRoom() {
                     var next = this;
                     socket.join(roomid);
-                    hs.session.save(next);
+                    req.session.save(next);
                 },
                 function ready() {
                     socket.emit('ready');
@@ -137,7 +146,7 @@ module.exports = function(app, model) {
             if(typeof data !== "string" || data.length > MAX_MESSAGE_LEN) {
                 return;
             }
-            if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
+            if(!req.session.rooms || !req.session.rooms[sroomid]) {
                 return;
             }
             Step(
@@ -152,7 +161,7 @@ module.exports = function(app, model) {
                     });
                 },
                 function chat() {
-                    var userinfo = hs.session.rooms[sroomid];
+                    var userinfo = req.session.rooms[sroomid];
                     var username = userinfo.username;
                     var message = new Message({
                         roomid: sroomid,
@@ -179,18 +188,18 @@ module.exports = function(app, model) {
             var newname = data;
             Step(
                 function reloadSession() {
-                    hs.session.reload(this);
+                    req.session.reload(this);
                 },
                 // TODO: make $addToSet an $pull into one atomic operation
                 // Forbidden by MongoDB for now : https://jira.mongodb.org/browse/SERVER-1050
                 function addNewUsername(err) {
                     var next = this;
                     if(err) return next(err);
-                    if(!hs.session.rooms || !hs.session.rooms[sroomid]) {
+                    if(!req.session.rooms || !req.session.rooms[sroomid]) {
                         callback('user info not found');
                         return;
                     }
-                    var oldname = hs.session.rooms[sroomid].username;
+                    var oldname = req.session.rooms[sroomid].username;
                     Room.update({
                         _id: sroomid,
                         users: { $ne: newname }
@@ -217,8 +226,8 @@ module.exports = function(app, model) {
                 function updateUserInfo(err, oldname) {
                     var next = this;
                     if(err) return next(err);
-                    hs.session.rooms[sroomid].username = newname;
-                    hs.session.save(function(err) {
+                    req.session.rooms[sroomid].username = newname;
+                    req.session.save(function(err) {
                         next(err, oldname);
                     });
                 },
@@ -236,8 +245,8 @@ module.exports = function(app, model) {
         });
         
         socket.on('disconnect', function () {
-            if(hs.session.rooms && hs.session.rooms[sroomid]) {
-                var username = hs.session.rooms[sroomid].username;
+            if(req.session.rooms && req.session.rooms[sroomid]) {
+                var username = req.session.rooms[sroomid].username;
                 Room.findByIdAndUpdate(sroomid, {"$pull": {users: username}}, function(err, doc) {
                     socket.broadcast.to(sroomid).json.emit("user left", username);
                 });

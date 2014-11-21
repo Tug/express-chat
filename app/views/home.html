@@ -58,9 +58,11 @@
 				<div class="span12">
           <br/>
           <ul class="rooms">
-            <li class="room">
-              <a href="/r/roomid" class="room-title">Room Title</a>
-            </li>
+            <% rooms.forEach(function(room) { %>
+              <li class="room">
+                <a href="/r/<%= room.id %>"><%= room.title || 'Room '+room.id %></a>
+              </li>
+            <% }); %>
 				  </ul>
         </div>
       </div>
