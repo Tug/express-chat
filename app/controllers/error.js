@@ -37,5 +37,5 @@ module.exports = function(app, model) {
 
     return actions;
 
-}
+};
 

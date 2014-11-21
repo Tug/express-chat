@@ -3,11 +3,11 @@ module.exports = function(app, model, callback) {
 
     var io = app.io;
 
-	var key = app.config.session.key;
+    var key = app.config.session.key;
 
     io.use(function(socket, next) {
-	    var req = socket.request;
-		app.cookieParser(req, {}, function (parseErr) {
+        var req = socket.request;
+        app.cookieParser(req, {}, function (parseErr) {
             if(parseErr) {
                 next("Could not parse cookie from headers. "+(parseErr && parseErr.message), false);
                 return;

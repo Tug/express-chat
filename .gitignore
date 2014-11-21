@@ -4,3 +4,4 @@ nochan.json
 .project
 .idea
 *.iml
+npm-debug.log
