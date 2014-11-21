@@ -1,77 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Express-chat</title>
-    <meta name="description" content="Cloud chat application">
-    <meta name="author" content="Tug">
+<% layout('layouts/default') -%>
 
-    <link rel="stylesheet" type="text/css" href="/static/css/bootstrap.css" />
-    <link rel="stylesheet/less" type="text/css" href="/static/css/styles.less">
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
-    <script src="/static/lib/less-1.1.5.min.js" type="text/javascript"></script>
-    <script src="/static/lib/jquery-1.7.1.min.js" type="text/javascript"></script>
-    <script src="/static/lib/bootstrap-modal.js" type="text/javascript"></script>
-    
-</head>
-<body>
-    <div class="container">
-      	<div class="content">
-        	<div class="page-header">
-            	<h1>Express-chat demo</h1>
-          </div> <!-- /page-header -->
-      <div class="row">
-        <div class="span4">
-          <h2>Create chat room</h2>
-        </div>
-        <div class="span12">
-          <form id='CreateChatForm' name='formAction' method='post' action='/rooms/create'>
-            <fieldset>
-              <legend>Enter Room information</legend>
-              <div class="clearfix">
-                <label for="xlInput">Name</label>
-                <div class="input">
-                  <input class="xlarge" id="title" name="title" size="30" type="text">
-                </div>
-              </div>
-              <div class="clearfix">
-                <label for="xlInput">Public</label>
-                <div class="input">
-                  <input type="checkbox" class="input" name="ispublic" value="1" />
-                </div>
-              </div>
-              <div class="actions">
-                <input type="submit" class="btn primary" value="Create">
-              </div>
-            </fieldset>
-          </form>
-        </div>
-      </div> <!-- /row -->
-      <div class="row">
-        <div class="span4">
-          <h2>Public rooms</h2>
-        </div>
-        <div class="span12">
-          <br/>
-          <ul class="rooms">
-            <% rooms.forEach(function(room) { %>
-              <li class="room">
-                <a href="/r/<%= room.id %>"><%= room.title || 'Room '+room.id %></a>
-              </li>
-            <% }); %>
-          </ul>
-        </div>
+<div class="container">
+  <div class="content">
+    <div class="page-header">
+      <h1>Express-chat demo</h1>
+    </div> <!-- /page-header -->
+    <div class="row">
+      <div class="span4">
+        <h2>Create chat room</h2>
       </div>
-    </div> <!-- /content -->
+      <div class="span12">
+        <form id='CreateChatForm' name='formAction' method='post' action='/rooms/create'>
+          <fieldset>
+            <legend>Enter Room information</legend>
+            <div class="clearfix">
+              <label for="xlInput">Name</label>
+              <div class="input">
+                <input class="xlarge" id="title" name="title" size="30" type="text">
+              </div>
+            </div>
+            <div class="clearfix">
+              <label for="xlInput">Public</label>
+              <div class="input">
+                <input type="checkbox" class="input" name="ispublic" value="1" />
+              </div>
+            </div>
+            <div class="actions">
+              <input type="submit" class="btn primary" value="Create">
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div> <!-- /row -->
+    <div class="row">
+      <div class="span4">
+        <h2>Public rooms</h2>
+      </div>
+      <div class="span12">
+        <br/>
+        <ul class="rooms">
+          <% rooms.forEach(function(room) { %>
+            <li class="room">
+              <a href="/r/<%= room.id %>"><%= room.title || 'Room '+room.id %></a>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  </div> <!-- /content -->
 
-    <footer>
-      <p>&copy; GPL licensed</p>
-    </footer>
+  <footer>
+    <p>&copy; GPL licensed</p>
+  </footer>
 
-  </div> <!-- /container -->
-</body>
-</html>
+</div> <!-- /container -->
